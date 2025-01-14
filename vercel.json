@@ -1,11 +1,11 @@
 {
+	"functions": {
+		"runtime": "nodejs18.x"
+	},
 	"rewrites": [
 		{
 			"source": "/(.*)",
 			"destination": "/"
 		}
-	],
-	"functions": {
-		"runtime": "nodejs18.x"
-	}
+	]
 }
