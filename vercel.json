@@ -4,5 +4,8 @@
 			"source": "/(.*)",
 			"destination": "/"
 		}
-	]
+	],
+	"functions": {
+		"runtime": "nodejs18.x"
+	}
 }
