@@ -9,7 +9,8 @@
 		// { name: 'Dashboard', href: '/', current: true },
 		{ name: 'Views', href: '/views', current: false },
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
-		{ name: 'Event Presets', href: '/eventpresets', current: false }
+		{ name: 'Event Presets', href: '/eventpresets', current: false },
+		{ name: 'Draft Tool', href: '/drafttool', current: false }
 	];
 </script>
 

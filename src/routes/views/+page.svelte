@@ -8,4 +8,10 @@
 	<a class="border rounded text-center py-4 px-4 block" href="/views/playerinfo"> Player Info </a>
 	<a class="border rounded text-center py-4 px-4 block" href="/views/timer"> Timer </a>
 	<a class="border rounded text-center py-4 px-4 block" href="/views/scorekeeper"> Score Keeper </a>
+	<a class="border rounded text-center py-4 px-4 block" href="/views/pack1"> Pack 1 </a>
+	<a class="border rounded text-center py-4 px-4 block" href="/views/pack2"> Pack 2</a>
+	<a class="border rounded text-center py-4 px-4 block" href="/views/pack3"> Pack 3</a>
+	<a class="border rounded text-center py-4 px-4 block" href="/views/draftoverview">
+		Draft Overview
+	</a>
 </div>
