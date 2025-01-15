@@ -1,7 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
-	import { db } from '../../firebaseClient'; // Adjust the path to your firebase setup
+	import { db } from '../../firebaseClient'; // Adjust the path to your Firebase setup
+	import cardData from '$lib/data/cards.json'; // Import the cards JSON data
 
 	let commentator1 = '';
 	let subtitle1 = '';
@@ -11,7 +12,23 @@
 	let subtitle3 = '';
 	let commentator4 = '';
 	let subtitle4 = '';
-	let format = ''; // New format input
+	let format = ''; // Format input
+	let sets = []; // Available sets
+	let selectedSet = ''; // Selected set
+
+	// Load sets from cards.json
+	const loadSets = () => {
+		const uniqueSets = new Set();
+
+		// Loop through each card and extract set_id from printings
+		cardData.forEach((card) => {
+			card.printings.forEach((printing) => {
+				if (printing.set_id) uniqueSets.add(printing.set_id);
+			});
+		});
+
+		sets = Array.from(uniqueSets).sort(); // Sort alphabetically for user convenience
+	};
 
 	const syncWithDatabase = () => {
 		const commentator1NameRef = ref(db, 'commentators/CommentatorOne/name');
@@ -23,52 +40,18 @@
 		const commentator4NameRef = ref(db, 'commentators/CommentatorFour/name');
 		const commentator4SubtitleRef = ref(db, 'commentators/CommentatorFour/subtitle');
 		const formatRef = ref(db, 'format'); // Reference for format
+		const selectedSetRef = ref(db, 'draftTool/selectedSet'); // Reference for the selected set
 
-		// Syncing Commentator 1
-		onValue(commentator1NameRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) commentator1 = value;
-		});
-		onValue(commentator1SubtitleRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) subtitle1 = value;
-		});
-
-		// Syncing Commentator 2
-		onValue(commentator2NameRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) commentator2 = value;
-		});
-		onValue(commentator2SubtitleRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) subtitle2 = value;
-		});
-
-		// Syncing Commentator 3
-		onValue(commentator3NameRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) commentator3 = value;
-		});
-		onValue(commentator3SubtitleRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) subtitle3 = value;
-		});
-
-		// Syncing Commentator 4
-		onValue(commentator4NameRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) commentator4 = value;
-		});
-		onValue(commentator4SubtitleRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) subtitle4 = value;
-		});
-
-		// Syncing Format
-		onValue(formatRef, (snapshot) => {
-			const value = snapshot.val();
-			if (value !== null) format = value;
-		});
+		onValue(commentator1NameRef, (snapshot) => (commentator1 = snapshot.val() ?? ''));
+		onValue(commentator1SubtitleRef, (snapshot) => (subtitle1 = snapshot.val() ?? ''));
+		onValue(commentator2NameRef, (snapshot) => (commentator2 = snapshot.val() ?? ''));
+		onValue(commentator2SubtitleRef, (snapshot) => (subtitle2 = snapshot.val() ?? ''));
+		onValue(commentator3NameRef, (snapshot) => (commentator3 = snapshot.val() ?? ''));
+		onValue(commentator3SubtitleRef, (snapshot) => (subtitle3 = snapshot.val() ?? ''));
+		onValue(commentator4NameRef, (snapshot) => (commentator4 = snapshot.val() ?? ''));
+		onValue(commentator4SubtitleRef, (snapshot) => (subtitle4 = snapshot.val() ?? ''));
+		onValue(formatRef, (snapshot) => (format = snapshot.val() ?? ''));
+		onValue(selectedSetRef, (snapshot) => (selectedSet = snapshot.val() ?? ''));
 	};
 
 	const updateDatabase = async (key, value) => {
@@ -81,6 +64,7 @@
 	};
 
 	onMount(() => {
+		loadSets(); // Load available sets
 		syncWithDatabase();
 	});
 </script>
@@ -90,9 +74,9 @@
 	{#each [{ id: 'commentator1', label: 'Commentator 1', value: commentator1, subtitleId: 'subtitle1', subtitleValue: subtitle1, keyName: 'CommentatorOne' }, { id: 'commentator2', label: 'Commentator 2', value: commentator2, subtitleId: 'subtitle2', subtitleValue: subtitle2, keyName: 'CommentatorTwo' }, { id: 'commentator3', label: 'Commentator 3', value: commentator3, subtitleId: 'subtitle3', subtitleValue: subtitle3, keyName: 'CommentatorThree' }, { id: 'commentator4', label: 'Commentator 4', value: commentator4, subtitleId: 'subtitle4', subtitleValue: subtitle4, keyName: 'CommentatorFour' }] as commentator}
 		<div class="grid grid-cols-1 gap-4">
 			<div>
-				<label for={commentator.id} class="block text-sm font-medium text-gray-700"
-					>{commentator.label}</label
-				>
+				<label for={commentator.id} class="block text-sm font-medium text-gray-700">
+					{commentator.label}
+				</label>
 				<input
 					id={commentator.id}
 					type="text"
@@ -103,9 +87,9 @@
 				/>
 			</div>
 			<div>
-				<label for={commentator.subtitleId} class="block text-sm font-medium text-gray-700"
-					>Subtitle</label
-				>
+				<label for={commentator.subtitleId} class="block text-sm font-medium text-gray-700">
+					Subtitle
+				</label>
 				<input
 					id={commentator.subtitleId}
 					type="text"
@@ -128,6 +112,25 @@
 				bind:value={format}
 				on:input={(e) => updateDatabase('format', e.target.value)}
 			/>
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 gap-4">
+		<div>
+			<label for="set-dropdown" class="block text-sm font-medium text-gray-700"
+				>Available Sets</label
+			>
+			<select
+				id="set-dropdown"
+				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+				bind:value={selectedSet}
+				on:change={(e) => updateDatabase('draftTool/selectedSet', e.target.value)}
+			>
+				<option value="" disabled>Select a set</option>
+				{#each sets as set}
+					<option value={set}>{set}</option>
+				{/each}
+			</select>
 		</div>
 	</div>
 </div>
