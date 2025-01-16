@@ -147,81 +147,85 @@
 	});
 </script>
 
-<div class="max-w-2xl mx-auto mt-12 p-6 bg-gray-800 rounded-lg shadow-lg text-white">
-	<h1 class="text-3xl font-bold mb-6 text-center">Draft Tool</h1>
+<div class="bg-gray-800 h-screen">
+	<div class="max-w-2xl mx-auto p-6 text-white">
+		<h1 class="text-3xl font-bold mb-6 text-center">Draft Tool</h1>
 
-	<!-- Pack Selection Dropdown -->
-	<div class="mb-4">
-		<label for="pack-dropdown" class="block text-sm font-medium text-gray-300 mb-2"
-			>Select Pack</label
-		>
-		<select
-			id="pack-dropdown"
-			bind:value={selectedPack}
-			class="w-full p-2 rounded bg-gray-700 text-white"
-			on:change={(e) => handlePackChange(e.target.value)}
-		>
-			{#each packs as pack}
-				<option value={pack}>{pack}</option>
-			{/each}
-		</select>
-	</div>
-
-	<!-- Display the currently selected set -->
-	<p class="text-lg text-gray-300 mb-4">Current Set: {setId || 'None selected'}</p>
-
-	<!-- Search and Dropdown -->
-	<div class="dropdown-container relative">
-		<input
-			type="text"
-			bind:value={query}
-			class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-			placeholder="Search cards..."
-			on:input={updateFilteredCards}
-			on:focus={() => (isDropdownOpen = true)}
-			on:keydown={handleKeyDown}
-		/>
-		{#if isDropdownOpen && filteredCards.length > 0}
-			<ul class="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-700 rounded-md shadow-md">
-				{#each filteredCards as card, index}
-					<li
-						class={`p-3 flex items-center justify-between cursor-pointer hover:bg-indigo-600 ${
-							index === highlightedIndex ? 'bg-indigo-600 text-white' : ''
-						} ${pitchBorderColor(card.pitch)}`}
-						on:click={() => handleCardChange(card)}
-					>
-						{card.name}
-					</li>
-				{/each}
-			</ul>
-		{/if}
-		{#if selectedCard}
-			<p class="mt-2 text-sm text-gray-400">
-				<strong>Selected Card:</strong>
-				{selectedCard.name}
-			</p>
-		{/if}
-	</div>
-
-	<!-- Saved Cards -->
-	<h2 class="text-xl font-semibold mb-4 mt-6">Saved Cards in {selectedPack}</h2>
-	<ul>
-		{#each savedCards as item, index (index)}
-			<li
-				class={`rounded my-2 p-4 bg-gray-700 flex justify-between items-center ${pitchBorderColor(
-					item.pitch
-				)}`}
+		<!-- Pack Selection Dropdown -->
+		<div class="mb-4">
+			<label for="pack-dropdown" class="block text-sm font-medium text-gray-300 mb-2"
+				>Select Pack</label
 			>
-				<div>
-					<span class="font-bold">P{savedCards.length - index}</span>
-					<span class="ml-2">{item.name}</span>
-				</div>
-				<div class="flex gap-2">
-					<button class="px-2 py-1 bg-red-500 rounded" on:click={() => handleRemove(item.id)}>
-						Remove
-					</button>
-				</div>
-			</li>
-		{/each}
-	</ul>
+			<select
+				id="pack-dropdown"
+				bind:value={selectedPack}
+				class="w-full p-2 rounded bg-gray-700 text-white"
+				on:change={(e) => handlePackChange(e.target.value)}
+			>
+				{#each packs as pack}
+					<option value={pack}>{pack}</option>
+				{/each}
+			</select>
+		</div>
+
+		<!-- Display the currently selected set -->
+		<p class="text-lg text-gray-300 mb-4">Current Set: {setId || 'None selected'}</p>
+
+		<!-- Search and Dropdown -->
+		<div class="dropdown-container relative">
+			<input
+				type="text"
+				bind:value={query}
+				class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				placeholder="Search cards..."
+				on:input={updateFilteredCards}
+				on:focus={() => (isDropdownOpen = true)}
+				on:keydown={handleKeyDown}
+			/>
+			{#if isDropdownOpen && filteredCards.length > 0}
+				<ul
+					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-700 rounded-md shadow-md"
+				>
+					{#each filteredCards as card, index}
+						<li
+							class={`p-3 flex items-center justify-between cursor-pointer hover:bg-indigo-600 ${
+								index === highlightedIndex ? 'bg-indigo-600 text-white' : ''
+							} ${pitchBorderColor(card.pitch)}`}
+							on:click={() => handleCardChange(card)}
+						>
+							{card.name}
+						</li>
+					{/each}
+				</ul>
+			{/if}
+			{#if selectedCard}
+				<p class="mt-2 text-sm text-gray-400">
+					<strong>Selected Card:</strong>
+					{selectedCard.name}
+				</p>
+			{/if}
+		</div>
+
+		<!-- Saved Cards -->
+		<h2 class="text-xl font-semibold mb-4 mt-6">Saved Cards in {selectedPack}</h2>
+		<ul>
+			{#each savedCards as item, index (index)}
+				<li
+					class={`rounded my-2 p-4 bg-gray-700 flex justify-between items-center ${pitchBorderColor(
+						item.pitch
+					)}`}
+				>
+					<div>
+						<span class="font-bold">P{savedCards.length - index}</span>
+						<span class="ml-2">{item.name}</span>
+					</div>
+					<div class="flex gap-2">
+						<button class="px-2 py-1 bg-red-500 rounded" on:click={() => handleRemove(item.id)}>
+							Remove
+						</button>
+					</div>
+				</li>
+			{/each}
+		</ul>
+	</div>
 </div>

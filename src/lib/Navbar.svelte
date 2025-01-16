@@ -9,21 +9,21 @@
 		// { name: 'Dashboard', href: '/', current: true },
 		{ name: 'Views', href: '/views', current: false },
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
-		{ name: 'Event Presets', href: '/eventpresets', current: false },
-		{ name: 'Draft Tool', href: '/drafttool', current: false }
+		{ name: 'Draft Tool', href: '/drafttool', current: false },
+		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
 </script>
 
-<nav class="border-b py-2 max-w-9xl mx-auto">
+<nav class="border-b py-2 max-w-9xl mx-auto bg-gray-800">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="flex justify-between h-12">
 			<div class="flex items-center">
-				<a href="/" class="text-2xl font-bold">RGE</a>
+				<a href="/" class="text-2xl font-bold text-white">RGE</a>
 				<div class="hidden sm:flex sm:space-x-6 ml-12">
 					{#each menuItems as item}
 						<a
 							href={item.href}
-							class="inline-flex items-center border-b-2 px-1 pt-1 text-md tracking-wide border-transparent text-gray-600"
+							class="text-white inline-flex items-center border-b-2 px-1 pt-1 text-md tracking-wide border-transparent text-gray-600"
 						>
 							{item.name}
 						</a>
