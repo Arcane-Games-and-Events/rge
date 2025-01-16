@@ -69,68 +69,66 @@
 	});
 </script>
 
-<div class="p-6 border-2 border-gray-200 rounded-lg max-w-lg mx-auto mt-4 mb-32 space-y-6">
-	<p class="text-xl">Event Presets</p>
-	{#each [{ id: 'commentator1', label: 'Commentator 1', value: commentator1, subtitleId: 'subtitle1', subtitleValue: subtitle1, keyName: 'CommentatorOne' }, { id: 'commentator2', label: 'Commentator 2', value: commentator2, subtitleId: 'subtitle2', subtitleValue: subtitle2, keyName: 'CommentatorTwo' }, { id: 'commentator3', label: 'Commentator 3', value: commentator3, subtitleId: 'subtitle3', subtitleValue: subtitle3, keyName: 'CommentatorThree' }, { id: 'commentator4', label: 'Commentator 4', value: commentator4, subtitleId: 'subtitle4', subtitleValue: subtitle4, keyName: 'CommentatorFour' }] as commentator}
+<div class="bg-gray-800 text-white">
+	<div class="p-6 rounded-lg max-w-lg mx-auto pb-32 space-y-6">
+		<p class="text-xl">Event Presets</p>
+		{#each [{ id: 'commentator1', label: 'Commentator 1', value: commentator1, subtitleId: 'subtitle1', subtitleValue: subtitle1, keyName: 'CommentatorOne' }, { id: 'commentator2', label: 'Commentator 2', value: commentator2, subtitleId: 'subtitle2', subtitleValue: subtitle2, keyName: 'CommentatorTwo' }, { id: 'commentator3', label: 'Commentator 3', value: commentator3, subtitleId: 'subtitle3', subtitleValue: subtitle3, keyName: 'CommentatorThree' }, { id: 'commentator4', label: 'Commentator 4', value: commentator4, subtitleId: 'subtitle4', subtitleValue: subtitle4, keyName: 'CommentatorFour' }] as commentator}
+			<div class="grid grid-cols-1 gap-4">
+				<div>
+					<label for={commentator.id} class="block text-sm font-medium">
+						{commentator.label}
+					</label>
+					<input
+						id={commentator.id}
+						type="text"
+						class="mt-1 block w-full bg-gray-800 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+						bind:value={commentator.value}
+						on:input={(e) =>
+							updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
+					/>
+				</div>
+				<div>
+					<label for={commentator.subtitleId} class="block text-sm font-medium"> Subtitle </label>
+					<input
+						id={commentator.subtitleId}
+						type="text"
+						class="mt-1 block w-full bg-gray-800 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+						bind:value={commentator.subtitleValue}
+						on:input={(e) =>
+							updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
+					/>
+				</div>
+			</div>
+		{/each}
+
+		<div class="bg-gray-800 grid grid-cols-1 gap-4">
+			<div>
+				<label for="format" class="block text-sm font-medium">Format</label>
+				<input
+					id="format"
+					type="text"
+					class="mt-1 block w-full bg-gray-800 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+					bind:value={format}
+					on:input={(e) => updateDatabase('format', e.target.value)}
+				/>
+			</div>
+		</div>
+
 		<div class="grid grid-cols-1 gap-4">
 			<div>
-				<label for={commentator.id} class="block text-sm font-medium text-gray-700">
-					{commentator.label}
-				</label>
-				<input
-					id={commentator.id}
-					type="text"
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-					bind:value={commentator.value}
-					on:input={(e) =>
-						updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
-				/>
+				<label for="set-dropdown" class="block text-sm font-medium">Available Sets</label>
+				<select
+					id="set-dropdown"
+					class="mt-1 block w-full bg-gray-800 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+					bind:value={selectedSet}
+					on:change={(e) => updateDatabase('draftTool/selectedSet', e.target.value)}
+				>
+					<option value="" disabled>Select a set</option>
+					{#each sets as set}
+						<option value={set}>{set}</option>
+					{/each}
+				</select>
 			</div>
-			<div>
-				<label for={commentator.subtitleId} class="block text-sm font-medium text-gray-700">
-					Subtitle
-				</label>
-				<input
-					id={commentator.subtitleId}
-					type="text"
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-					bind:value={commentator.subtitleValue}
-					on:input={(e) =>
-						updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
-				/>
-			</div>
-		</div>
-	{/each}
-
-	<div class="grid grid-cols-1 gap-4">
-		<div>
-			<label for="format" class="block text-sm font-medium text-gray-700">Format</label>
-			<input
-				id="format"
-				type="text"
-				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				bind:value={format}
-				on:input={(e) => updateDatabase('format', e.target.value)}
-			/>
-		</div>
-	</div>
-
-	<div class="grid grid-cols-1 gap-4">
-		<div>
-			<label for="set-dropdown" class="block text-sm font-medium text-gray-700"
-				>Available Sets</label
-			>
-			<select
-				id="set-dropdown"
-				class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				bind:value={selectedSet}
-				on:change={(e) => updateDatabase('draftTool/selectedSet', e.target.value)}
-			>
-				<option value="" disabled>Select a set</option>
-				{#each sets as set}
-					<option value={set}>{set}</option>
-				{/each}
-			</select>
 		</div>
 	</div>
 </div>

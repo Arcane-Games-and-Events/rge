@@ -168,49 +168,49 @@
 	});
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border-2 border-gray-200 rounded-lg">
+<div class="w-full mt-4 sm:mt-0 border border-gray-500 text-white rounded-lg">
 	{#each Object.keys(players) as playerId}
 		<div class="p-4">
-			<h2 class="text-lg font-medium leading-6 text-gray-900 mb-2">
+			<h2 class="text-lg font-medium leading-6 mb-2">
 				Player {playerId === 'p1' ? '1' : '2'}
 			</h2>
 
 			<div class="flex space-x-4">
 				<div class="w-2/3">
-					<label for="name-{playerId}" class="block text-sm font-medium leading-6 text-gray-900">
+					<label for="name-{playerId}" class="block text-sm font-medium leading-6">
 						Player Name
 					</label>
 					<input
 						id="name-{playerId}"
 						type="text"
-						class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+						class="mt-2 w-full rounded-md border-0 bg-gray-800 py-3 px-3 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 						bind:value={players[playerId].name}
 						on:input={(e) => handleInputChange(playerId, 'name', e.target.value)}
 					/>
 				</div>
 
 				<div class="w-1/3">
-					<label for="record-{playerId}" class="block text-sm font-medium leading-6 text-gray-900">
+					<label for="record-{playerId}" class="block text-sm font-medium leading-6">
 						Player Record
 					</label>
 					<input
 						id="record-{playerId}"
 						type="text"
-						class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+						class="mt-2 w-full rounded-md border-0 bg-gray-800 py-3 px-3 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 						bind:value={players[playerId].record}
 						on:input={(e) => handleInputChange(playerId, 'record', e.target.value)}
 					/>
 				</div>
 			</div>
 
-			<label for="hero-{playerId}" class="block text-sm font-medium leading-6 text-gray-900 mt-4">
+			<label for="hero-{playerId}" class="block text-sm font-medium leading-6 mt-4">
 				Player Hero
 			</label>
 			<div class="relative mt-2 combobox">
 				<input
 					id="hero-{playerId}"
 					type="text"
-					class="w-full rounded-md border-0 bg-white py-3 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+					class="w-full rounded-md border-0 bg-gray-800 py-3 pl-3 pr-12 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 					role="combobox"
 					aria-controls="options"
 					aria-expanded={players[playerId].isDropdownOpen.toString()}
@@ -226,15 +226,14 @@
 
 				{#if players[playerId].isDropdownOpen && players[playerId].filteredHeroes.length > 0}
 					<ul
-						class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+						class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
 						id="options"
 						role="listbox"
 					>
 						{#each players[playerId].filteredHeroes.slice(0, 20) as hero, index}
 							<li
-								class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 {players[
-									playerId
-								].highlightedIndex === index
+								class="relative cursor-default select-none py-2 pl-3 pr-9 {players[playerId]
+									.highlightedIndex === index
 									? 'bg-indigo-600 text-white'
 									: ''}"
 								id={'option-' + playerId + '-' + index}
@@ -265,30 +264,28 @@
 	{/each}
 
 	<div class="p-4">
-		<h2 class="text-lg font-medium leading-6 text-gray-900 mb-2">Round Information</h2>
+		<h2 class="text-lg font-medium leading-6 mb-2">Round Information</h2>
 		<div class="w-full">
-			<label for="round-info" class="block text-sm font-medium leading-6 text-gray-900">
-				Round
-			</label>
+			<label for="round-info" class="block text-sm font-medium leading-6"> Round </label>
 			<input
 				id="round-info"
 				type="text"
 				placeholder="Round 1 of 6"
-				class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+				class="mt-2 w-full rounded-md border-0 bg-gray-800 py-3 px-3 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 				bind:value={roundInfo}
 				on:input={(e) => handleRoundChange(e.target.value)}
 			/>
 		</div>
 
 		<div class="w-full mt-4">
-			<label for="tournament-status" class="block text-sm font-medium leading-6 text-gray-900">
+			<label for="tournament-status" class="block text-sm font-medium leading-6">
 				Tournament Status
 			</label>
 			<input
 				id="tournament-status"
 				type="text"
 				placeholder="Tournament in Progress"
-				class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+				class="mt-2 w-full rounded-md border-0 bg-gray-800 py-3 px-3 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 				bind:value={tournamentStatus}
 				on:input={(e) => handleTournamentStatusChange(e.target.value)}
 			/>

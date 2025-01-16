@@ -102,16 +102,16 @@
 	});
 </script>
 
-<div class="w-full mt-4 sm:mt-0 p-4 border-2 border-gray-200 rounded-lg">
+<div class="w-full mt-4 sm:mt-0 p-4 border border-gray-500 rounded-lg">
 	<div class="mb-4">
-		<label for="combobox" class="block text-sm font-medium leading-6 text-gray-900"
+		<label for="combobox" class="block text-sm font-medium leading-6 text-white"
 			>Select a Card</label
 		>
 		<div class="relative mt-2 combobox">
 			<input
 				id="combobox"
 				type="text"
-				class="w-full rounded-md border-0 bg-white py-3 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+				class="w-full rounded-md border-0 bg-gray-800 py-3 pl-3 pr-12 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
 				role="combobox"
 				aria-controls="options"
 				aria-expanded={isDropdownOpen.toString()}
@@ -145,13 +145,13 @@
 
 			{#if isDropdownOpen && filteredCards.length > 0}
 				<ul
-					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
 					id="options"
 					role="listbox"
 				>
 					{#each filteredCards.slice(0, 20) as card, index}
 						<li
-							class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 border-l-8 {pitchBorderColor(
+							class="relative cursor-default select-none py-2 pl-3 pr-9 text-white border-l-8 {pitchBorderColor(
 								card.pitch
 							)} {highlightedIndex === index ? 'bg-indigo-600 text-white' : ''}"
 							id={'option-' + index}
@@ -188,7 +188,7 @@
 		</div>
 		<button
 			type="button"
-			class="w-full mt-2 pt-3 pb-2 rounded bg-red-200 text-red-900"
+			class="w-full mt-4 pt-1 pb-1 rounded text-red-500 border border-red-500"
 			on:click={handleClear}
 		>
 			Clear

@@ -79,59 +79,59 @@
 	});
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border-2 border-gray-200 rounded-lg">
+<div class="w-full mt-4 sm:mt-0 border border-gray-500 rounded-lg">
 	<div class="p-4">
-		<h2 class="text-lg font-medium leading-6 text-gray-900 mb-2">Casting Booth</h2>
+		<h2 class="text-lg font-medium leading-6 text-white mb-2">Casting Booth</h2>
 
-		<div class="rounded-lg bg-red-50 p-4">
-			<div class="mb-4">
-				<label for="leftCommentator" class="block text-sm font-medium leading-6 text-gray-900">
+		<div class="rounded-lg border border-red-500 py-2 px-6">
+			<div class="mb-1">
+				<label for="leftCommentator" class="block text-sm font-medium leading-6 text-white">
 					Left Commentator
 				</label>
 				<input
 					id="leftCommentator"
 					type="text"
-					class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+					class="mt-2 w-full rounded-md border-0 bg-gray-800 p-2 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
 					bind:value={leftCommentator}
 					on:input={(e) => set(ref(db, 'castingBooth/LeftCommentator/name'), e.target.value)}
 				/>
 			</div>
 
-			<div class="mb-4">
-				<label for="leftSubtitle" class="block text-sm font-medium leading-6 text-gray-900">
+			<div class="mb-2">
+				<label for="leftSubtitle" class="block text-sm font-medium leading-6 text-white">
 					Left Subtitle
 				</label>
 				<input
 					id="leftSubtitle"
 					type="text"
-					class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+					class="mt-2 w-full rounded-md border-0 bg-gray-800 p-2 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
 					bind:value={leftSubtitle}
 					on:input={(e) => set(ref(db, 'castingBooth/LeftCommentator/subtitle'), e.target.value)}
 				/>
 			</div>
 		</div>
-		<div class="mt-2 rounded-lg bg-blue-50 p-4">
-			<div class="mb-4">
-				<label for="rightCommentator" class="block text-sm font-medium leading-6 text-gray-900">
+		<div class="mt-2 rounded-lg border border-blue-500 py-2 px-6">
+			<div class="mb-1">
+				<label for="rightCommentator" class="block text-sm font-medium leading-6 text-white">
 					Right Commentator
 				</label>
 				<input
 					id="rightCommentator"
 					type="text"
-					class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+					class="mt-2 w-full rounded-md border-0 bg-gray-800 p-2 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
 					bind:value={rightCommentator}
 					on:input={(e) => set(ref(db, 'castingBooth/RightCommentator/name'), e.target.value)}
 				/>
 			</div>
 
-			<div class="mb-4">
-				<label for="rightSubtitle" class="block text-sm font-medium leading-6 text-gray-900">
+			<div class="mb-2">
+				<label for="rightSubtitle" class="block text-sm font-medium leading-6 text-white">
 					Right Subtitle
 				</label>
 				<input
 					id="rightSubtitle"
 					type="text"
-					class="mt-2 w-full rounded-md border-0 bg-white py-3 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+					class="mt-2 w-full rounded-md border-0 bg-gray-800 p-2 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
 					bind:value={rightSubtitle}
 					on:input={(e) => set(ref(db, 'castingBooth/RightCommentator/subtitle'), e.target.value)}
 				/>
@@ -139,19 +139,19 @@
 		</div>
 
 		<!-- Buttons to prefill commentator details -->
-		<div class="mb-4 mt-4">
-			<h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">Prefill Commentator Details</h3>
+		<div class="my-2">
+			<h3 class="text-sm font-medium leading-6 text-white mb-2">Prefill Commentator Details</h3>
 			<div class="space-y-2">
 				{#each commentators as commentator (commentator.id)}
 					<div class="flex space-x-2">
 						<button
-							class="w-full px-4 py-2 bg-red-100 text-red-900 rounded hover:bg-red-200"
+							class="w-full font-bold px-4 py-2 bg-red-700 text-white rounded hover:bg-red-900"
 							on:click={() => prefillCommentator(commentator, 'LeftCommentator')}
 						>
 							{commentator.name} (Left)
 						</button>
 						<button
-							class="w-full px-4 py-2 bg-blue-100 text-blue-900 rounded hover:bg-blue-200"
+							class="w-full font-bold px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-900"
 							on:click={() => prefillCommentator(commentator, 'RightCommentator')}
 						>
 							{commentator.name} (Right)
