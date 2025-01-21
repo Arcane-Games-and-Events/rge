@@ -10,7 +10,7 @@
 		{ name: 'Views', href: '/views', current: false },
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
 		{ name: 'Caster View', href: '/casterview', current: false },
-		{ name: 'Draft Tool', href: '/drafttool', current: false },
+		{ name: 'Draft Picker', href: '/draftpicker', current: false },
 		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
 </script>

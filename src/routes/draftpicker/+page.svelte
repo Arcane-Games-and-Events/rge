@@ -147,15 +147,14 @@
 	});
 </script>
 
-<div class="bg-gray-800 h-screen">
+<div class="bg-gray-800 h-lvh">
 	<div class="max-w-2xl mx-auto p-6 text-white">
-		<h1 class="text-3xl font-bold mb-6 text-center">Draft Tool</h1>
-
+		<h1 class="text-3xl font-bold text-center">Draft Picker</h1>
+		<label for="pack-dropdown" class="mt-2 block text-sm font-medium text-gray-300"
+			>Select Pack [Current Set: {setId || 'None selected'}]</label
+		>
 		<!-- Pack Selection Dropdown -->
-		<div class="mb-4">
-			<label for="pack-dropdown" class="block text-sm font-medium text-gray-300 mb-2"
-				>Select Pack</label
-			>
+		<div class="mt-2">
 			<select
 				id="pack-dropdown"
 				bind:value={selectedPack}
@@ -168,11 +167,8 @@
 			</select>
 		</div>
 
-		<!-- Display the currently selected set -->
-		<p class="text-lg text-gray-300 mb-4">Current Set: {setId || 'None selected'}</p>
-
 		<!-- Search and Dropdown -->
-		<div class="dropdown-container relative">
+		<div class="mt-4 dropdown-container relative">
 			<input
 				type="text"
 				bind:value={query}

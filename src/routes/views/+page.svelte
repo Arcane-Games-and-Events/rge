@@ -1,4 +1,4 @@
-<div class="text-white h-screen bg-gray-800">
+<div class="text-white h-lvh bg-gray-800">
 	<div class="pt-12 container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 px-4">
 		<a class="border rounded text-center py-4 px-4 block" href="/views/castingbooth">
 			Casting Booth
