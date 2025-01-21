@@ -12,13 +12,17 @@
 	let selectedKeywords = new Map(); // Map of selected keywords and their counts
 	let filteredWord = ''; // The current filtered word (e.g., pitch or keyword)
 	let showImageGrid = false; // Determines if the card images grid should be displayed
+	let currentPage = 1; // Current page for the gallery
+	let totalPages = 1; // Total pages for pagination
 
-	// Fetch data from Firebase
+	const cardsPerPage = 8; // 4 images per row, 2 rows
+
 	onMount(() => {
 		fetchCards();
 		syncFilteredWord();
 		syncSelectedKeywords();
 		syncShowImageGrid();
+		syncCurrentPage();
 	});
 
 	const fetchCards = () => {
@@ -52,7 +56,7 @@
 				});
 
 				allCards = combinedCards;
-				displayedCards = combinedCards; // Initially display all cards
+				applyFilter(); // Reapply filter after fetching cards
 				calculateStats();
 			});
 		});
@@ -84,7 +88,6 @@
 		pitchStats = pitchStatsTemp;
 	};
 
-	// Sync selected keywords (checkboxes) with Firebase
 	const syncSelectedKeywords = () => {
 		const selectedRef = ref(db, 'draftTool/selectedKeywords');
 		onValue(selectedRef, (snapshot) => {
@@ -93,7 +96,6 @@
 		});
 	};
 
-	// Sync the current filtered word with Firebase
 	const syncFilteredWord = () => {
 		const filteredWordRef = ref(db, 'draftTool/filteredWord');
 		onValue(filteredWordRef, (snapshot) => {
@@ -103,7 +105,6 @@
 		});
 	};
 
-	// Sync the `showImageGrid` state with Firebase
 	const syncShowImageGrid = () => {
 		const showGridRef = ref(db, 'draftTool/showImageGrid');
 		onValue(showGridRef, (snapshot) => {
@@ -112,90 +113,147 @@
 		});
 	};
 
-	// Toggle the filtered word
+	const syncCurrentPage = () => {
+		const pageRef = ref(db, 'draftTool/currentPage');
+		onValue(pageRef, (snapshot) => {
+			currentPage = snapshot.val() || 1;
+			applyFilter(); // Ensure displayedCards updates when the page changes
+		});
+	};
+
 	const toggleFilteredWord = async (word) => {
 		const filteredWordRef = ref(db, 'draftTool/filteredWord');
 		const showGridRef = ref(db, 'draftTool/showImageGrid');
+		const pageRef = ref(db, 'draftTool/currentPage');
 
 		if (filteredWord === word) {
 			// Reset the filter if the same word is selected again
 			filteredWord = '';
 			showImageGrid = false;
+			currentPage = 1; // Reset to the first page
 			await set(filteredWordRef, '');
 			await set(showGridRef, false);
+			await set(pageRef, 1);
 		} else {
 			// Set the new filtered word
 			filteredWord = word;
 			showImageGrid = true;
+			currentPage = 1; // Reset to the first page
 			await set(filteredWordRef, word);
 			await set(showGridRef, true);
+			await set(pageRef, 1);
+		}
+
+		applyFilter(); // Apply the filter after changes
+	};
+
+	const applyFilter = () => {
+		let filteredCards = [];
+
+		// If a filter is applied, filter the cards; otherwise, include all cards
+		if (filteredWord) {
+			filteredCards = allCards.filter((card) => {
+				const cardKeywords = new Set([
+					...(card.types || []),
+					...(card.card_keywords || []),
+					...(card.defense ? [`Block ${card.defense}`] : [])
+				]);
+				return cardKeywords.has(filteredWord) || card.pitch === filteredWord;
+			});
+		} else {
+			filteredCards = allCards; // No filter, show all cards
+		}
+
+		// Handle `showImageGrid` being false with no filter
+		if (!filteredWord && !showImageGrid) {
+			displayedCards = allCards; // Show all cards without pagination
+			return;
+		}
+
+		// Update total pages and adjust the current page if needed
+		totalPages = Math.max(1, Math.ceil(filteredCards.length / cardsPerPage));
+		currentPage = Math.min(currentPage, totalPages);
+
+		// Calculate the slice of cards to display for the current page
+		const startIndex = (currentPage - 1) * cardsPerPage;
+		const endIndex = startIndex + cardsPerPage;
+		displayedCards = filteredCards.slice(startIndex, endIndex);
+	};
+
+	let galleryKey = 0; // Unique key to force re-render of gallery
+
+	const changePage = async (newPage) => {
+		if (newPage >= 1 && newPage <= totalPages) {
+			currentPage = newPage;
+
+			// Update the unique key to force re-render
+			galleryKey++;
+
+			// Sync with Firebase
+			const pageRef = ref(db, 'draftTool/currentPage');
+			await set(pageRef, currentPage);
+
+			applyFilter();
 		}
 	};
 
-	// Apply the current filtered word to the card list
-	const applyFilter = () => {
-		displayedCards = allCards.filter((card) => {
-			const cardKeywords = new Set([
-				...(card.types || []),
-				...(card.card_keywords || []),
-				...(card.defense ? [`Block ${card.defense}`] : [])
-			]);
-
-			// Match the filtered word with keywords or pitch
-			const keywordMatch = cardKeywords.has(filteredWord);
-			const pitchMatch = card.pitch === filteredWord;
-
-			return filteredWord === '' || keywordMatch || pitchMatch;
-		});
-	};
-
-	// Toggle a keyword in the bottom checkboxes
 	const toggleKeyword = async (keyword) => {
 		const selectedRef = ref(db, 'draftTool/selectedKeywords');
 		const updatedSelected = new Map(selectedKeywords);
 
 		if (updatedSelected.has(keyword)) {
-			updatedSelected.delete(keyword);
+			updatedSelected.delete(keyword); // Remove the keyword if already selected
 		} else if (updatedSelected.size < 8) {
-			updatedSelected.set(keyword, keywordCounts[keyword] || 0);
+			updatedSelected.set(keyword, keywordCounts[keyword] || 0); // Add the keyword if space allows
 		}
 
-		// Update the selected keywords locally and in Firebase
-		selectedKeywords = updatedSelected;
-		await set(selectedRef, Object.fromEntries(updatedSelected));
+		selectedKeywords = updatedSelected; // Update the local selected keywords map
+		await set(selectedRef, Object.fromEntries(updatedSelected)); // Sync changes to Firebase
 	};
 </script>
 
 <div class="px-4 py-6 bg-gray-800 text-white">
-	<div class="container mx-auto">
-		<div class="flex flex-wrap md:flex-nowrap gap-8 mt-12">
-			<!-- Card List or Image Grid -->
+	<div class="max-w-7xl container mx-auto">
+		<div class="flex flex-wrap md:flex-nowrap gap-8 gallery">
+			<!-- Image Gallery for Displayed Cards -->
 			<div class="w-full md:w-3/4 mb-8">
 				{#if showImageGrid}
 					<!-- Image Grid View -->
-					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+					<div key={galleryKey} class="max-w-4xl grid grid-cols-4 gap-4">
 						{#each displayedCards as card}
-							<div
-								class={`relative bg-gray-900 rounded shadow overflow-hidden ${
-									filteredWord === card.name ? 'ring-4 ring-green-400' : ''
-								}`}
-							>
+							<div class="relative shadow overflow-hidden">
 								<img
-									src={card.printings?.[0]?.image_url || '/placeholder.png'}
+									src={card.printings?.[0]?.image_url}
 									alt={card.name}
 									class="object-cover w-full h-full"
 								/>
-								<div
-									class="absolute bottom-0 left-0 right-0 bg-gray-800 bg-opacity-75 text-center py-1 text-white text-sm"
-								>
-									{card.name}
-								</div>
 							</div>
 						{/each}
 					</div>
+
+					<!-- Pagination Controls -->
+					<div class="flex justify-between items-center mt-4">
+						<button
+							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+							on:click={() => changePage(currentPage - 1)}
+							disabled={currentPage === 1}
+						>
+							&larr; Previous
+						</button>
+
+						<span class="text-gray-300">Page {currentPage} of {totalPages}</span>
+
+						<button
+							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+							on:click={() => changePage(currentPage + 1)}
+							disabled={currentPage === totalPages}
+						>
+							Next &rarr;
+						</button>
+					</div>
 				{:else}
 					<!-- Default List View -->
-					<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+					<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
 						{#each displayedCards as card}
 							<div
 								class={`border-l-8 p-2 bg-gray-100 relative ${
@@ -206,11 +264,13 @@
 											: card.pitch === '3'
 												? 'border-blue-500'
 												: 'border-gray-400'
-								} ${filteredWord === card.name ? 'ring-4 ring-green-400' : ''}`}
+								}`}
 							>
-								<div class="px-2 flex justify-between items-center">
+								<div class="px-2 flex justify-between items-center overflow-hidden">
 									<div>
-										<p class="text-sm font-bold text-gray-800">{card.name}</p>
+										<p class="text-sm font-bold text-gray-800 truncate ...">
+											{card.name}
+										</p>
 									</div>
 									<p
 										class={`text-sm font-bold ${
@@ -304,3 +364,9 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.gallery {
+		height: 700px;
+	}
+</style>
