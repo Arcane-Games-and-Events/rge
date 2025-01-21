@@ -147,7 +147,7 @@
 	});
 </script>
 
-<div class="bg-gray-800 h-lvh">
+<div class="bg-gray-800">
 	<div class="max-w-2xl mx-auto p-6 text-white">
 		<h1 class="text-3xl font-bold text-center">Draft Picker</h1>
 		<label for="pack-dropdown" class="mt-2 block text-sm font-medium text-gray-300"
@@ -183,14 +183,14 @@
 					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-700 rounded-md shadow-md"
 				>
 					{#each filteredCards as card, index}
-						<li
-							class={`p-3 flex items-center justify-between cursor-pointer hover:bg-indigo-600 ${
+						<button
+							class={`w-full p-3 flex items-center justify-between cursor-pointer hover:bg-indigo-600 ${
 								index === highlightedIndex ? 'bg-indigo-600 text-white' : ''
 							} ${pitchBorderColor(card.pitch)}`}
 							on:click={() => handleCardChange(card)}
 						>
 							{card.name}
-						</li>
+						</button>
 					{/each}
 				</ul>
 			{/if}

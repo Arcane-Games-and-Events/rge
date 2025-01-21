@@ -166,7 +166,7 @@
 	};
 </script>
 
-<div class="h-lvh px-4 py-6 bg-gray-800 text-white">
+<div class="px-4 py-6 bg-gray-800 text-white">
 	<div class="container mx-auto">
 		<div class="flex flex-wrap md:flex-nowrap gap-8 mt-12">
 			<!-- Card List or Image Grid -->
@@ -272,14 +272,14 @@
 				<!-- Keyword Stats -->
 				<h3 class="text-lg font-bold mt-4 mb-2">Keyword Stats</h3>
 				{#each Array.from(selectedKeywords) as [keyword, count]}
-					<div
-						class={`text-sm text-gray-300 cursor-pointer hover:text-green-400 ${
+					<button
+						class={`inline-block w-full text-left text-sm text-gray-300 cursor-pointer hover:text-green-400 ${
 							filteredWord === keyword ? 'text-green-500 font-bold' : ''
 						}`}
 						on:click={() => toggleFilteredWord(keyword)}
 					>
 						<p>{keyword}: {count}</p>
-					</div>
+					</button>
 				{/each}
 			</div>
 		</div>
