@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ref, onValue, update } from 'firebase/database';
-	import { db } from '../../firebaseClient';
+	import { db } from '../../../firebaseClient';
 
 	const packs = ['Pack 1', 'Pack 2', 'Pack 3'];
 
