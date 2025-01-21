@@ -42,7 +42,8 @@
 			onValue(
 				p1Ref,
 				(snapshot) => {
-					p1Counter = snapshot.val() || 40;
+					const value = snapshot.val();
+					p1Counter = value !== null ? value : 40;
 				},
 				(err) => {
 					console.error('Error fetching p1 counter:', err);
@@ -54,7 +55,8 @@
 			onValue(
 				p2Ref,
 				(snapshot) => {
-					p2Counter = snapshot.val() || 40;
+					const value = snapshot.val();
+					p2Counter = value !== null ? value : 40;
 				},
 				(err) => {
 					console.error('Error fetching p2 counter:', err);
@@ -81,7 +83,7 @@
 					>
 						-
 					</button>
-					<span class="text-3xl font-bold">{p1Counter > 9 ? p1Counter : '0' + p1Counter}</span>
+					<span class="text-3xl font-bold">{p1Counter}</span>
 					<button
 						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 						on:click={() => updateCounter('p1', 1)}
@@ -100,7 +102,7 @@
 					>
 						-
 					</button>
-					<span class="text-3xl font-bold">{p2Counter > 9 ? p2Counter : '0' + p2Counter}</span>
+					<span class="text-3xl font-bold">{p2Counter}</span>
 					<button
 						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 						on:click={() => updateCounter('p2', 1)}
