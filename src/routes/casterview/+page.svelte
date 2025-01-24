@@ -1,10 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	import { slide } from 'svelte/transition'; // For the slide animation
+	import { fly, fade, slide } from 'svelte/transition';
 	import { ref, set, onValue } from 'firebase/database';
 	import { db } from '../../firebaseClient';
 
-	// Import our LazyImage component
 	import LazyImage from '../../lib/LazyImage.svelte';
 
 	// --------------------
@@ -18,13 +17,13 @@
 	// State
 	// --------------------
 	let allCards = [];
-	let pagedCards = []; // Array of "pages" for gallery
-	let displayedCards = []; // The cards for the current page
-	let keywordCounts = {}; // Overall keyword frequencies (all keywords in the pool)
+	let pagedCards = [];
+	let displayedCards = [];
+	let keywordCounts = {};
 	let pitchStats = {};
 
-	let selectedKeywords = new Map(); // Stores { keyword: true } for each selected keyword
-	let selectedKeywordCounts = new Map(); // Dynamically computed counts for selected keywords
+	let selectedKeywords = new Map();
+	let selectedKeywordCounts = new Map();
 
 	let filteredWord = '';
 	let showImageGrid = false;
@@ -34,22 +33,38 @@
 	let showModal = false;
 	let isFiltered = false;
 	let isFirstLoad = true;
-	let slideDirection = 'right'; // for the slide transition
+	let slideDirection = 'left'; // controlling slide direction
+
+	// NEW: We'll store the three fields from 'playerInfo/draft'
+	let draftInfo = {
+		name: '',
+		pod: '',
+		seat: ''
+	};
 
 	// --------------------
-	// Firebase ref helper
+	// Firebase Helpers
 	// --------------------
-	const getDbRef = (path) => ref(db, `draftTool/${path}`);
+	const getDbRef = (path) => ref(db, path);
 
 	// --------------------
 	// Utility
 	// --------------------
-	function chunkArray(array, size) {
-		const result = [];
-		for (let i = 0; i < array.length; i += size) {
-			result.push(array.slice(i, i + size));
-		}
-		return result;
+	function sortCards(cards) {
+		return cards.sort((a, b) => {
+			if (!a.pitch && !b.pitch) return a.name.localeCompare(b.name);
+			if (!a.pitch) return 1;
+			if (!b.pitch) return -1;
+			if (a.pitch !== b.pitch) return a.pitch - b.pitch;
+			return a.name.localeCompare(b.name);
+		});
+	}
+
+	function getCardKeywords(card) {
+		const collected = new Set(card.types || []);
+		(card.card_keywords || []).forEach((kw) => collected.add(kw));
+		if (card.defense) collected.add(`Block ${card.defense}`);
+		return collected;
 	}
 
 	function pitchColorClass(pitch) {
@@ -80,54 +95,30 @@
 		}
 	}
 
-	function sortCards(cards) {
-		return cards.sort((a, b) => {
-			if (!a.pitch && !b.pitch) return a.name.localeCompare(b.name);
-			if (!a.pitch) return 1;
-			if (!b.pitch) return -1;
-			if (a.pitch !== b.pitch) return a.pitch - b.pitch;
-			return a.name.localeCompare(b.name);
-		});
-	}
-
-	function getCardKeywords(card) {
-		const collected = new Set(card.types || []);
-		(card.card_keywords || []).forEach((kw) => collected.add(kw));
-		if (card.defense) collected.add(`Block ${card.defense}`);
-		return collected;
+	function chunkArray(array, size) {
+		const result = [];
+		for (let i = 0; i < array.length; i += size) {
+			result.push(array.slice(i, i + size));
+		}
+		return result;
 	}
 
 	// --------------------
-	// Data fetching & stats
+	// Data Fetching & Stats
 	// --------------------
-	async function removeStaleKeywords() {
-		let changed = false;
-		for (const [keyword] of selectedKeywords.entries()) {
-			if (!keywordCounts[keyword]) {
-				selectedKeywords.delete(keyword);
-				changed = true;
-			}
-		}
-		if (changed) {
-			await set(getDbRef('selectedKeywords'), Object.fromEntries(selectedKeywords));
-		}
-	}
-
 	function fetchCards() {
 		const allCardsData = {};
 
 		PACKS.forEach((pack) => {
-			onValue(getDbRef(`saved_cards/${pack}`), async (snapshot) => {
-				const data = snapshot.val();
-				console.log(`Fetched data for ${pack}:`, data);
-
-				allCardsData[pack] = data
-					? Object.entries(data).map(([id, card]) => ({ id, ...card, pack }))
-					: [];
+			onValue(getDbRef(`draftTool/saved_cards/${pack}`), async (snapshot) => {
+				const data = snapshot.val() || {};
+				allCardsData[pack] = Object.entries(data).map(([id, card]) => ({
+					id,
+					...card,
+					pack
+				}));
 
 				allCards = sortCards(Object.values(allCardsData).flat());
-				console.log('allCards (after sorting):', allCards);
-
 				calculateStats();
 				await removeStaleKeywords();
 				applyFilter();
@@ -141,15 +132,26 @@
 
 		allCards.forEach((card) => {
 			const kws = getCardKeywords(card);
-			// Count each keyword
 			kws.forEach((kw) => {
 				keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
 			});
-			// Pitch stats
 			if (card.pitch) {
 				pitchStats[card.pitch] = (pitchStats[card.pitch] || 0) + 1;
 			}
 		});
+	}
+
+	async function removeStaleKeywords() {
+		let changed = false;
+		for (const [keyword] of selectedKeywords.entries()) {
+			if (!keywordCounts[keyword]) {
+				selectedKeywords.delete(keyword);
+				changed = true;
+			}
+		}
+		if (changed) {
+			await set(getDbRef('draftTool/selectedKeywords'), Object.fromEntries(selectedKeywords));
+		}
 	}
 
 	// --------------------
@@ -169,28 +171,20 @@
 			pagedCards = chunkArray(filteredCards, CARDS_PER_PAGE);
 			totalPages = Math.max(1, pagedCards.length);
 			currentPage = Math.min(currentPage, totalPages);
-
-			// The cards for the current page
 			displayedCards = pagedCards[currentPage - 1] || [];
 		} else {
-			// Show all filtered cards in one list
 			displayedCards = filteredCards;
 			totalPages = 1;
 			currentPage = 1;
 		}
-
-		console.log('applyFilter -> filteredCards:', filteredCards.length);
-		console.log('applyFilter -> pagedCards:', pagedCards);
-		console.log('applyFilter -> displayedCards:', displayedCards);
 	}
 
 	async function changePage(newPage) {
 		if (newPage < 1 || newPage > totalPages) return;
-		slideDirection = newPage > currentPage ? 'right' : 'left';
+		slideDirection = newPage > currentPage ? 'left' : 'right';
 
-		await set(getDbRef('currentPage'), newPage);
+		await set(getDbRef('draftTool/currentPage'), newPage);
 		currentPage = newPage;
-		// Update displayedCards
 		displayedCards = pagedCards[currentPage - 1] || [];
 	}
 
@@ -198,28 +192,27 @@
 	// Firebase State Sync
 	// --------------------
 	function syncState() {
-		onValue(getDbRef('selectedKeywords'), (snapshot) => {
-			// Snapshot is { [keyword]: true, [keyword2]: true, ... }
+		onValue(getDbRef('draftTool/selectedKeywords'), (snapshot) => {
 			selectedKeywords = new Map(Object.entries(snapshot.val() || {}));
 		});
 
-		onValue(getDbRef('filteredWord'), (snapshot) => {
+		onValue(getDbRef('draftTool/filteredWord'), (snapshot) => {
 			filteredWord = snapshot.val() || '';
 			applyFilter();
 		});
 
-		onValue(getDbRef('showImageGrid'), (snapshot) => {
+		onValue(getDbRef('draftTool/showImageGrid'), (snapshot) => {
 			showImageGrid = snapshot.val() || false;
 			applyFilter();
 		});
 
-		onValue(getDbRef('modalCard'), (snapshot) => {
+		onValue(getDbRef('draftTool/modalCard'), (snapshot) => {
 			modalCard = snapshot.val();
 			showModal = !!modalCard;
 		});
 
 		let oldPage = currentPage;
-		onValue(getDbRef('currentPage'), (snapshot) => {
+		onValue(getDbRef('draftTool/currentPage'), (snapshot) => {
 			const newPageVal = snapshot.val() || 1;
 
 			if (isFirstLoad) {
@@ -246,9 +239,9 @@
 		const newFilterWord = isDeselecting ? '' : word;
 
 		await Promise.all([
-			set(getDbRef('filteredWord'), newFilterWord),
-			set(getDbRef('showImageGrid'), !isDeselecting),
-			set(getDbRef('currentPage'), 1)
+			set(getDbRef('draftTool/filteredWord'), newFilterWord),
+			set(getDbRef('draftTool/showImageGrid'), !isDeselecting),
+			set(getDbRef('draftTool/currentPage'), 1)
 		]);
 	}
 
@@ -258,22 +251,20 @@
 		if (updatedSelected.has(keyword)) {
 			updatedSelected.delete(keyword);
 		} else if (updatedSelected.size < MAX_SELECTED_KEYWORDS) {
-			// No more storing counts; just store "true"
 			updatedSelected.set(keyword, true);
 		}
 
 		selectedKeywords = updatedSelected;
-		await set(getDbRef('selectedKeywords'), Object.fromEntries(updatedSelected));
+		await set(getDbRef('draftTool/selectedKeywords'), Object.fromEntries(updatedSelected));
 	}
 
 	// --------------------
-	// Dynamic counts for selected keywords
+	// Dynamic counts
 	// --------------------
 	function getSelectedKeywordCounts(cards, selKws) {
 		const map = new Map();
 		for (const card of cards) {
 			const cKeywords = getCardKeywords(card);
-			// For each selected keyword, if the card has it, increment
 			for (const [kw] of selKws.entries()) {
 				if (cKeywords.has(kw)) {
 					map.set(kw, (map.get(kw) || 0) + 1);
@@ -283,115 +274,154 @@
 		return map;
 	}
 
-	// When allCards or selectedKeywords changes, recalc the dynamic counts
 	$: selectedKeywordCounts = getSelectedKeywordCounts(allCards, selectedKeywords);
 
 	// --------------------
-	// Modal Handling
+	// Modal
 	// --------------------
 	async function openModal(card) {
-		await set(getDbRef('modalCard'), card);
+		await set(getDbRef('draftTool/modalCard'), card);
 	}
 
 	async function closeModal() {
-		await set(getDbRef('modalCard'), null);
+		await set(getDbRef('draftTool/modalCard'), null);
 	}
 
 	// --------------------
 	// Lifecycle
 	// --------------------
 	onMount(() => {
+		// 1) Fetch your card data
 		fetchCards();
+		// 2) Sync the draftTool states
 		syncState();
+		// 3) Fetch the "draft" info: name, pod, seat
+		fetchDraftInfo();
 	});
+
+	function fetchDraftInfo() {
+		const playerRef = getDbRef('playerInfo/draft');
+		onValue(playerRef, (snapshot) => {
+			const data = snapshot.val() || {};
+			draftInfo.name = data.name || '';
+			draftInfo.pod = data.pod || '';
+			draftInfo.seat = data.seat || '';
+		});
+	}
 </script>
 
 <!-- Main Container -->
 <div class="px-4 py-6 bg-gray-800 text-white">
 	<div class="max-w-7xl container mx-auto">
 		<div class="flex flex-wrap md:flex-nowrap gap-8 gallery">
-			<!-- Image or Text Grid -->
+			<!-- LEFT: Grid/List Section -->
 			<div class="w-full md:w-3/4 mb-8">
-				{#if showImageGrid}
-					<!-- IMAGE GRID (animate between pages) -->
-					<div class="max-w-4xl relative overflow-hidden">
-						<!-- Key block so we transition out old page, in new page -->
-						{#key currentPage}
-							<div
-								class="w-full"
-								in:slide={{ direction: slideDirection, duration: 300 }}
-								out:slide={{ direction: slideDirection, duration: 300 }}
-							>
-								<div class="grid grid-cols-4 gap-4">
-									{#each displayedCards as card (card.id)}
+				<div class="relative overflow-hidden grid-container">
+					{#if showImageGrid}
+						<div class="w-full inset-0" in:fade={{ duration: 1000 }} out:fade={{ duration: 1000 }}>
+							<div class="max-w-4xl mx-auto h-full">
+								{#key currentPage}
+									<div
+										class="h-full"
+										in:slide={{ direction: slideDirection, duration: 300 }}
+										out:slide={{ direction: slideDirection, duration: 300 }}
+									>
+										<div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+											{#each displayedCards as card, i (card.id)}
+												<button
+													class="relative shadow overflow-hidden cursor-pointer"
+													on:click={() => openModal(card)}
+													in:fly={{ x: 50, duration: 300, delay: i * 50 }}
+													out:fly={{ x: 50, duration: 300, delay: i * 50 }}
+												>
+													{#if card.printings?.[0]?.image_url}
+														<LazyImage
+															src={card.printings[0].image_url}
+															alt={card.name}
+															class="object-cover w-full h-full"
+														/>
+													{:else}
+														<div class="bg-red-400 text-white p-2">
+															No image for {card.name}
+														</div>
+													{/if}
+												</button>
+											{/each}
+										</div>
+									</div>
+								{/key}
+
+								<!-- Pagination Controls -->
+								<div class="flex justify-between items-center mt-4">
+									<button
+										class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+										on:click={() => changePage(currentPage - 1)}
+										disabled={currentPage === 1}
+									>
+										&larr; Previous
+									</button>
+									<span class="text-gray-300">
+										Page {currentPage} of {totalPages}
+									</span>
+									<button
+										class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+										on:click={() => changePage(currentPage + 1)}
+										disabled={currentPage === totalPages}
+									>
+										Next &rarr;
+									</button>
+								</div>
+							</div>
+						</div>
+					{:else}
+						<div class="absolute inset-0" in:fade={{ duration: 1000 }} out:fade={{ duration: 100 }}>
+							<div class="h-full">
+								<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+									{#each displayedCards as card, i (card.id)}
 										<button
-											class="relative shadow overflow-hidden cursor-pointer"
+											class="border-l-8 p-2 bg-gray-100 relative border-{pitchColorClass(
+												card.pitch
+											)}"
 											on:click={() => openModal(card)}
+											in:fly={{ x: 50, duration: 300, delay: i * 50 }}
 										>
-											{#if card.printings?.[0]?.image_url}
-												<!-- Lazy loading + fade-in -->
-												<LazyImage
-													src={card.printings[0].image_url}
-													alt={card.name}
-													class="object-cover w-full h-full"
-												/>
-											{:else}
-												<div class="bg-red-400 text-white p-2">
-													No image for {card.name}
-												</div>
-											{/if}
+											<div class="px-2 flex justify-between items-center overflow-hidden">
+												<p class="text-sm font-bold text-gray-800 truncate">
+													{card.name}
+												</p>
+												<p
+													class="text-sm font-bold {rarityColorClass(card.printings?.[0]?.rarity)}"
+												>
+													{card.printings?.[0]?.rarity || 'Unknown'}
+												</p>
+											</div>
 										</button>
 									{/each}
 								</div>
 							</div>
-						{/key}
-					</div>
-
-					<!-- Pagination Controls -->
-					<div class="flex justify-between items-center mt-4">
-						<button
-							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
-							on:click={() => changePage(currentPage - 1)}
-							disabled={currentPage === 1}
-						>
-							&larr; Previous
-						</button>
-						<span class="text-gray-300">
-							Page {currentPage} of {totalPages}
-						</span>
-						<button
-							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
-							on:click={() => changePage(currentPage + 1)}
-							disabled={currentPage === totalPages}
-						>
-							Next &rarr;
-						</button>
-					</div>
-				{:else}
-					<!-- TEXT/LIST VIEW (no paging or animation) -->
-					<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-						{#each displayedCards as card}
-							<button
-								class="border-l-8 p-2 bg-gray-100 relative border-{pitchColorClass(card.pitch)}"
-								on:click={() => openModal(card)}
-							>
-								<div class="px-2 flex justify-between items-center overflow-hidden">
-									<p class="text-sm font-bold text-gray-800 truncate">
-										{card.name}
-									</p>
-									<p class="text-sm font-bold {rarityColorClass(card.printings?.[0]?.rarity)}">
-										{card.printings?.[0]?.rarity || 'Unknown'}
-									</p>
-								</div>
-							</button>
-						{/each}
-					</div>
-				{/if}
+						</div>
+					{/if}
+				</div>
 			</div>
 
-			<!-- Stats Panel -->
+			<!-- RIGHT: Stats Panel -->
 			<div class="w-full md:w-1/4 mb-8">
 				<h2 class="text-xl font-bold mb-4">Pool Stats</h2>
+				<div class="mb-4 border border-gray-600 p-3 rounded-lg">
+					<h2 class="text-lg">
+						<p>Player: <span class="font-bold text-green-400">{draftInfo.name}</span></p>
+						<div class="flex gap-4">
+							<p>
+								Pod:
+								<span class="font-bold text-green-400">{draftInfo.pod}</span>
+							</p>
+							<p>
+								Seat:
+								<span class="font-bold text-green-400">{draftInfo.seat}</span>
+							</p>
+						</div>
+					</h2>
+				</div>
 
 				<!-- Pitch Stats -->
 				{#if Object.keys(pitchStats).length > 0}
@@ -414,20 +444,24 @@
 					<p class="text-sm text-gray-400">No pitch data available.</p>
 				{/if}
 
-				<!-- Keyword Stats (selected keywords) -->
+				<!-- Keyword Stats -->
 				<h3 class="text-lg font-bold mt-4 mb-2">Keyword Stats</h3>
-				<!-- We no longer rely on stored counts; we iterate selectedKeywords' keys -->
-				{#each Array.from(selectedKeywords.keys()) as keyword}
-					<button
-						class="inline-block w-full text-left text-sm text-gray-300 cursor-pointer hover:text-green-400
-						{filteredWord === keyword ? 'text-green-500 font-bold' : ''}"
-						on:click={() => toggleFilteredWord(keyword)}
-					>
-						<p>
-							{keyword}: {selectedKeywordCounts.get(keyword) ?? 0}
-						</p>
-					</button>
-				{/each}
+				<div class="grid grid-cols-2 gap-x-10">
+					{#each Array.from(selectedKeywords.keys()) as keyword}
+						<button
+							class="inline-block pt-1 pb-2 text-left text-sm text-gray-300 cursor-pointer
+							  {filteredWord === keyword ? 'font-bold bg-white bg-opacity-10' : ''}"
+							on:click={() => toggleFilteredWord(keyword)}
+						>
+							<div class="text-center">
+								<p class="text-2xl text-green-500 font-bold">
+									{selectedKeywordCounts.get(keyword) ?? 0}
+								</p>
+								<p>{keyword}</p>
+							</div>
+						</button>
+					{/each}
+				</div>
 			</div>
 		</div>
 
@@ -463,7 +497,6 @@
 	class:pointer-events-auto={showModal}
 	on:click={closeModal}
 >
-	<!-- Modal Card Wrapper -->
 	<button class="relative max-w-sm p-4 rounded shadow-lg" on:click|stopPropagation>
 		{#if modalCard}
 			<img
@@ -476,7 +509,9 @@
 </button>
 
 <style>
-	.gallery {
-		height: 700px; /* Adjust as needed or remove entirely */
+	@media (width >= 48rem) {
+		.grid-container {
+			min-height: 600px;
+		}
 	}
 </style>
