@@ -1,10 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fly, slide } from 'svelte/transition';
+	import { fly, fade, slide } from 'svelte/transition';
 	import { ref, set, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
 
-	// LazyImage component (replace with your correct import path)
 	import LazyImage from '../../../lib/LazyImage.svelte';
 
 	// --------------------
@@ -34,24 +33,40 @@
 	let showModal = false;
 	let isFiltered = false;
 	let isFirstLoad = true;
+	let slideDirection = 'left'; // controlling slide direction
 
-	// We use slideDirection for page transitions
-	let slideDirection = 'right';
+	// NEW: We'll store the three fields from 'playerInfo/draft'
+	let draftInfo = {
+		name: '',
+		pod: '',
+		seat: ''
+	};
+
+	let format = '';
 
 	// --------------------
 	// Firebase Helpers
 	// --------------------
-	const getDbRef = (path) => ref(db, `draftTool/${path}`);
+	const getDbRef = (path) => ref(db, path);
 
 	// --------------------
-	// Utilities
+	// Utility
 	// --------------------
-	function chunkArray(array, size) {
-		const result = [];
-		for (let i = 0; i < array.length; i += size) {
-			result.push(array.slice(i, i + size));
-		}
-		return result;
+	function sortCards(cards) {
+		return cards.sort((a, b) => {
+			if (!a.pitch && !b.pitch) return a.name.localeCompare(b.name);
+			if (!a.pitch) return 1;
+			if (!b.pitch) return -1;
+			if (a.pitch !== b.pitch) return a.pitch - b.pitch;
+			return a.name.localeCompare(b.name);
+		});
+	}
+
+	function getCardKeywords(card) {
+		const collected = new Set(card.types || []);
+		(card.card_keywords || []).forEach((kw) => collected.add(kw));
+		if (card.defense) collected.add(`Block ${card.defense}`);
+		return collected;
 	}
 
 	function pitchColorClass(pitch) {
@@ -82,54 +97,30 @@
 		}
 	}
 
-	function sortCards(cards) {
-		return cards.sort((a, b) => {
-			if (!a.pitch && !b.pitch) return a.name.localeCompare(b.name);
-			if (!a.pitch) return 1;
-			if (!b.pitch) return -1;
-			if (a.pitch !== b.pitch) return a.pitch - b.pitch;
-			return a.name.localeCompare(b.name);
-		});
-	}
-
-	function getCardKeywords(card) {
-		const collected = new Set(card.types || []);
-		(card.card_keywords || []).forEach((kw) => collected.add(kw));
-		if (card.defense) collected.add(`Block ${card.defense}`);
-		return collected;
+	function chunkArray(array, size) {
+		const result = [];
+		for (let i = 0; i < array.length; i += size) {
+			result.push(array.slice(i, i + size));
+		}
+		return result;
 	}
 
 	// --------------------
 	// Data Fetching & Stats
 	// --------------------
-	async function removeStaleKeywords() {
-		let changed = false;
-		for (const [keyword] of selectedKeywords.entries()) {
-			if (!keywordCounts[keyword]) {
-				selectedKeywords.delete(keyword);
-				changed = true;
-			}
-		}
-		if (changed) {
-			await set(getDbRef('selectedKeywords'), Object.fromEntries(selectedKeywords));
-		}
-	}
-
 	function fetchCards() {
 		const allCardsData = {};
 
 		PACKS.forEach((pack) => {
-			onValue(getDbRef(`saved_cards/${pack}`), async (snapshot) => {
-				const data = snapshot.val();
-				console.log(`Fetched data for ${pack}:`, data);
-
-				allCardsData[pack] = data
-					? Object.entries(data).map(([id, card]) => ({ id, ...card, pack }))
-					: [];
+			onValue(getDbRef(`draftTool/saved_cards/${pack}`), async (snapshot) => {
+				const data = snapshot.val() || {};
+				allCardsData[pack] = Object.entries(data).map(([id, card]) => ({
+					id,
+					...card,
+					pack
+				}));
 
 				allCards = sortCards(Object.values(allCardsData).flat());
-				console.log('allCards (after sorting):', allCards);
-
 				calculateStats();
 				await removeStaleKeywords();
 				applyFilter();
@@ -152,6 +143,19 @@
 		});
 	}
 
+	async function removeStaleKeywords() {
+		let changed = false;
+		for (const [keyword] of selectedKeywords.entries()) {
+			if (!keywordCounts[keyword]) {
+				selectedKeywords.delete(keyword);
+				changed = true;
+			}
+		}
+		if (changed) {
+			await set(getDbRef('draftTool/selectedKeywords'), Object.fromEntries(selectedKeywords));
+		}
+	}
+
 	// --------------------
 	// Filtering & Pagination
 	// --------------------
@@ -169,58 +173,39 @@
 			pagedCards = chunkArray(filteredCards, CARDS_PER_PAGE);
 			totalPages = Math.max(1, pagedCards.length);
 			currentPage = Math.min(currentPage, totalPages);
-
 			displayedCards = pagedCards[currentPage - 1] || [];
 		} else {
 			displayedCards = filteredCards;
 			totalPages = 1;
 			currentPage = 1;
 		}
-
-		console.log('applyFilter -> filteredCards:', filteredCards.length);
-		console.log('applyFilter -> pagedCards:', pagedCards);
-		console.log('applyFilter -> displayedCards:', displayedCards);
-	}
-
-	async function changePage(newPage) {
-		if (newPage < 1 || newPage > totalPages) return;
-
-		// Determine direction
-		slideDirection = newPage > currentPage ? 'right' : 'left';
-
-		// Update in Firebase
-		await set(getDbRef('currentPage'), newPage);
-
-		// Locally set currentPage and displayedCards
-		currentPage = newPage;
-		displayedCards = pagedCards[currentPage - 1] || [];
 	}
 
 	// --------------------
 	// Firebase State Sync
 	// --------------------
 	function syncState() {
-		onValue(getDbRef('selectedKeywords'), (snapshot) => {
+		onValue(getDbRef('draftTool/selectedKeywords'), (snapshot) => {
 			selectedKeywords = new Map(Object.entries(snapshot.val() || {}));
 		});
 
-		onValue(getDbRef('filteredWord'), (snapshot) => {
+		onValue(getDbRef('draftTool/filteredWord'), (snapshot) => {
 			filteredWord = snapshot.val() || '';
 			applyFilter();
 		});
 
-		onValue(getDbRef('showImageGrid'), (snapshot) => {
+		onValue(getDbRef('draftTool/showImageGrid'), (snapshot) => {
 			showImageGrid = snapshot.val() || false;
 			applyFilter();
 		});
 
-		onValue(getDbRef('modalCard'), (snapshot) => {
+		onValue(getDbRef('draftTool/modalCard'), (snapshot) => {
 			modalCard = snapshot.val();
 			showModal = !!modalCard;
 		});
 
 		let oldPage = currentPage;
-		onValue(getDbRef('currentPage'), (snapshot) => {
+		onValue(getDbRef('draftTool/currentPage'), (snapshot) => {
 			const newPageVal = snapshot.val() || 1;
 
 			if (isFirstLoad) {
@@ -247,27 +232,14 @@
 		const newFilterWord = isDeselecting ? '' : word;
 
 		await Promise.all([
-			set(getDbRef('filteredWord'), newFilterWord),
-			set(getDbRef('showImageGrid'), !isDeselecting),
-			set(getDbRef('currentPage'), 1)
+			set(getDbRef('draftTool/filteredWord'), newFilterWord),
+			set(getDbRef('draftTool/showImageGrid'), !isDeselecting),
+			set(getDbRef('draftTool/currentPage'), 1)
 		]);
 	}
 
-	async function toggleKeyword(keyword) {
-		const updatedSelected = new Map(selectedKeywords);
-
-		if (updatedSelected.has(keyword)) {
-			updatedSelected.delete(keyword);
-		} else if (updatedSelected.size < MAX_SELECTED_KEYWORDS) {
-			updatedSelected.set(keyword, true);
-		}
-
-		selectedKeywords = updatedSelected;
-		await set(getDbRef('selectedKeywords'), Object.fromEntries(updatedSelected));
-	}
-
 	// --------------------
-	// Dynamic Counts
+	// Dynamic counts
 	// --------------------
 	function getSelectedKeywordCounts(cards, selKws) {
 		const map = new Map();
@@ -288,147 +260,192 @@
 	// Modal
 	// --------------------
 	async function openModal(card) {
-		await set(getDbRef('modalCard'), card);
+		await set(getDbRef('draftTool/modalCard'), card);
 	}
 
 	async function closeModal() {
-		await set(getDbRef('modalCard'), null);
+		await set(getDbRef('draftTool/modalCard'), null);
 	}
 
 	// --------------------
 	// Lifecycle
 	// --------------------
 	onMount(() => {
+		// 1) Fetch your card data
 		fetchCards();
+		// 2) Sync the draftTool states
 		syncState();
+		// 3) Fetch the "draft" info: name, pod, seat
+		fetchDraftInfo();
+		// 4) Fetch set name
+		fetchFormat();
 	});
+
+	function fetchDraftInfo() {
+		const playerRef = getDbRef('playerInfo/draft');
+		onValue(playerRef, (snapshot) => {
+			const data = snapshot.val() || {};
+			draftInfo.name = data.name || '';
+			draftInfo.pod = data.pod || '';
+			draftInfo.seat = data.seat || '';
+		});
+	}
+
+	function fetchFormat() {
+		const formatRef = getDbRef('draftTool/selectedSet');
+		onValue(formatRef, (snapshot) => {
+			const data = snapshot.val() || {};
+			format = data || '';
+		});
+	}
 </script>
 
 <!-- Main Container -->
-<div class="px-4 py-6 bg-color">
-	<div class="min-h-lg max-w-7xl container mx-auto">
-		<div class="flex flex-wrap md:flex-nowrap gap-8 gallery">
-			<!-- Left: Image Grid or Text List -->
-			<div class="w-full md:w-3/4 mb-8">
-				{#if showImageGrid}
-					<!-- IMAGE GRID with page transitions -->
-					<div class="max-w-4xl relative overflow-hidden">
-						{#key currentPage}
+<div>
+	<div
+		class="bg-gray-900 text-white px-12 py-5"
+		in:fade={{ duration: 1000 }}
+		out:fade={{ duration: 1000 }}
+	>
+		<p class="text-3xl font-bold">
+			{format} Draft Pool | Pod {draftInfo.pod} Seat {draftInfo.seat}
+		</p>
+		<p class="mt-1 text-5xl font-bold text-yellow-500">{draftInfo.name}</p>
+	</div>
+	<div class="px-4 py-6 bg-gray-800 bg-opacity-60 text-white min-h-screen">
+		<div class="max-w-7xl container mx-auto">
+			<div class="flex flex-wrap md:flex-nowrap gap-4 gallery">
+				<!-- LEFT: Grid/List Section -->
+				<div class="w-full md:w-3/4 mb-8">
+					<div class="relative overflow-hidden grid-container">
+						{#if showImageGrid}
 							<div
-								class="w-full"
-								in:slide={{ direction: slideDirection, duration: 300 }}
-								out:slide={{ direction: slideDirection, duration: 300 }}
+								class="w-full inset-0"
+								in:fade={{ duration: 1000 }}
+								out:fade={{ duration: 1000 }}
 							>
-								<div class="grid grid-cols-4 gap-4">
-									{#each displayedCards as card, i (card.id)}
-										<button
-											class="relative shadow overflow-hidden cursor-pointer"
-											on:click={() => openModal(card)}
-											in:fly={{ x: 50, duration: 300, delay: i * 50 }}
+								<div class="max-w-4xl mx-auto h-full">
+									{#key currentPage}
+										<div
+											class="h-full"
+											in:slide={{ direction: slideDirection, duration: 300 }}
+											out:slide={{ direction: slideDirection, duration: 300 }}
 										>
-											{#if card.printings?.[0]?.image_url}
-												<LazyImage
-													src={card.printings[0].image_url}
-													alt={card.name}
-													class="object-cover w-full h-full"
-												/>
-											{:else}
-												<div class="bg-red-400 text-white p-2">
-													No image for {card.name}
-												</div>
-											{/if}
-										</button>
-									{/each}
+											<div class="grid grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-2">
+												{#each displayedCards as card, i (card.id)}
+													<button
+														class="relative shadow overflow-hidden cursor-pointer"
+														on:click={() => openModal(card)}
+														in:fly={{ x: 50, duration: 300, delay: i * 50 }}
+														out:fly={{ x: 50, duration: 300, delay: i * 50 }}
+													>
+														{#if card.printings?.[0]?.image_url}
+															<LazyImage
+																src={card.printings[0].image_url}
+																alt={card.name}
+																class="object-cover w-full h-full"
+															/>
+														{:else}
+															<div class="bg-red-400 text-white p-2">
+																No image for {card.name}
+															</div>
+														{/if}
+													</button>
+												{/each}
+											</div>
+										</div>
+									{/key}
 								</div>
 							</div>
-						{/key}
-					</div>
-
-					<!-- Pagination Controls -->
-					<div class="flex justify-between items-center mt-4">
-						<button
-							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
-							on:click={() => changePage(currentPage - 1)}
-							disabled={currentPage === 1}
-						>
-							&larr; Previous
-						</button>
-						<span class="text-gray-300">
-							Page {currentPage} of {totalPages}
-						</span>
-						<button
-							class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
-							on:click={() => changePage(currentPage + 1)}
-							disabled={currentPage === totalPages}
-						>
-							Next &rarr;
-						</button>
-					</div>
-				{:else}
-					<!-- TEXT/LIST VIEW (no pagination, but still each card can fly in) -->
-					<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-						{#each displayedCards as card, i (card.id)}
-							<button
-								class="border-l-8 p-3 bg-gray-100 relative border-{pitchColorClass(card.pitch)}"
-								on:click={() => openModal(card)}
-								in:fly={{ x: 150, duration: 500, delay: i * 50 }}
+						{:else}
+							<div
+								class="absolute center inset-0 mt-6"
+								in:fade={{ duration: 1000 }}
+								out:fade={{ duration: 100 }}
 							>
-								<div class="px-2 flex justify-between items-center overflow-hidden">
-									<p class="text-sm font-bold text-gray-800 truncate">
-										{card.name}
+								<div class="h-full">
+									<div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+										{#each displayedCards as card, i (card.id)}
+											<button
+												class="border-l-8 p-2.5 bg-gray-100 relative border-{pitchColorClass(
+													card.pitch
+												)}"
+												on:click={() => openModal(card)}
+												in:fly={{ x: 50, duration: 300, delay: i * 50 }}
+											>
+												<div class="px-2 flex justify-between items-center overflow-hidden">
+													<p class="text-sm font-bold text-gray-800 truncate">
+														{card.name}
+													</p>
+													<p
+														class="text-sm font-bold {rarityColorClass(
+															card.printings?.[0]?.rarity
+														)}"
+													>
+														{card.printings?.[0]?.rarity || 'Unknown'}
+													</p>
+												</div>
+											</button>
+										{/each}
+									</div>
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+
+				<!-- RIGHT: Stats Panel -->
+				<div class="w-full h-full pt-4 border-t-4 border-white pb-6 md:w-1/4 mb-8 bg-gray-900">
+					<h2 class="text-3xl font-bold py-2 text-center bg-white text-gray-900 font-bold mb-4">
+						Pool Stats
+					</h2>
+					<!-- Pitch Stats -->
+					{#if Object.keys(pitchStats).length > 0}
+						<h3 class="bg-white bg-opacity-20 py-2 pl-6 text-lg font-bold mb-3 tracking-wide">
+							Pitch Distribution
+						</h3>
+						{#each Object.keys(pitchStats).sort((a, b) => a - b) as pitch}
+							<div class="px-4">
+								<button
+									class="px-3 py-1 w-full block flex items-center cursor-pointer {filteredWord ===
+									pitch
+										? 'bg-white bg-opacity-15 rounded-full'
+										: ''}"
+									on:click={() => toggleFilteredWord(pitch)}
+								>
+									<div
+										class="h-4 rounded-lg bg-{pitchColorClass(pitch)}"
+										style="width: {(pitchStats[pitch] / Math.max(...Object.values(pitchStats))) *
+											100}%"
+									></div>
+									<span class="ml-2 text-lg font-bold tracking-wde">{pitchStats[pitch]}</span>
+								</button>
+							</div>
+						{/each}
+					{:else}
+						<p class="text-sm text-gray-400">No pitch data available.</p>
+					{/if}
+
+					<!-- Keyword Stats -->
+					<h3 class="bg-white bg-opacity-20 py-2 pl-6 text-lg font-bold mt-4 mb-3 tracking-wide">
+						Key Stats
+					</h3>
+					<div class="px-4 grid grid-cols-2 gap-x-4">
+						{#each Array.from(selectedKeywords.keys()) as keyword}
+							<button
+								class="inline-block pt-1 pb-2 text-left text-sm text-gray-300 cursor-pointer
+									{filteredWord === keyword ? 'font-bold bg-white bg-opacity-10' : ''}"
+								on:click={() => toggleFilteredWord(keyword)}
+							>
+								<div class="text-center">
+									<p class="text-2xl text-green-500 font-bold">
+										{selectedKeywordCounts.get(keyword) ?? 0}
 									</p>
-									<p class="text-sm font-bold {rarityColorClass(card.printings?.[0]?.rarity)}">
-										{card.printings?.[0]?.rarity || 'Unknown'}
-									</p>
+									<p>{keyword}</p>
 								</div>
 							</button>
 						{/each}
 					</div>
-				{/if}
-			</div>
-
-			<!-- Right: Stats Panel -->
-			<div class="w-full md:w-1/4 mb-8">
-				<h2 class="text-xl font-bold mb-4">Pool Stats</h2>
-
-				<!-- Pitch Stats -->
-				{#if Object.keys(pitchStats).length > 0}
-					<h3 class="text-lg font-bold mb-2">Pitch Distribution</h3>
-					{#each Object.keys(pitchStats).sort((a, b) => a - b) as pitch}
-						<button
-							class="w-full block flex items-center mb-2 cursor-pointer {filteredWord === pitch
-								? 'ring-2 ring-green-400'
-								: ''}"
-							on:click={() => toggleFilteredWord(pitch)}
-						>
-							<div
-								class="h-4 rounded-xl bg-{pitchColorClass(pitch)}"
-								style="width: {(pitchStats[pitch] / Math.max(...Object.values(pitchStats))) * 100}%"
-							></div>
-							<span class="ml-2">{pitchStats[pitch]}</span>
-						</button>
-					{/each}
-				{:else}
-					<p class="text-sm text-gray-400">No pitch data available.</p>
-				{/if}
-
-				<!-- Keyword Stats (selected keywords) -->
-				<h3 class="text-lg font-bold mt-4 mb-2">Keyword Stats</h3>
-				<div class="grid grid-cols-2 gap-x-10">
-					{#each Array.from(selectedKeywords.keys()) as keyword}
-						<button
-							class="inline-block pt-1 pb-2 text-left text-sm text-gray-300 cursor-pointer
-							  {filteredWord === keyword ? 'font-bold bg-white bg-opacity-40 text-gray-800' : ''}"
-							on:click={() => toggleFilteredWord(keyword)}
-						>
-							<div class="text-center">
-								<p class="text-2xl text-green-500 font-bold">
-									{selectedKeywordCounts.get(keyword) ?? 0}
-								</p>
-								<p>{keyword}</p>
-							</div>
-						</button>
-					{/each}
 				</div>
 			</div>
 		</div>
@@ -440,12 +457,12 @@
 	class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center
 		transition-opacity ease-in-out duration-500
 		opacity-0 pointer-events-none
-		-mt-32"
+		"
 	class:opacity-100={showModal}
 	class:pointer-events-auto={showModal}
 	on:click={closeModal}
 >
-	<button class="relative max-w-sm p-4" on:click|stopPropagation>
+	<button class="relative max-w-sm p-4 rounded shadow-lg" on:click|stopPropagation>
 		{#if modalCard}
 			<img
 				src={modalCard.printings?.[0]?.image_url}
@@ -457,9 +474,7 @@
 </button>
 
 <style>
-	/* Example styling, adjust as needed */
-	.bg-color {
-		background-color: rgba(4, 4, 4, 0.4);
-		min-height: 100vh; /* or any other desired height */
+	.grid-container {
+		min-height: 600px;
 	}
 </style>

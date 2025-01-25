@@ -311,7 +311,7 @@
 </script>
 
 <!-- Main Container -->
-<div class="px-4 py-6 bg-gray-800 text-white">
+<div class="px-4 py-6 bg-gray-800 text-white min-h-screen">
 	<div class="max-w-7xl container mx-auto">
 		<div class="flex flex-wrap md:flex-nowrap gap-8 gallery">
 			<!-- LEFT: Grid/List Section -->
@@ -374,7 +374,11 @@
 							</div>
 						</div>
 					{:else}
-						<div class="absolute inset-0" in:fade={{ duration: 1000 }} out:fade={{ duration: 100 }}>
+						<div
+							class="absolute center inset-0"
+							in:fade={{ duration: 1000 }}
+							out:fade={{ duration: 100 }}
+						>
 							<div class="h-full">
 								<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
 									{#each displayedCards as card, i (card.id)}
@@ -509,9 +513,14 @@
 </button>
 
 <style>
+	.grid-container {
+		min-height: 500px;
+		overflow: scroll;
+	}
 	@media (width >= 48rem) {
 		.grid-container {
 			min-height: 600px;
+			overflow: auto;
 		}
 	}
 </style>

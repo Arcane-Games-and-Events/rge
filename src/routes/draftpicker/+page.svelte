@@ -147,7 +147,7 @@
 	});
 </script>
 
-<div class="bg-gray-800">
+<div class="bg-gray-800 min-h-screen">
 	<div class="max-w-2xl mx-auto p-6 text-white">
 		<h1 class="text-3xl font-bold text-center">Draft Picker</h1>
 		<label for="pack-dropdown" class="mt-2 block text-sm font-medium text-gray-300"
