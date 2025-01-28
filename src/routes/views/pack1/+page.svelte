@@ -106,7 +106,7 @@
 					displayMode = 'list';
 					previewCard = null;
 					previewTimeout = null;
-				}, 5000);
+				}, 7000);
 			}
 			// If no new additions, do nothing (remain in current mode)
 		});

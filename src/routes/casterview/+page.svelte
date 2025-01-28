@@ -63,6 +63,7 @@
 	function getCardKeywords(card) {
 		const collected = new Set(card.types || []);
 		(card.card_keywords || []).forEach((kw) => collected.add(kw));
+		(card.ability_and_effect_keywords || []).forEach((kw) => collected.add(kw));
 		if (card.defense) collected.add(`Block ${card.defense}`);
 		return collected;
 	}

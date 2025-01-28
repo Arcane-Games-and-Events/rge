@@ -66,6 +66,7 @@
 		const collected = new Set(card.types || []);
 		(card.card_keywords || []).forEach((kw) => collected.add(kw));
 		if (card.defense) collected.add(`Block ${card.defense}`);
+		(card.ability_and_effect_keywords || []).forEach((kw) => collected.add(kw));
 		return collected;
 	}
 
@@ -423,7 +424,7 @@
 							</div>
 						{/each}
 					{:else}
-						<p class="text-sm text-gray-400">No pitch data available.</p>
+						<p class="text-center text-sm text-gray-400">No pitch data available.</p>
 					{/if}
 
 					<!-- Keyword Stats -->
