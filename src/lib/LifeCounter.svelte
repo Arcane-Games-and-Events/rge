@@ -22,13 +22,13 @@
 		}
 	};
 
-	const resetCounters = async () => {
+	const resetCounters = async (lifeTotal) => {
 		if (typeof window !== 'undefined' && db) {
 			try {
-				await set(ref(db, 'lifecounter/p1'), 40);
-				await set(ref(db, 'lifecounter/p2'), 40);
-				p1Counter = 40;
-				p2Counter = 40;
+				await set(ref(db, 'lifecounter/p1'), lifeTotal);
+				await set(ref(db, 'lifecounter/p2'), lifeTotal);
+				p1Counter = lifeTotal;
+				p2Counter = lifeTotal;
 			} catch (err) {
 				console.error(`Reset counter error:`, err);
 				error = err.message;
@@ -113,12 +113,18 @@
 			</div>
 		</div>
 
-		<div class="text-center mt-4">
+		<div class="flex justify-center text-center mt-4 gap-4">
 			<button
 				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
-				on:click={resetCounters}
+				on:click={() => resetCounters(40)}
 			>
 				Reset Life Totals to 40
+			</button>
+			<button
+				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
+				on:click={() => resetCounters(20)}
+			>
+				Reset Life Totals to 20
 			</button>
 		</div>
 
