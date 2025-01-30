@@ -2,22 +2,25 @@
 	import '../app.css';
 	import Navbar from '../lib/Navbar.svelte';
 	import { page } from '$app/stores';
-	import { get } from 'svelte/store';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
 	injectSpeedInsights();
 
-	let showNavbar = false;
+	// Define routes where the navbar should be hidden
+	const excludedRoutes = ['/views/'];
 
-	// const excludedRoutes = ['/views'];
-	const excludedRoutes = [''];
+	// Reactive store to determine if the navbar should be shown
+	let showNavbar = true;
 
+	// Reactively determine if the current route is excluded
 	$: {
-		const currentPath = get(page).url.pathname;
-		showNavbar = !excludedRoutes.includes(currentPath);
+		// Ensure `page` is available and check the current path
+		const currentPath = $page?.url?.pathname || '';
+		showNavbar = !excludedRoutes.some((route) => currentPath.startsWith(route));
 	}
 </script>
 
+<!-- Conditionally display the navbar -->
 {#if showNavbar}
 	<Navbar />
 {/if}

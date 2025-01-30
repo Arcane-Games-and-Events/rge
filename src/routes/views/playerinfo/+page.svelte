@@ -8,6 +8,12 @@
 		p2: { name: '', record: '', hero: '' }
 	};
 
+	let draftInfo = {
+		name: '',
+		pod: '',
+		seat: ''
+	};
+
 	function fetchData() {
 		Object.keys(players).forEach((playerId) => {
 			const playerRef = ref(db, `playerInfo/${playerId}`);
@@ -24,7 +30,20 @@
 		});
 	}
 
-	onMount(fetchData);
+	function fetchDraftInfo() {
+		const draftRef = ref(db, `playerInfo/draft`);
+		onValue(draftRef, (snapshot) => {
+			const data = snapshot.val() || {};
+			draftInfo.name = data.name || '';
+			draftInfo.pod = data.pod || '';
+			draftInfo.seat = data.seat || '';
+		});
+	}
+	// onMount(fetchData);
+	onMount(() => {
+		fetchData();
+		fetchDraftInfo();
+	});
 </script>
 
 <h1 class="text-center text-2xl font-bold mb-4">Views</h1>
@@ -44,6 +63,10 @@
 			<p class="mr-1">{players.p2.record}</p>
 			<p class="text-color">{players.p2.hero}</p>
 		</div>
+	</div>
+
+	<div class="w-72 mx-auto text-center font-bold text-white">
+		<p class="text-2xl">{draftInfo.name}</p>
 	</div>
 </div>
 

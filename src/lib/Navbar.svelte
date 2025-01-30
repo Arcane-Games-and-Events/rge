@@ -9,20 +9,22 @@
 		// { name: 'Dashboard', href: '/', current: true },
 		{ name: 'Views', href: '/views', current: false },
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
+		{ name: 'Caster View', href: '/casterview', current: false },
+		{ name: 'Draft Picker', href: '/draftpicker', current: false },
 		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
 </script>
 
-<nav class="border-b py-2 max-w-9xl mx-auto">
+<nav class="border-b py-2 max-w-9xl mx-auto bg-gray-800">
 	<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="flex justify-between h-12">
 			<div class="flex items-center">
-				<a href="/" class="text-2xl font-bold">RGE</a>
+				<a href="/" class="text-2xl font-bold text-white">RGE</a>
 				<div class="hidden sm:flex sm:space-x-6 ml-12">
 					{#each menuItems as item}
 						<a
 							href={item.href}
-							class="inline-flex items-center border-b-2 px-1 pt-1 text-md tracking-wide border-transparent text-gray-600"
+							class="text-white inline-flex items-center border-b-2 px-1 pt-1 text-md tracking-wide border-transparent text-gray-600"
 						>
 							{item.name}
 						</a>
@@ -32,7 +34,7 @@
 			<div class="-mr-2 flex items-center sm:hidden">
 				<button
 					type="button"
-					class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+					class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
 					on:click={toggleMobileMenu}
 				>
 					<span class="sr-only">Open main menu</span>
@@ -71,8 +73,8 @@
 				{#each menuItems as item}
 					<a
 						href={item.href}
-						class="block border-l-4 py-2 pl-3 pr-4 text-base font-medium {item.current
-							? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+						class="block border-l-4 py-2 pl-3 pr-4 text-white font-medium {item.current
+							? 'border-blue-500 bg-blue-50 text-blue-700'
 							: 'border-transparent text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700'}"
 					>
 						{item.name}

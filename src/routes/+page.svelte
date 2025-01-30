@@ -1,1 +1,3 @@
-<p class="mt-12 text-3xl text-gray-800 text-center">Welcome to the Realtime Graphics Engine</p>
+<p class="h-screen pt-12 text-3xl bg-gray-800 text-white text-center">
+	Welcome to the Realtime Graphics Engine
+</p>

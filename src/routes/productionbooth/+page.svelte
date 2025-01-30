@@ -4,9 +4,10 @@
 	import PlayerInput from '../../lib/PlayerInput.svelte';
 	import Timer from '../../lib/Timer.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
+	import DraftInformation from '../../lib/DraftInformation.svelte';
 </script>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
+<div class="bg-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
 	<div class="flex flex-col space-y-4">
 		<CardReader />
 	</div>
@@ -17,5 +18,6 @@
 	<div class="flex flex-col space-y-4">
 		<LifeCounter />
 		<Timer />
+		<DraftInformation />
 	</div>
 </div>

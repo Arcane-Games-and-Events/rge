@@ -138,8 +138,8 @@
 	onDestroy(() => clearInterval(timerInterval));
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border-2 p-4 border-gray-200 rounded-lg">
-	<div class="text-center text-4xl font-bold mb-4">{displayTime}</div>
+<div class="w-full mt-4 sm:mt-0 border p-4 border-gray-500 rounded-lg">
+	<div class="text-center text-white text-4xl font-bold mb-4">{displayTime}</div>
 
 	<div class="flex justify-around gap-4 mb-6">
 		<button
@@ -182,7 +182,7 @@
 				bind:checked={isCountingUp}
 				on:change={handleCheckboxChange}
 			/>
-			<span class="text-gray-900 font-medium">Count Up</span>
+			<span class="text-white font-medium">Count Up</span>
 		</label>
 	</div>
 
@@ -194,6 +194,10 @@
 		<button
 			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
 			on:click={() => setStartingTime(35)}>35 min</button
+		>
+		<button
+			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+			on:click={() => setStartingTime(10)}>10 min</button
 		>
 		<button
 			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"

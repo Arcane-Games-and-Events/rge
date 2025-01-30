@@ -172,6 +172,6 @@
 	}
 
 	.full-height {
-		height: calc(var(--vh) * 100);
+		height: calc(var(--vh) * 85);
 	}
 </style>

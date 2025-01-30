@@ -22,13 +22,13 @@
 		}
 	};
 
-	const resetCounters = async () => {
+	const resetCounters = async (lifeTotal) => {
 		if (typeof window !== 'undefined' && db) {
 			try {
-				await set(ref(db, 'lifecounter/p1'), 40);
-				await set(ref(db, 'lifecounter/p2'), 40);
-				p1Counter = 40;
-				p2Counter = 40;
+				await set(ref(db, 'lifecounter/p1'), lifeTotal);
+				await set(ref(db, 'lifecounter/p2'), lifeTotal);
+				p1Counter = lifeTotal;
+				p2Counter = lifeTotal;
 			} catch (err) {
 				console.error(`Reset counter error:`, err);
 				error = err.message;
@@ -42,7 +42,8 @@
 			onValue(
 				p1Ref,
 				(snapshot) => {
-					p1Counter = snapshot.val() || 40;
+					const value = snapshot.val();
+					p1Counter = value !== null ? value : 40;
 				},
 				(err) => {
 					console.error('Error fetching p1 counter:', err);
@@ -54,7 +55,8 @@
 			onValue(
 				p2Ref,
 				(snapshot) => {
-					p2Counter = snapshot.val() || 40;
+					const value = snapshot.val();
+					p2Counter = value !== null ? value : 40;
 				},
 				(err) => {
 					console.error('Error fetching p2 counter:', err);
@@ -67,13 +69,13 @@
 	fetchCounters();
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border-2 border-gray-200 rounded-lg">
+<div class="w-full mt-4 sm:mt-0 border border-gray-500 rounded-lg text-white">
 	<div class="p-4">
-		<p class="my-2 font-bold text-2xl text-gray-900 text-center">Life Counter</p>
+		<p class="my-2 font-bold text-2xl text-center">Life Counter</p>
 
 		<div class="flex flex-col sm:flex-row justify-around items-center mb-5 space-y-4 sm:space-y-0">
 			<div class="text-center">
-				<h2 class="text-lg font-semibold text-gray-900 mb-2">Player 1</h2>
+				<h2 class="text-lg font-semibold mb-2">Player 1</h2>
 				<div class="flex items-center justify-center space-x-2">
 					<button
 						class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -81,9 +83,7 @@
 					>
 						-
 					</button>
-					<span class="text-3xl font-bold text-gray-900"
-						>{p1Counter > 9 ? p1Counter : '0' + p1Counter}</span
-					>
+					<span class="text-3xl font-bold">{p1Counter}</span>
 					<button
 						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 						on:click={() => updateCounter('p1', 1)}
@@ -94,7 +94,7 @@
 			</div>
 
 			<div class="text-center">
-				<h2 class="text-lg font-semibold text-gray-900 mb-2">Player 2</h2>
+				<h2 class="text-lg font-semibold mb-2">Player 2</h2>
 				<div class="flex items-center justify-center space-x-2">
 					<button
 						class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -102,9 +102,7 @@
 					>
 						-
 					</button>
-					<span class="text-3xl font-bold text-gray-900"
-						>{p2Counter > 9 ? p2Counter : '0' + p2Counter}</span
-					>
+					<span class="text-3xl font-bold">{p2Counter}</span>
 					<button
 						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 						on:click={() => updateCounter('p2', 1)}
@@ -115,12 +113,18 @@
 			</div>
 		</div>
 
-		<div class="text-center mt-4">
+		<div class="flex justify-center text-center mt-4 gap-4">
 			<button
 				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
-				on:click={resetCounters}
+				on:click={() => resetCounters(40)}
 			>
 				Reset Life Totals to 40
+			</button>
+			<button
+				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
+				on:click={() => resetCounters(20)}
+			>
+				Reset Life Totals to 20
 			</button>
 		</div>
 
