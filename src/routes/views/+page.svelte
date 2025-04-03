@@ -4,6 +4,7 @@
 			Casting Booth
 		</a>
 		<a class="border rounded text-center py-4 px-4 block" href="/views/roundinfo"> Round Info </a>
+		<a class="border rounded text-center py-4 px-4 block" href="/views/heroImage"> Hero Image </a>
 		<a class="border rounded text-center py-4 px-4 block" href="/views/lifecounter">
 			Life Counter
 		</a>
