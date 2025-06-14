@@ -74,16 +74,16 @@
 		<div class="w-72 mx-auto text-center font-bold text-white">
 			<p class="text-2xl">{players.p1.name}</p>
 			<div class="flex justify-center text-sm">
-				<p class="ml-1">{players.p1.record}</p>
-				<p class="text-color">{players.p1.hero}</p>
+				<p>{players.p1.record}</p>
+				<p class="ml-1 text-color">{players.p1.hero}</p>
 			</div>
 		</div>
 
 		<div class="w-72 mx-auto text-center font-bold text-white">
 			<p class="text-2xl">{players.p2.name}</p>
 			<div class="flex justify-center text-sm">
-				<p class="mr-1">{players.p2.record}</p>
-				<p class="text-color">{players.p2.hero}</p>
+				<p>{players.p2.record}</p>
+				<p class="ml-1 text-color">{players.p2.hero}</p>
 			</div>
 		</div>
 	</div>
