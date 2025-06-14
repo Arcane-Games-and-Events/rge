@@ -68,6 +68,25 @@
 	<div class="w-72 mx-auto text-center font-bold text-white">
 		<p class="text-2xl">{draftInfo.name}</p>
 	</div>
+
+	<div>
+		<h1 class="text-center text-2xl font-bold mb-4">Centered Names</h1>
+		<div class="w-72 mx-auto text-center font-bold text-white">
+			<p class="text-2xl">{players.p1.name}</p>
+			<div class="flex justify-center text-sm">
+				<p class="ml-1">{players.p1.record}</p>
+				<p class="text-color">{players.p1.hero}</p>
+			</div>
+		</div>
+
+		<div class="w-72 mx-auto text-center font-bold text-white">
+			<p class="text-2xl">{players.p2.name}</p>
+			<div class="flex justify-center text-sm">
+				<p class="mr-1">{players.p2.record}</p>
+				<p class="text-color">{players.p2.hero}</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 <style>
