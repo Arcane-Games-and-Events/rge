@@ -3,209 +3,195 @@
 	import { ref, set, onValue } from 'firebase/database';
 	import { db } from '../firebaseClient';
 
+	// Props
+	export let typeOfCounter; // e.g. "Round" or "Break"
+	export let roundPresets = []; // minutes for quick-set buttons
+
+	// Local state
 	let displayTime = formatTime(0);
 	let isPaused = true;
 	let isCountingUp = false;
 	let startTime = null;
 	let remainingTime = 0;
-	let inputTime = 55;
+	let inputTime = roundPresets[0] || 0;
 	let timerInterval;
 
+	// Compute base path & helper
+	$: timerPath = `timers/${typeOfCounter}`;
+	const getRef = (field) => ref(db, `${timerPath}/${field}`);
+
+	// Helpers
 	function formatTime(seconds) {
-		const min = Math.floor(seconds / 60)
+		const m = Math.floor(seconds / 60)
 			.toString()
 			.padStart(2, '0');
-		const sec = (seconds % 60).toString().padStart(2, '0');
-		return `${min}:${sec}`;
+		const s = (seconds % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
 	}
 
-	const calculateDisplayTime = () => {
+	function calculateDisplayTime() {
 		const now = Date.now();
 		const elapsed = Math.floor((now - startTime) / 1000);
-
 		if (isCountingUp) {
 			displayTime = formatTime(remainingTime + elapsed);
 		} else {
-			const timeLeft = Math.max(0, remainingTime - elapsed);
-			displayTime = formatTime(timeLeft);
+			const left = Math.max(0, remainingTime - elapsed);
+			displayTime = formatTime(left);
 		}
-	};
+	}
 
-	const startDisplayTimeInterval = () => {
+	function startDisplayTimeInterval() {
 		clearInterval(timerInterval);
-
 		timerInterval = setInterval(() => {
 			if (!isPaused) {
 				calculateDisplayTime();
-				syncDisplayTime(displayTime);
+				set(getRef('displayTime'), displayTime);
 			}
 		}, 1000);
-	};
+	}
 
-	const startTimer = async () => {
+	async function startTimer() {
 		if (!isPaused) return;
-
 		startTime = Date.now();
 		isPaused = false;
-
 		await syncState();
 		startDisplayTimeInterval();
-	};
+	}
 
-	const pauseTimer = async () => {
+	async function pauseTimer() {
 		if (isPaused) return;
-
 		const now = Date.now();
 		const elapsed = Math.floor((now - startTime) / 1000);
 		remainingTime = isCountingUp ? remainingTime + elapsed : Math.max(0, remainingTime - elapsed);
 		isPaused = true;
-
 		clearInterval(timerInterval);
-
 		await syncState();
-	};
+	}
 
-	const resetTimer = async () => {
+	async function resetTimer() {
 		await pauseTimer();
 		remainingTime = isCountingUp ? 0 : inputTime * 60;
 		displayTime = formatTime(remainingTime);
-		await syncDisplayTime(displayTime);
-	};
+		await set(getRef('displayTime'), displayTime);
+	}
 
-	const setStartingTime = async (minutes) => {
+	async function setStartingTime(minutes) {
 		await resetTimer();
 		remainingTime = isCountingUp ? 0 : minutes * 60;
-		displayTime = formatTime(remainingTime);
 		inputTime = minutes;
-		await syncDisplayTime(displayTime);
+		displayTime = formatTime(remainingTime);
+		await set(getRef('displayTime'), displayTime);
 		await startTimer();
-	};
+	}
 
-	const syncState = async () => {
-		await syncRemainingTime(remainingTime);
-		await syncIsPaused(isPaused);
-		await syncStartTime(startTime);
-		await syncIsCountingUp(isCountingUp);
-	};
+	async function syncState() {
+		await set(getRef('remainingTime'), remainingTime);
+		await set(getRef('isPaused'), isPaused);
+		await set(getRef('startTime'), startTime);
+		await set(getRef('isCountingUp'), isCountingUp);
+	}
 
-	const syncDisplayTime = async (time) => set(ref(db, 'timer/displayTime'), time);
-	const syncRemainingTime = async (time) => set(ref(db, 'timer/remainingTime'), time);
-	const syncIsPaused = async (paused) => set(ref(db, 'timer/isPaused'), paused);
-	const syncStartTime = async (time) => set(ref(db, 'timer/startTime'), time);
-	const syncIsCountingUp = async (countingUp) => set(ref(db, 'timer/isCountingUp'), countingUp);
-
-	const updateFromDatabase = () => {
-		onValue(ref(db, 'timer/startTime'), (snapshot) => {
-			startTime = snapshot.val();
-			if (startTime) {
-				calculateDisplayTime(); // Calculate immediately based on the stored start time
-				if (!isPaused) {
-					startDisplayTimeInterval();
-				}
+	function updateFromDatabase() {
+		onValue(getRef('startTime'), (snap) => {
+			const val = snap.val();
+			if (val !== null) {
+				startTime = val;
+				if (!isPaused) startDisplayTimeInterval();
 			}
 		});
-
-		onValue(ref(db, 'timer/remainingTime'), (snapshot) => {
-			remainingTime = snapshot.val() || remainingTime;
-			if (isPaused) {
-				displayTime = formatTime(remainingTime);
+		onValue(getRef('remainingTime'), (snap) => {
+			remainingTime = snap.val() ?? remainingTime;
+			if (isPaused) displayTime = formatTime(remainingTime);
+		});
+		onValue(getRef('isPaused'), (snap) => {
+			const val = snap.val();
+			if (val !== null) {
+				isPaused = val;
+				if (!isPaused && startTime) startDisplayTimeInterval();
 			}
 		});
-
-		onValue(ref(db, 'timer/isPaused'), (snapshot) => {
-			isPaused = snapshot.val() !== null ? snapshot.val() : isPaused;
-
-			// If the timer was running before refresh, start the interval
-			if (!isPaused && startTime) {
-				startDisplayTimeInterval();
-			}
+		onValue(getRef('isCountingUp'), (snap) => {
+			isCountingUp = snap.val() ?? isCountingUp;
 		});
-
-		onValue(ref(db, 'timer/isCountingUp'), (snapshot) => {
-			isCountingUp = snapshot.val() || false;
+		onValue(getRef('displayTime'), (snap) => {
+			const dt = snap.val();
+			if (dt != null) displayTime = dt;
 		});
-	};
+	}
 
-	const handleCheckboxChange = async (event) => {
-		isCountingUp = event.target.checked;
-		await resetTimer();
-		await syncIsCountingUp(isCountingUp);
-	};
+	// Create a fresh timer instance in DB
+	async function createInstance() {
+		await set(ref(db, timerPath), {
+			displayTime: formatTime(0),
+			remainingTime: 0,
+			isPaused: true,
+			startTime: null,
+			isCountingUp: false
+		});
+	}
 
-	onMount(() => {
+	// Lifecycle
+	onMount(async () => {
+		await createInstance();
 		updateFromDatabase();
 	});
 	onDestroy(() => clearInterval(timerInterval));
+
+	function handleCheckboxChange(e) {
+		isCountingUp = e.target.checked;
+		resetTimer();
+		set(getRef('isCountingUp'), isCountingUp);
+	}
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border p-4 border-gray-500 rounded-lg">
-	<div class="text-center text-white text-4xl font-bold mb-4">{displayTime}</div>
+<div class="w-full border p-4 rounded-lg bg-gray-800 text-white">
+	<p class="text-center text-2xl font-semibold">{typeOfCounter}</p>
+	<div class="my-4 text-center text-5xl font-mono">{displayTime}</div>
 
-	<div class="flex justify-around gap-4 mb-6">
+	<div class="flex space-x-4 mb-4">
 		<button
-			class="px-4 py-2 w-1/2 text-white rounded {isPaused
-				? 'bg-green-500'
-				: 'bg-yellow-500'} hover:bg-{isPaused ? 'green' : 'yellow'}-700"
 			on:click={isPaused ? startTimer : pauseTimer}
+			class="flex-1 py-2 rounded
+        {isPaused ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'}"
 		>
 			{isPaused ? 'Start' : 'Pause'}
 		</button>
-		<button
-			class="px-4 py-2 w-1/2 bg-gray-500 text-white rounded hover:bg-gray-700"
-			on:click={resetTimer}
-		>
+		<button on:click={resetTimer} class="flex-1 py-2 bg-gray-600 hover:bg-gray-700 rounded">
 			Reset
 		</button>
 	</div>
 
-	<div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+	<div class="flex flex-col sm:flex-row gap-4 mb-4">
 		<input
 			type="number"
-			class="px-4 py-2 border rounded w-full sm:w-1/2"
+			class="flex-1 p-2 rounded text-black"
 			bind:value={inputTime}
 			min="1"
-			placeholder="Enter minutes"
+			placeholder="Minutes"
 		/>
 		<button
-			class="px-4 py-2 w-full sm:w-1/2 bg-green-500 text-white rounded hover:bg-green-700"
 			on:click={() => setStartingTime(inputTime)}
+			class="flex-1 py-2 bg-blue-500 hover:bg-blue-600 rounded"
 		>
 			Set Time
 		</button>
 	</div>
 
-	<div class="flex justify-center mb-6">
-		<label class="flex items-center space-x-3">
-			<input
-				type="checkbox"
-				class="form-checkbox h-5 w-5 text-blue-600"
-				bind:checked={isCountingUp}
-				on:change={handleCheckboxChange}
-			/>
-			<span class="text-white font-medium">Count Up</span>
+	<div class="flex items-center justify-center mb-4">
+		<label class="flex items-center space-x-2">
+			<input type="checkbox" bind:checked={isCountingUp} on:change={handleCheckboxChange} />
+			<span>Count Up</span>
 		</label>
 	</div>
 
-	<div class="grid grid-cols-2 gap-4">
-		<button
-			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-			on:click={() => setStartingTime(55)}>55 min</button
-		>
-		<button
-			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-			on:click={() => setStartingTime(35)}>35 min</button
-		>
-		<button
-			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-			on:click={() => setStartingTime(10)}>10 min</button
-		>
-		<button
-			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-			on:click={() => setStartingTime(5)}>5 min</button
-		>
-		<button
-			class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-			on:click={() => setStartingTime(2)}>2 min</button
-		>
+	<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+		{#each roundPresets as minutes}
+			<button
+				class="py-2 bg-indigo-500 hover:bg-indigo-600 rounded"
+				on:click={() => setStartingTime(minutes)}
+			>
+				{minutes} min
+			</button>
+		{/each}
 	</div>
 </div>

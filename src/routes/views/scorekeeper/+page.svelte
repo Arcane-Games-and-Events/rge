@@ -1,166 +1,103 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
-	import { db } from '../../../firebaseClient'; // Adjust the path to your Firebase setup
+	import { db } from '../../../firebaseClient'; // adjust path to your setup
 
+	// Player info & life totals
 	let playerOneName = '';
 	let playerTwoName = '';
 	let player1Score = 0;
 	let player2Score = 0;
-	let displayTime = '55:00'; // Default time
 
-	// Function to format the time as MM:SS
-	const formatTime = (seconds) => {
-		const min = Math.floor(seconds / 60)
-			.toString()
-			.padStart(2, '0');
-		const sec = (seconds % 60).toString().padStart(2, '0');
-		return `${min}:${sec}`;
-	};
+	// Round timer display
+	let displayTime = '00:00';
 
-	// Function to calculate the current display time based on timer state
-	const calculateTime = (startTime, isPaused, isCountingUp, lastElapsed) => {
-		if (isPaused) {
-			return formatTime(lastElapsed);
-		} else {
-			const elapsed = Math.floor((Date.now() - startTime) / 1000);
-			const totalElapsed = isCountingUp
-				? lastElapsed + elapsed
-				: Math.max(0, lastElapsed - elapsed);
-			return formatTime(totalElapsed);
-		}
-	};
+	// Helper to pad life totals
+	const formatLifeTotal = (total) => total.toString().padStart(2, '0');
 
-	// Function to sync and update the display time
-	const syncTimeWithDatabase = () => {
-		const startTimeRef = ref(db, 'timer/startTime');
-		const isPausedRef = ref(db, 'timer/isPaused');
-		const isCountingUpRef = ref(db, 'timer/isCountingUp');
-		const lastElapsedRef = ref(db, 'timer/remainingTime');
-
-		let startTime,
-			isPaused,
-			isCountingUp,
-			lastElapsed = 0;
-
-		const updateDisplayTime = () => {
-			displayTime = calculateTime(startTime, isPaused, isCountingUp, lastElapsed);
-		};
-
-		onValue(startTimeRef, (snapshot) => {
-			startTime = snapshot.val();
-			if (startTime !== null) updateDisplayTime();
-		});
-
-		onValue(isPausedRef, (snapshot) => {
-			isPaused = snapshot.val();
-			if (startTime !== null) updateDisplayTime();
-		});
-
-		onValue(isCountingUpRef, (snapshot) => {
-			isCountingUp = snapshot.val();
-			if (startTime !== null) updateDisplayTime();
-		});
-
-		onValue(lastElapsedRef, (snapshot) => {
-			lastElapsed = snapshot.val();
-			if (startTime !== null) updateDisplayTime();
-		});
-
-		// Continuously update the display time every second if not paused
-		setInterval(() => {
-			if (!isPaused) {
-				updateDisplayTime();
-			}
-		}, 1000);
-	};
-
-	onMount(() => {
-		// Initialize Firebase Realtime Database references
-		const playerOneNameRef = ref(db, 'playerInfo/p1/name');
-		const playerTwoNameRef = ref(db, 'playerInfo/p2/name');
-		const player1ScoreRef = ref(db, 'lifecounter/p1');
-		const player2ScoreRef = ref(db, 'lifecounter/p2');
-
-		onValue(player1ScoreRef, (snapshot) => {
-			const score = snapshot.val();
-			if (score !== null) player1Score = score;
-		});
-
-		onValue(player2ScoreRef, (snapshot) => {
-			const score = snapshot.val();
-			if (score !== null) player2Score = score;
-		});
-
-		onValue(playerOneNameRef, (snapshot) => {
-			const name = snapshot.val();
-			if (name !== null) playerOneName = name;
-		});
-
-		onValue(playerTwoNameRef, (snapshot) => {
-			const name = snapshot.val();
-			if (name !== null) playerTwoName = name;
-		});
-
-		// Sync time with the database
-		syncTimeWithDatabase();
-	});
-
-	// Function to update the score for a player
+	// Update a player's life total in Firebase
 	async function updateScore(player, newScore) {
 		if (player === 'player1') {
 			player1Score = newScore;
 			await set(ref(db, 'lifecounter/p1'), newScore);
-		} else if (player === 'player2') {
+		} else {
 			player2Score = newScore;
 			await set(ref(db, 'lifecounter/p2'), newScore);
 		}
 	}
+
+	onMount(() => {
+		// Subscribe to names
+		onValue(ref(db, 'playerInfo/p1/name'), (snap) => {
+			playerOneName = snap.val() ?? '';
+		});
+		onValue(ref(db, 'playerInfo/p2/name'), (snap) => {
+			playerTwoName = snap.val() ?? '';
+		});
+
+		// Subscribe to life totals
+		onValue(ref(db, 'lifecounter/p1'), (snap) => {
+			const v = snap.val();
+			if (v != null) player1Score = v;
+		});
+		onValue(ref(db, 'lifecounter/p2'), (snap) => {
+			const v = snap.val();
+			if (v != null) player2Score = v;
+		});
+
+		// Subscribe to the round timer's displayTime
+		onValue(ref(db, 'timers/Round/displayTime'), (snap) => {
+			displayTime = snap.val() ?? '00:00';
+		});
+	});
 </script>
 
 <div class="relative full-height bg-gray-800 text-white rounded-md shadow-md">
 	<div class="flex flex-col justify-between h-full">
-		<div class="bg-pink-500 rotate-180 overflow-hidden origin-center p-4">
-			<h2 class="text-2xl font-bold mb-2 text-center">P1 · {playerOneName}</h2>
+		<!-- Player 1 panel (upside-down) -->
+		<div class="bg-pink-500 rotate-180 origin-center p-4">
+			<h2 class="text-2xl font-bold mb-2 text-center">
+				P1 · {playerOneName}
+			</h2>
 			<div class="flex justify-between items-center px-8">
 				<button
 					on:click={() => updateScore('player1', player1Score - 1)}
-					class="text-7xl p-4 font-bold"
+					class="text-7xl p-4 font-bold">−</button
 				>
-					-
-				</button>
-				<div class="text-7xl font-bold">{player1Score}</div>
+				<div class="text-7xl font-bold">
+					{formatLifeTotal(player1Score)}
+				</div>
 				<button
 					on:click={() => updateScore('player1', player1Score + 1)}
-					class="text-7xl p-4 font-bold"
+					class="text-7xl p-4 font-bold">+</button
 				>
-					+
-				</button>
 			</div>
 		</div>
 
+		<!-- Center: Round timer -->
 		<div class="flex-grow flex items-center justify-center">
 			<div class="rotate-90 text-7xl font-bold">
 				{displayTime}
 			</div>
 		</div>
 
+		<!-- Player 2 panel -->
 		<div class="bg-blue-500 p-4">
-			<h2 class="text-2xl font-bold mb-2 text-center">P2 · {playerTwoName}</h2>
+			<h2 class="text-2xl font-bold mb-2 text-center">
+				P2 · {playerTwoName}
+			</h2>
 			<div class="flex justify-between items-center px-8">
 				<button
 					on:click={() => updateScore('player2', player2Score - 1)}
-					class="text-7xl p-4 font-bold"
+					class="text-7xl p-4 font-bold">−</button
 				>
-					-
-				</button>
-				<div class="text-7xl font-bold">{player2Score}</div>
+				<div class="text-7xl font-bold">
+					{formatLifeTotal(player2Score)}
+				</div>
 				<button
 					on:click={() => updateScore('player2', player2Score + 1)}
-					class="text-7xl p-4 font-bold"
+					class="text-7xl p-4 font-bold">+</button
 				>
-					+
-				</button>
 			</div>
 		</div>
 	</div>
@@ -168,9 +105,9 @@
 
 <style>
 	:root {
-		--vh: 1vh; /* Fallback if JavaScript fails */
+		/* for mobile-vh hack if needed */
+		--vh: 1vh;
 	}
-
 	.full-height {
 		height: calc(var(--vh) * 85);
 	}

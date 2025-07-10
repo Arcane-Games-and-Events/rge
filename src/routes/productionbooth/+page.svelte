@@ -5,6 +5,8 @@
 	import Timer from '../../lib/Timer.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
 	import DraftInformation from '../../lib/DraftInformation.svelte';
+	let roundOptions = [55, 35];
+	let breakOptions = [2, 5, 10, 15, 20];
 </script>
 
 <div class="bg-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
@@ -17,7 +19,8 @@
 	</div>
 	<div class="flex flex-col space-y-4">
 		<LifeCounter />
-		<Timer />
+		<Timer typeOfCounter="Round" roundPresets={roundOptions} />
+		<Timer typeOfCounter="Break" roundPresets={breakOptions} />
 		<DraftInformation />
 	</div>
 </div>
