@@ -31,9 +31,7 @@
 		matches = { m0: null, m1: null, m2: null, m3: null, m4: null, m5: null, m6: null };
 	}
 
-	// unsubscribe holders
-	let playersUnsub;
-	let matchesUnsub;
+	let playersUnsub, matchesUnsub;
 
 	function slugify(str) {
 		return str
@@ -50,7 +48,6 @@
 	}
 
 	onMount(() => {
-		// subscribe to players
 		const playersRef = ref(db, 'top8/players');
 		playersUnsub = onValue(playersRef, (snap) => {
 			const d = snap.val() || {};
@@ -61,7 +58,6 @@
 			localStorage.setItem('top8Players', JSON.stringify(players));
 		});
 
-		// subscribe to matches
 		const matchesRef = ref(db, 'top8/matches');
 		matchesUnsub = onValue(matchesRef, (snap) => {
 			const d = snap.val() || {};
@@ -83,7 +79,7 @@
 		matchesUnsub && matchesUnsub();
 	});
 
-	// bracket structure
+	// bracket mappings
 	const viewQuarterSeeds = [
 		[0, 7],
 		[5, 2],
@@ -118,9 +114,6 @@
 									src={getHeroImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
-									on:error={(e) => {
-										e.target.src = `/heroImages/${slugify(players[seed].hero)}.png`;
-									}}
 								/>
 							{/if}
 						</div>
@@ -134,26 +127,28 @@
 			{#each viewSemiSeeds as seeds}
 				<div class="space-y-[36px]">
 					{#each seeds as seed}
-						<div class="flex justify-end gap-x-2">
-							<div class="flex flex-col text-right -space-y-1">
-								<div class="text-[25px] font-bold text-white">
-									{seed !== null ? `(${seed + 1}) ${players[seed].name}` : '—'}
+						{#if seed !== null}
+							<div class="flex justify-end gap-x-2">
+								<div class="flex flex-col text-right -space-y-1">
+									<div class="text-[25px] font-bold text-white">
+										({seed + 1}) {players[seed].name}
+									</div>
+									<div class="text-[20px] italic font-bold text-[#D9B499]">
+										{players[seed].hero}
+									</div>
 								</div>
-								<div class="text-[20px] italic font-bold text-[#D9B499]">
-									{seed !== null ? players[seed].hero : '—'}
-								</div>
+								{#if players[seed].hero}
+									<img
+										src={getHeroImage(players[seed].hero)}
+										alt={players[seed].hero}
+										class="w-[70px] h-[70px] rounded-full object-cover object-right"
+									/>
+								{/if}
 							</div>
-							{#if seed !== null && players[seed].hero}
-								<img
-									src={getHeroImage(players[seed].hero)}
-									alt={players[seed].hero}
-									class="w-[70px] h-[70px] rounded-full object-cover object-right"
-									on:error={(e) => {
-										e.target.src = `/heroImages/${slugify(players[seed].hero)}.png`;
-									}}
-								/>
-							{/if}
-						</div>
+						{:else}
+							<!-- blank box when no semi winner yet -->
+							<div class="w-full h-[70px]"></div>
+						{/if}
 					{/each}
 				</div>
 			{/each}
@@ -162,26 +157,28 @@
 		<!-- Final -->
 		<div class="space-y-[30px]">
 			{#each viewFinalSeeds as seed}
-				<div class="flex justify-end gap-x-2">
-					<div class="flex flex-col text-right -space-y-1">
-						<div class="text-[25px] font-bold text-white">
-							{seed !== null ? `(${seed + 1}) ${players[seed].name}` : '—'}
+				{#if seed !== null}
+					<div class="flex justify-end gap-x-2">
+						<div class="flex flex-col text-right -space-y-1">
+							<div class="text-[25px] font-bold text-white">
+								({seed + 1}) {players[seed].name}
+							</div>
+							<div class="text-[20px] italic font-bold text-[#D9B499]">
+								{players[seed].hero}
+							</div>
 						</div>
-						<div class="text-[20px] italic font-bold text-[#D9B499]">
-							{seed !== null ? players[seed].hero : '—'}
-						</div>
+						{#if players[seed].hero}
+							<img
+								src={getHeroImage(players[seed].hero)}
+								alt={players[seed].hero}
+								class="w-[70px] h-[70px] rounded-full object-cover object-right"
+							/>
+						{/if}
 					</div>
-					{#if seed !== null && players[seed].hero}
-						<img
-							src={getHeroImage(players[seed].hero)}
-							alt={players[seed].hero}
-							class="w-[70px] h-[70px] rounded-full object-cover object-right"
-							on:error={(e) => {
-								e.target.src = `/heroImages/${slugify(players[seed].hero)}.png`;
-							}}
-						/>
-					{/if}
-				</div>
+				{:else}
+					<!-- blank box when no final participant yet -->
+					<div class="w-full h-[70px]"></div>
+				{/if}
 			{/each}
 		</div>
 	</div>
