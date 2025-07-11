@@ -4,27 +4,25 @@
 	import { db } from '../../../firebaseClient';
 	import heroes from '$lib/data/heroes.json';
 
-	// 1) Hydrate from localStorage if available, else default
-	let players;
-	let matches;
+	// Hydrate from localStorage or defaults
+	let players, matches;
 	if (typeof window !== 'undefined') {
-		const storedPlayers = JSON.parse(localStorage.getItem('top8Players') || 'null');
+		const sp = JSON.parse(localStorage.getItem('top8Players') || 'null');
 		players =
-			Array.isArray(storedPlayers) && storedPlayers.length === 8
-				? storedPlayers
+			Array.isArray(sp) && sp.length === 8
+				? sp
 				: Array(8)
 						.fill()
 						.map(() => ({ name: '', hero: '' }));
 
-		const storedMatches = JSON.parse(localStorage.getItem('top8Matches') || 'null');
+		const sm = JSON.parse(localStorage.getItem('top8Matches') || 'null');
 		matches =
-			storedMatches &&
-			typeof storedMatches === 'object' &&
-			['m0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6'].every((k) => k in storedMatches)
-				? storedMatches
+			sm &&
+			typeof sm === 'object' &&
+			['m0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6'].every((k) => k in sm)
+				? sm
 				: { m0: null, m1: null, m2: null, m3: null, m4: null, m5: null, m6: null };
 	} else {
-		// SSR fallback
 		players = Array(8)
 			.fill()
 			.map(() => ({ name: '', hero: '' }));
@@ -48,8 +46,7 @@
 	}
 
 	onMount(() => {
-		const playersRef = ref(db, 'top8/players');
-		playersUnsub = onValue(playersRef, (snap) => {
+		playersUnsub = onValue(ref(db, 'top8/players'), (snap) => {
 			const d = snap.val() || {};
 			players = players.map((_, i) => ({
 				name: d[i]?.name ?? '',
@@ -58,8 +55,7 @@
 			localStorage.setItem('top8Players', JSON.stringify(players));
 		});
 
-		const matchesRef = ref(db, 'top8/matches');
-		matchesUnsub = onValue(matchesRef, (snap) => {
+		matchesUnsub = onValue(ref(db, 'top8/matches'), (snap) => {
 			const d = snap.val() || {};
 			matches = {
 				m0: d.m0 ?? null,
@@ -79,17 +75,20 @@
 		matchesUnsub && matchesUnsub();
 	});
 
-	// bracket mappings
+	// === BRACKET ORDER ===
 	const viewQuarterSeeds = [
-		[0, 7],
-		[5, 2],
-		[4, 3],
-		[1, 6]
+		[0, 7], // 1 vs 8
+		[3, 4], // 4 vs 5
+		[2, 5], // 3 vs 6
+		[1, 6] // 2 vs 7
 	];
+
+	// Semis: winners of QF0 vs QF1, QF2 vs QF3
 	$: viewSemiSeeds = [
 		[matches.m0, matches.m1],
 		[matches.m2, matches.m3]
 	];
+	// Final: winners of those semis
 	$: viewFinalSeeds = [matches.m4, matches.m5];
 </script>
 
@@ -100,7 +99,7 @@
 			{#each viewQuarterSeeds as seeds}
 				<div class="space-y-[28px]">
 					{#each seeds as seed}
-						<div class="flex justify-end gap-x-2">
+						<div class="flex justify-end gap-x-2 items-center h-[70px]">
 							<div class="flex flex-col text-right -space-y-1">
 								<div class="text-[25px] font-bold text-white">
 									({seed + 1}) {players[seed].name || '—'}
@@ -122,13 +121,17 @@
 			{/each}
 		</div>
 
-		<!-- Semifinals -->
+		<!-- Semifinals (fade-in winners) -->
 		<div class="space-y-[100px]">
 			{#each viewSemiSeeds as seeds}
 				<div class="space-y-[36px]">
 					{#each seeds as seed}
-						{#if seed !== null}
-							<div class="flex justify-end gap-x-2">
+						<div
+							class="flex justify-end gap-x-2 items-center h-[70px] transition-opacity duration-500"
+							class:opacity-0={seed === null}
+							class:opacity-100={seed !== null}
+						>
+							{#if seed !== null}
 								<div class="flex flex-col text-right -space-y-1">
 									<div class="text-[25px] font-bold text-white">
 										({seed + 1}) {players[seed].name}
@@ -137,28 +140,27 @@
 										{players[seed].hero}
 									</div>
 								</div>
-								{#if players[seed].hero}
-									<img
-										src={getHeroImage(players[seed].hero)}
-										alt={players[seed].hero}
-										class="w-[70px] h-[70px] rounded-full object-cover object-right"
-									/>
-								{/if}
-							</div>
-						{:else}
-							<!-- blank box when no semi winner yet -->
-							<div class="w-full h-[70px]"></div>
-						{/if}
+								<img
+									src={getHeroImage(players[seed].hero)}
+									alt={players[seed].hero}
+									class="w-[70px] h-[70px] rounded-full object-cover object-right"
+								/>
+							{/if}
+						</div>
 					{/each}
 				</div>
 			{/each}
 		</div>
 
-		<!-- Final -->
+		<!-- Final (fade-in winners) -->
 		<div class="space-y-[30px]">
 			{#each viewFinalSeeds as seed}
-				{#if seed !== null}
-					<div class="flex justify-end gap-x-2">
+				<div
+					class="flex justify-end gap-x-2 items-center h-[70px] transition-opacity duration-500"
+					class:opacity-0={seed === null}
+					class:opacity-100={seed !== null}
+				>
+					{#if seed !== null}
 						<div class="flex flex-col text-right -space-y-1">
 							<div class="text-[25px] font-bold text-white">
 								({seed + 1}) {players[seed].name}
@@ -167,18 +169,13 @@
 								{players[seed].hero}
 							</div>
 						</div>
-						{#if players[seed].hero}
-							<img
-								src={getHeroImage(players[seed].hero)}
-								alt={players[seed].hero}
-								class="w-[70px] h-[70px] rounded-full object-cover object-right"
-							/>
-						{/if}
-					</div>
-				{:else}
-					<!-- blank box when no final participant yet -->
-					<div class="w-full h-[70px]"></div>
-				{/if}
+						<img
+							src={getHeroImage(players[seed].hero)}
+							alt={players[seed].hero}
+							class="w-[70px] h-[70px] rounded-full object-cover object-right"
+						/>
+					{/if}
+				</div>
 			{/each}
 		</div>
 	</div>
