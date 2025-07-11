@@ -110,6 +110,7 @@
 							</div>
 							{#if players[seed].hero}
 								<img
+									loading="lazy"
 									src={getHeroImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
@@ -141,6 +142,7 @@
 									</div>
 								</div>
 								<img
+									loading="lazy"
 									src={getHeroImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
@@ -170,6 +172,7 @@
 							</div>
 						</div>
 						<img
+							loading="lazy"
 							src={getHeroImage(players[seed].hero)}
 							alt={players[seed].hero}
 							class="w-[70px] h-[70px] rounded-full object-cover object-right"
