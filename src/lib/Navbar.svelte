@@ -11,6 +11,7 @@
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
 		{ name: 'Caster View', href: '/casterview', current: false },
 		{ name: 'Draft Picker', href: '/draftpicker', current: false },
+		{ name: 'Graphics', href: '/graphics', current: false },
 		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
 </script>

@@ -35,26 +35,22 @@
 		Object.keys(players).forEach((playerId) => {
 			const playerRef = ref(db, `playerInfo/${playerId}`);
 			onValue(playerRef, (snapshot) => {
-				const data = snapshot.val();
-				if (data) {
-					players[playerId].name = data.name || '';
-					players[playerId].record = data.record || '';
-					players[playerId].hero = data.hero || '';
-					players[playerId].query = data.hero || '';
-				}
+				const data = snapshot.val() || {};
+				players[playerId].name = data.name || '';
+				players[playerId].record = data.record || '';
+				players[playerId].hero = data.hero || '';
+				players[playerId].query = data.hero || '';
 			});
 		});
 
 		onValue(ref(db, 'roundInfo'), (snapshot) => {
 			roundInfo = snapshot.val() ?? '';
 		});
-
 		onValue(ref(db, 'tournamentStatus'), (snapshot) => {
 			tournamentStatus = snapshot.val() ?? '';
 		});
 	}
 
-	// Debounced for normal input
 	const updateFirebase = debounce(async (path, value) => {
 		try {
 			await set(ref(db, path), value);
@@ -63,7 +59,6 @@
 		}
 	}, 300);
 
-	// Immediate updates (for switch)
 	function updateFirebaseNow(path, value) {
 		try {
 			set(ref(db, path), value);
@@ -140,7 +135,9 @@
 
 	const handleClickOutside = (e) => {
 		if (!e.target.closest('.combobox')) {
-			Object.keys(players).forEach((pid) => (players[pid].isDropdownOpen = false));
+			Object.keys(players).forEach((pid) => {
+				players[pid].isDropdownOpen = false;
+			});
 		}
 	};
 
@@ -148,14 +145,11 @@
 		const p1Copy = structuredClone(players.p1);
 		const p2Copy = structuredClone(players.p2);
 
-		// detach listeners
 		off(ref(db, 'playerInfo/p1'));
 		off(ref(db, 'playerInfo/p2'));
 
-		// swap local state
 		players = { p1: p2Copy, p2: p1Copy };
 
-		// immediate DB writes
 		updateFirebaseNow(`playerInfo/p1/name`, p2Copy.name);
 		updateFirebaseNow(`playerInfo/p1/record`, p2Copy.record);
 		updateFirebaseNow(`playerInfo/p1/hero`, p2Copy.hero);
@@ -166,7 +160,6 @@
 		updateFirebaseNow(`playerInfo/p2/hero`, p1Copy.hero);
 		updateFirebaseNow(`playerInfo/p2/query`, p1Copy.query);
 
-		// re-attach listeners
 		setTimeout(fetchData, 500);
 	}
 
@@ -184,8 +177,9 @@
 
 		<div class="flex space-x-4">
 			<div class="w-2/3">
-				<label class="block text-sm font-medium">Name</label>
+				<label for="p1-name" class="block text-sm font-medium"> Name </label>
 				<input
+					id="p1-name"
 					type="text"
 					class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 					bind:value={players.p1.name}
@@ -193,8 +187,9 @@
 				/>
 			</div>
 			<div class="w-1/3">
-				<label class="block text-sm font-medium">Record</label>
+				<label for="p1-record" class="block text-sm font-medium"> Record </label>
 				<input
+					id="p1-record"
 					type="text"
 					class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 					bind:value={players.p1.record}
@@ -203,12 +198,14 @@
 			</div>
 		</div>
 
-		<label class="block text-sm font-medium mt-4">Hero</label>
+		<label for="p1-hero-input" class="block text-sm font-medium mt-4"> Hero </label>
 		<div class="relative mt-2 combobox">
 			<input
+				id="p1-hero-input"
 				type="text"
 				class="w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 				role="combobox"
+				aria-controls="p1-hero-list"
 				aria-expanded={players.p1.isDropdownOpen}
 				bind:value={players.p1.query}
 				on:input={(e) => {
@@ -221,14 +218,17 @@
 
 			{#if players.p1.isDropdownOpen && players.p1.filteredHeroes.length}
 				<ul
+					id="p1-hero-list"
+					role="listbox"
 					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5"
 				>
 					{#each players.p1.filteredHeroes.slice(0, 20) as hero, idx}
 						<li
 							id={'option-p1-' + idx}
-							class="cursor-default select-none py-2 px-3 {players.p1.highlightedIndex === idx
-								? 'bg-indigo-600'
-								: ''}"
+							role="option"
+							aria-selected={players.p1.highlightedIndex === idx}
+							class="cursor-default select-none py-2 px-3"
+							class:bg-indigo-600={players.p1.highlightedIndex === idx}
 							on:mouseenter={() => handleMouseEnter('p1', idx)}
 						>
 							<button
@@ -248,6 +248,7 @@
 	<!-- SWITCH ICON BUTTON -->
 	<div class="flex justify-center py-2">
 		<button
+			type="button"
 			on:click={switchPlayers}
 			aria-label="Switch Players"
 			class="p-2 rounded hover:bg-gray-700 focus:outline-none"
@@ -259,14 +260,12 @@
 				viewBox="0 0 24 24"
 				stroke="currentColor"
 			>
-				<!-- up arrow -->
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
 					d="M12 4v16m0 0l-4-4m4 4l4-4"
 				/>
-				<!-- down arrow -->
 				<path
 					stroke-linecap="round"
 					stroke-linejoin="round"
@@ -283,8 +282,9 @@
 
 		<div class="flex space-x-4">
 			<div class="w-2/3">
-				<label class="block text-sm font-medium">Name</label>
+				<label for="p2-name" class="block text-sm font-medium"> Name </label>
 				<input
+					id="p2-name"
 					type="text"
 					class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 					bind:value={players.p2.name}
@@ -292,8 +292,9 @@
 				/>
 			</div>
 			<div class="w-1/3">
-				<label class="block text-sm font-medium">Record</label>
+				<label for="p2-record" class="block text-sm font-medium"> Record </label>
 				<input
+					id="p2-record"
 					type="text"
 					class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 					bind:value={players.p2.record}
@@ -302,12 +303,14 @@
 			</div>
 		</div>
 
-		<label class="block text-sm font-medium mt-4">Hero</label>
+		<label for="p2-hero-input" class="block text-sm font-medium mt-4"> Hero </label>
 		<div class="relative mt-2 combobox">
 			<input
+				id="p2-hero-input"
 				type="text"
 				class="w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
 				role="combobox"
+				aria-controls="p2-hero-list"
 				aria-expanded={players.p2.isDropdownOpen}
 				bind:value={players.p2.query}
 				on:input={(e) => {
@@ -320,14 +323,17 @@
 
 			{#if players.p2.isDropdownOpen && players.p2.filteredHeroes.length}
 				<ul
+					id="p2-hero-list"
+					role="listbox"
 					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5"
 				>
 					{#each players.p2.filteredHeroes.slice(0, 20) as hero, idx}
 						<li
 							id={'option-p2-' + idx}
-							class="cursor-default select-none py-2 px-3 {players.p2.highlightedIndex === idx
-								? 'bg-indigo-600'
-								: ''}"
+							role="option"
+							aria-selected={players.p2.highlightedIndex === idx}
+							class="cursor-default select-none py-2 px-3"
+							class:bg-indigo-600={players.p2.highlightedIndex === idx}
 							on:mouseenter={() => handleMouseEnter('p2', idx)}
 						>
 							<button
@@ -347,8 +353,9 @@
 	<!-- ROUND INFO & STATUS -->
 	<div class="p-4 border-t border-gray-600">
 		<h2 class="text-lg font-medium mb-2">Round Information</h2>
-		<label class="block text-sm font-medium">Round</label>
+		<label for="round-info" class="block text-sm font-medium">Round</label>
 		<input
+			id="round-info"
 			type="text"
 			placeholder="Round 1 of 6"
 			class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
@@ -357,8 +364,9 @@
 		/>
 
 		<h2 class="text-lg font-medium mt-4 mb-2">Tournament Status</h2>
-		<label class="block text-sm font-medium">Status</label>
+		<label for="tournament-status" class="block text-sm font-medium"> Status </label>
 		<input
+			id="tournament-status"
 			type="text"
 			placeholder="In Progress"
 			class="mt-2 w-full rounded-md bg-gray-800 py-3 px-3 ring-1 ring-inset ring-gray-300"
