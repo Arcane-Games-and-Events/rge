@@ -99,7 +99,7 @@
 			{#each viewQuarterSeeds as seeds}
 				<div class="space-y-[28px]">
 					{#each seeds as seed}
-						<div class="flex justify-end gap-x-2 items-center h-[70px]">
+						<div class="flex justify-end gap-x-2 h-[70px]">
 							<div class="flex flex-col text-right -space-y-1">
 								<div class="text-[25px] font-bold text-white">
 									({seed + 1}) {players[seed].name || '—'}
@@ -128,7 +128,7 @@
 				<div class="space-y-[36px]">
 					{#each seeds as seed}
 						<div
-							class="flex justify-end gap-x-2 items-center h-[70px] transition-opacity duration-500"
+							class="flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 							class:opacity-0={seed === null}
 							class:opacity-100={seed !== null}
 						>
@@ -158,7 +158,7 @@
 		<div class="space-y-[30px]">
 			{#each viewFinalSeeds as seed}
 				<div
-					class="flex justify-end gap-x-2 items-center h-[70px] transition-opacity duration-500"
+					class="flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 					class:opacity-0={seed === null}
 					class:opacity-100={seed !== null}
 				>
