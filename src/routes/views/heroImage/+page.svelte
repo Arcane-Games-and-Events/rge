@@ -1,70 +1,83 @@
+<script context="module">
+	// Turn off SSR so we only run this in the browser
+	export const ssr = false;
+</script>
+
 <script>
-	import { onMount } from 'svelte';
-	import { ref, onValue } from 'firebase/database';
+	import { onMount, onDestroy } from 'svelte';
+	import { ref, onValue, off } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
 
-	let players = {
-		p1: { hero: '' },
-		p2: { hero: '' }
-	};
+	// 1) Hydrate from localStorage or fall back to defaults
+	let players;
+	if (typeof window !== 'undefined') {
+		const cached = JSON.parse(localStorage.getItem('simplePlayers') || 'null');
+		players = cached && cached.p1 && cached.p2 ? cached : { p1: { hero: '' }, p2: { hero: '' } };
+	} else {
+		players = { p1: { hero: '' }, p2: { hero: '' } };
+	}
 
-	function slugify(heroName) {
-		return heroName
+	// 2) Keep track of our unsubscribers so we can clean up
+	const unsubscribers = [];
+
+	// 3) Standard slug→filename logic
+	function slugify(name) {
+		return name
 			.toLowerCase()
 			.replace(/["',]/g, '')
 			.replace(/[^a-z0-9\s-]/g, '')
 			.replace(/\s+/g, '-')
 			.trim();
 	}
-
-	// Default to .jpg, fall back to .png using on:error in <img>
-	function getHeroImage(heroName) {
-		if (!heroName) return '/heroImages/default.jpg';
-		const slug = slugify(heroName);
-		return `/heroImages/${slug}.jpg`;
-	}
-
-	function fetchData() {
-		Object.keys(players).forEach((playerId) => {
-			const playerRef = ref(db, `playerInfo/${playerId}`);
-			onValue(playerRef, (snapshot) => {
-				const data = snapshot.val();
-				if (data) {
-					players[playerId] = {
-						hero: data.hero || ''
-					};
-				}
-			});
-		});
+	function getHeroImage(hero) {
+		return hero ? `/heroImages/${slugify(hero)}.jpg` : '/heroImages/default.jpg';
 	}
 
 	onMount(() => {
-		fetchData();
+		// Subscribe p1 & p2
+		for (const id of ['p1', 'p2']) {
+			const r = ref(db, `playerInfo/${id}`);
+			const u = onValue(r, (snap) => {
+				const hero = snap.val()?.hero || '';
+				// Update local state & cache
+				players[id].hero = hero;
+				localStorage.setItem('simplePlayers', JSON.stringify(players));
+			});
+			unsubscribers.push(() => off(r, 'value', u));
+		}
+	});
+
+	onDestroy(() => {
+		unsubscribers.forEach((fn) => fn());
 	});
 </script>
 
-{#if players.p1.hero}
-	<img
-		class="scale-x-[-1]"
-		src={getHeroImage(players.p1.hero)}
-		alt={players.p1.hero}
-		width="1000"
-		on:error={(e) => {
-			const slug = slugify(players.p1.hero);
-			e.target.src = `/heroImages/${slug}.png`;
-		}}
-	/>
-{/if}
+<!-- Player 1: always in DOM, flips on change but no removal/add -->
+<img
+	loading="eager"
+	src={getHeroImage(players.p1.hero)}
+	alt={players.p1.hero}
+	class="hero-img scale-x-[-1]"
+	on:error={(e) => {
+		// if .jpg missing, fall back to default
+		e.target.src = '/heroImages/default.jpg';
+	}}
+/>
 
-{#if players.p2.hero}
-	<img
-		class="mt-4"
-		src={getHeroImage(players.p2.hero)}
-		alt={players.p2.hero}
-		width="1000"
-		on:error={(e) => {
-			const slug = slugify(players.p2.hero);
-			e.target.src = `/heroImages/${slug}.png`;
-		}}
-	/>
-{/if}
+<!-- Player 2 -->
+<img
+	loading="eager"
+	src={getHeroImage(players.p2.hero)}
+	alt={players.p2.hero}
+	class="hero-img mt-4"
+	on:error={(e) => {
+		e.target.src = '/heroImages/default.jpg';
+	}}
+/>
+
+<style>
+	/* no changes to your styling */
+	.hero-img {
+		width: 1000px;
+	}
+</style>
