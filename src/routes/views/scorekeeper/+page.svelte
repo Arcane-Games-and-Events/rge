@@ -1,137 +1,114 @@
 <script>
 	import { onMount } from 'svelte';
-	import { ref, onValue } from 'firebase/database';
-	import { db } from '../../../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
+	import { ref, onValue, set } from 'firebase/database';
+	import { db } from '../../../firebaseClient'; // adjust path to your setup
 
-	let players = Array(8)
-		.fill()
-		.map(() => ({ name: '', hero: '' }));
-	let matches = {};
+	// Player info & life totals
+	let playerOneName = '';
+	let playerTwoName = '';
+	let player1Score = 0;
+	let player2Score = 0;
+
+	// Round timer display
+	let displayTime = '00:00';
+
+	// Helper to pad life totals
+	const formatLifeTotal = (total) => total.toString().padStart(2, '0');
+
+	// Update a player's life total in Firebase
+	async function updateScore(player, newScore) {
+		if (player === 'player1') {
+			player1Score = newScore;
+			await set(ref(db, 'lifecounter/p1'), newScore);
+		} else {
+			player2Score = newScore;
+			await set(ref(db, 'lifecounter/p2'), newScore);
+		}
+	}
 
 	onMount(() => {
-		onValue(ref(db, 'top8/players'), (snap) => {
-			const d = snap.val() || {};
-			players = players.map((_, i) => ({
-				name: d[i]?.name ?? '',
-				hero: d[i]?.hero ?? ''
-			}));
+		// Subscribe to names
+		onValue(ref(db, 'playerInfo/p1/name'), (snap) => {
+			playerOneName = snap.val() ?? '';
 		});
-		onValue(ref(db, 'top8/matches'), (snap) => {
-			matches = snap.val() || {};
+		onValue(ref(db, 'playerInfo/p2/name'), (snap) => {
+			playerTwoName = snap.val() ?? '';
+		});
+
+		// Subscribe to life totals
+		onValue(ref(db, 'lifecounter/p1'), (snap) => {
+			const v = snap.val();
+			if (v != null) player1Score = v;
+		});
+		onValue(ref(db, 'lifecounter/p2'), (snap) => {
+			const v = snap.val();
+			if (v != null) player2Score = v;
+		});
+
+		// Subscribe to the round timer's displayTime
+		onValue(ref(db, 'timers/Round/displayTime'), (snap) => {
+			displayTime = snap.val() ?? '00:00';
 		});
 	});
-
-	const viewQuarterSeeds = [
-		[0, 7],
-		[5, 2],
-		[4, 3],
-		[1, 6]
-	];
-	$: viewSemiSeeds = [
-		[matches.m0, matches.m1],
-		[matches.m2, matches.m3]
-	];
-	$: viewFinalSeeds = [matches.m4, matches.m5];
-
-	function slugify(name) {
-		return name
-			.toLowerCase()
-			.replace(/["',]/g, '')
-			.replace(/[^a-z0-9\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.trim();
-	}
-	function heroFilename(name) {
-		return name ? `/heroImages/${slugify(name)}.jpg` : '';
-	}
 </script>
 
-<div class="w-full py-8">
-	<div class="mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-8">
-		<!-- Quarterfinals -->
-		<div class="space-y-[45px]">
-			{#each viewQuarterSeeds as seeds}
-				<div class="space-y-[28px]">
-					{#each seeds as seed}
-						<div class="flex justify-end gap-x-2">
-							<div class="flex flex-col text-right space-y-[-4px]">
-								<div class="text-[25px] font-bold text-white">
-									({seed + 1}) {players[seed]?.name || '—'}
-								</div>
-								<div class="text-[20px] italic font-bold text-[#D9B499]">
-									{players[seed]?.hero || '—'}
-								</div>
-							</div>
-							{#if players[seed]?.hero}
-								<img
-									src={heroFilename(players[seed].hero)}
-									alt={players[seed].hero}
-									class="w-[70px] h-[70px] rounded-full object-cover object-right flex-shrink-0"
-								/>
-							{/if}
-						</div>
-					{/each}
+<div class="relative full-height bg-gray-800 text-white rounded-md shadow-md">
+	<div class="flex flex-col justify-between h-full">
+		<!-- Player 1 panel (upside-down) -->
+		<div class="bg-pink-500 rotate-180 origin-center p-4">
+			<h2 class="text-2xl font-bold mb-2 text-center">
+				P1 · {playerOneName}
+			</h2>
+			<div class="flex justify-between items-center px-8">
+				<button
+					on:click={() => updateScore('player1', player1Score - 1)}
+					class="text-7xl p-4 font-bold">−</button
+				>
+				<div class="text-7xl font-bold">
+					{formatLifeTotal(player1Score)}
 				</div>
-			{/each}
+				<button
+					on:click={() => updateScore('player1', player1Score + 1)}
+					class="text-7xl p-4 font-bold">+</button
+				>
+			</div>
 		</div>
 
-		<!-- Semifinals -->
-		<div class="space-y-[100px]">
-			{#each viewSemiSeeds as seeds, si}
-				<div class="space-y-[36px]">
-					{#each seeds as seed, idx}
-						{#key `${si}-${idx}-${seed}`}
-							{#if seed != null}
-								<div class="flex justify-end gap-x-2">
-									<div class="flex flex-col text-right space-y-[-4px]">
-										<div class="text-[25px] font-bold text-white">
-											({seed + 1}) {players[seed]?.name}
-										</div>
-										<div class="text-[20px] italic font-bold text-[#D9B499]">
-											{players[seed]?.hero}
-										</div>
-									</div>
-									<img
-										src={heroFilename(players[seed].hero)}
-										alt={players[seed].hero}
-										class="w-[70px] h-[70px] rounded-full object-cover object-right flex-shrink-0"
-									/>
-								</div>
-							{:else}
-								<div class="h-[70px] w-[70px]"></div>
-							{/if}
-						{/key}
-					{/each}
-				</div>
-			{/each}
+		<!-- Center: Round timer -->
+		<div class="flex-grow flex items-center justify-center">
+			<div class="rotate-90 text-7xl font-bold">
+				{displayTime}
+			</div>
 		</div>
 
-		<!-- Final -->
-		<div class="space-y-[30px]">
-			{#each viewFinalSeeds as seed, fi}
-				{#key `final-${fi}-${seed}`}
-					{#if seed != null}
-						<div class="flex justify-end gap-x-2">
-							<div class="flex flex-col text-right space-y-[-4px]">
-								<div class="text-[25px] font-bold text-white">
-									({seed + 1}) {players[seed]?.name}
-								</div>
-								<div class="text-[20px] italic font-bold text-[#D9B499]">
-									{players[seed]?.hero}
-								</div>
-							</div>
-							<img
-								src={heroFilename(players[seed].hero)}
-								alt={players[seed].hero}
-								class="w-[70px] h-[70px] rounded-full object-cover object-right flex-shrink-0"
-							/>
-						</div>
-					{:else}
-						<div class="h-[70px] w-[70px]"></div>
-					{/if}
-				{/key}
-			{/each}
+		<!-- Player 2 panel -->
+		<div class="bg-blue-500 p-4">
+			<h2 class="text-2xl font-bold mb-2 text-center">
+				P2 · {playerTwoName}
+			</h2>
+			<div class="flex justify-between items-center px-8">
+				<button
+					on:click={() => updateScore('player2', player2Score - 1)}
+					class="text-7xl p-4 font-bold">−</button
+				>
+				<div class="text-7xl font-bold">
+					{formatLifeTotal(player2Score)}
+				</div>
+				<button
+					on:click={() => updateScore('player2', player2Score + 1)}
+					class="text-7xl p-4 font-bold">+</button
+				>
+			</div>
 		</div>
 	</div>
 </div>
+
+<style>
+	:root {
+		/* for mobile-vh hack if needed */
+		--vh: 1vh;
+	}
+	.full-height {
+		height: calc(var(--vh) * 85);
+	}
+</style>
