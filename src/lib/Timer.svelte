@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { ref, set, onValue } from 'firebase/database';
+	import { ref, set, onValue, get } from 'firebase/database';
 	import { db } from '../firebaseClient';
 
 	// Props
@@ -132,9 +132,13 @@
 
 	// Lifecycle
 	onMount(async () => {
-		await createInstance();
+		const snapshot = await get(ref(db, timerPath));
+		if (!snapshot.exists()) {
+			await createInstance();
+		}
 		updateFromDatabase();
 	});
+
 	onDestroy(() => clearInterval(timerInterval));
 
 	function handleCheckboxChange(e) {
