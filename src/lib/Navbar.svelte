@@ -11,7 +11,8 @@
 		{ name: 'Production Booth', href: '/productionbooth', current: false },
 		{ name: 'Caster View', href: '/casterview', current: false },
 		{ name: 'Draft Picker', href: '/draftpicker', current: false },
-		{ name: 'Graphics', href: '/graphics', current: false },
+		{ name: 'Metagame', href: '/metagame', current: false },
+		{ name: 'Top 8', href: '/graphics', current: false },
 		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
 </script>
