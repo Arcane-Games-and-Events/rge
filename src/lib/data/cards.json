@@ -6926,6 +6926,76 @@
     ]
   },
   {
+    "unique_id": "kBJJjzp8KMrRWcwMwKWcW",
+    "name": "Alpha Instinct",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "6",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Brute",
+      "Action",
+      "Attack"
+    ],
+    "traits": [
+      "Rhinar Specialization"
+    ],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Rhinar Specialization**\n\nWhen this is discard to beat chest, create a Might token.",
+    "functional_text_plain": "Rhinar Specialization\nWhen this is discard to beat chest, create a Might token.",
+    "type_text": "Brute Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "wNRqrHCn6rrKLhrDkqPwp",
+      "wr9wBtTWwRrPrdhCRHCdN",
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "grLGTwgcBBrbbWhQcnMtM",
+        "set_printing_unique_id": "wjTzRJWPcWRMdC9mKhRbB",
+        "id": "ARR022",
+        "set_id": "ARR",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Tomasz Jedruszek"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "GgDFFHhLh8Kc7tJK8nBLj",
     "name": "Alpha Rampage",
     "color": "Red",
@@ -24021,6 +24091,73 @@
     ]
   },
   {
+    "unique_id": "pTJRQBLb8phGGHPHgwdQk",
+    "name": "Backspin Thrust",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "4",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Mechanologist",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Once per Turn Instant"
+    ],
+    "ability_and_effect_keywords": [
+      "Go again"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Once per Turn Instant** - {u} a cog you control: This gets +1{p} or **go again**.",
+    "functional_text_plain": "Once per Turn Instant - {u} a cog you control: This gets +1{p} or go again.",
+    "type_text": "Mechanologist Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "w9wFwmhmfDLGnmzfcrHgf",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP254",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "6QzjLDc9KbnJWrFqd8zjW",
     "name": "Backup Protocol: BLU",
     "color": "Blue",
@@ -24572,6 +24709,78 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "261326",
         "tcgplayer_url": "https://www.tcgplayer.com/product/261326?Language=English&Printing=1st+Edition+Rainbow+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "ndNkP7p6FDnNWzt7ckjPf",
+    "name": "Bait",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "0",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Ranger",
+      "Token",
+      "Aura"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Action",
+      "Once per Turn Attack Reaction"
+    ],
+    "ability_and_effect_keywords": [
+      "Attack",
+      "Go again"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "You can't play or activate cards you own.\n\n**Action** - Destroy this when the chain link resolves: **Attack**\n\n**Once per Turn Attack Reaction** - 0: This gets +1{p} and **go again**.",
+    "functional_text_plain": "You can't play or activate cards you own.\nAction - Destroy this when the chain link resolves: Attack\nOnce per Turn Attack Reaction - 0: This gets +1{p} and go again.",
+    "type_text": "Ranger Token - Aura",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "cards_referenced_by": [
+      "7MhmQ8chFGLcdjP66Jgj6"
+    ],
+    "printings": [
+      {
+        "unique_id": "TpdRGtRnB7WmmjW78nrBD",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP259",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "B",
+        "expansion_slot": true,
+        "artists": [
+          "Orson CaptainSass"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP259.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -28960,6 +29169,378 @@
         "flavor_text": "",
         "flavor_text_plain": "",
         "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/MPG113-RF.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "kJzkbhWtqDJcCD6ngwkBH",
+    "name": "Bask in Your Own Greatness",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "4",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "functional_text_plain": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "HMjNbKr9bw7Tmz7mzqwRc",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP098",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP098.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "qjDGBp9DWBbKqqjLCzDmt",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP098",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP098.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "tdjJKfLQLNBNQD7p8gKW9",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB387",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "tdjJKfLQLNBNQD7p8gKW9",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB387",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "jg7dz6tkjTTqgmcNQbLRW",
+    "name": "Bask in Your Own Greatness",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "3",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "functional_text_plain": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "6GcRc7GJ6PhM7G796JbK7",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP099",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP099.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "fbcFbwjfrHwmcDdCP6z6q",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP099",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP099.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "DQFcnG8cWcPtjrCq7Wr7b",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB388",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "DQFcnG8cWcPtjrCq7Wr7b",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB388",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "CdnTg7KmhKzWpJcd9JHrR",
+    "name": "Bask in Your Own Greatness",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "0",
+    "power": "2",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "functional_text_plain": "When this attacks, you may pay up to {r}{r}{r}. Create that many Might tokens.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "FmNdzgkBfGgqR6QRjqDnf",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP100",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP100.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "KC6b8JQmHHHdzd8tJD7tt",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP100",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP100.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "mJ8qHkRzdHjQKQtRKtDHb",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB389",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "mJ8qHkRzdHjQKQtRKtDHb",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB389",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Olga Tereshenko"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
         "image_rotation_degrees": 0
       }
     ]
@@ -46915,6 +47496,78 @@
     ]
   },
   {
+    "unique_id": "MBgNKqpNwzwM8n6KjMtFN",
+    "name": "Blood Follows Blade",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Warrior",
+      "Attack Reaction"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Kassai Specialization"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [
+      "Go again"
+    ],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Kassai Specialization**\n\nTarget sword attack gets **go again** and \"When this hits, create a Cintari Sellsword token.\"",
+    "functional_text_plain": "Kassai Specialization\nTarget sword attack gets go again and \"When this hits, create a Cintari Sellsword token.\"",
+    "type_text": "Warrior Attack Reaction",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "GwMRRqcL8rDHFRDTfqWzt",
+      "ffKGNQcWnLkfQD7w66MRL",
+      "wWmP8RJRq7MWk7kBh9q7w",
+      "CcGMKpDNfnzz8mKDqmqnc"
+    ],
+    "printings": [
+      {
+        "unique_id": "tGJTBmFtRtW8bjmNc7Kbn",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP252",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Rio Sabda"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "cjKPgLQmgG9QwFQKWPrrM",
     "name": "Blood Line",
     "color": "Red",
@@ -63374,6 +64027,89 @@
     ]
   },
   {
+    "unique_id": "tk7rTRCHCTKrRtffjFQGC",
+    "name": "Bully Tactics",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "3",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Intimidate"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this attacks a hero, you may pay up to {r}{r}{r}. **Intimidate** them that many times.",
+    "functional_text_plain": "When this attacks a hero, you may pay up to {r}{r}{r}. Intimidate them that many times.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "kJHRRtN9tBTWMLPRDgdrr",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP081",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Maerel Hibadita"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP081.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "CkThKwLfDKqCpkLftmGWt",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP081",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Maerel Hibadita"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP081.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "qdzb6znQFtcJHcPNnkFF7",
     "name": "Bunker Beard",
     "color": "",
@@ -72257,6 +72993,116 @@
     ]
   },
   {
+    "unique_id": "7bfH9wkNGQKGzHKfGrQfd",
+    "name": "Cheater's Charm",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Brute",
+      "Instant"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Steal",
+      "The Crowd Boos"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "Choose any number;\n- **Steal** a Confidence or Toughness token.\n- **The crowd boos** you.\n- If you control an attack with 6 or more {p}, deal 2 damage to target hero unless they discard a card.",
+    "functional_text_plain": "Choose any number;\n- Steal a Confidence or Toughness token.\n- The crowd boos you.\n- If you control an attack with 6 or more {p}, deal 2 damage to target hero unless they discard a card.",
+    "type_text": "Reviled Brute Instant",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ",
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "FdQnjPzG8nrMC9MJdJWJd",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP068",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "S",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP068.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "8GFHbhmr6pN9FKgNbHq7P",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS424",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "8GFHbhmr6pN9FKgNbHq7P",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS424",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "LrjhhdFHqndpWG8d66GJz",
     "name": "Chief Ruk'utan",
     "color": "",
@@ -75840,6 +76686,7 @@
     "commoner_suspended": false,
     "ll_restricted": false,
     "cards_referenced_by": [
+      "MBgNKqpNwzwM8n6KjMtFN",
       "JW7fjRH9gMGGLdgQRjNGk"
     ],
     "printings": [
@@ -84004,6 +84851,261 @@
     ]
   },
   {
+    "unique_id": "RLDRbkhHqH6DQCjtqPrMQ",
+    "name": "Comeback Kid",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "3",
+    "power": "7",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "The Crowd Cheers"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "When this attacks a hero, if you have less {h} than them, **the crowd cheers* you.\n\nIf you've been cheered this turn, this gets +1{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have less {h} than them, *the crowd cheers you.\nIf you've been cheered this turn, this gets +1{p}.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "9rDrLwNqNpRt6H9Kczqtq",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP027",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP027.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "bBQd9rqjNdtMRDCHjmBd9",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP027",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP027.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "gzJRqKbNJcdhdrHTjDRfn",
+    "name": "Comeback Kid",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "3",
+    "power": "6",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "The Crowd Cheers"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "When this attacks a hero, if you have less {h} than them, **the crowd cheers* you.\n\nIf you've been cheered this turn, this gets +1{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have less {h} than them, *the crowd cheers you.\nIf you've been cheered this turn, this gets +1{p}.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "fJbnmGw6NTtNFdtGWGqMC",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP028",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP028.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "Gn6ndBNhD9WfCwLG78CwD",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP028",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP028.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "nHTwDwq8BDnkdPrc9c9bW",
+    "name": "Comeback Kid",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "5",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "The Crowd Cheers"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "When this attacks a hero, if you have less {h} than them, **the crowd cheers* you.\n\nIf you've been cheered this turn, this gets +1{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have less {h} than them, *the crowd cheers you.\nIf you've been cheered this turn, this gets +1{p}.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "pnHqDBnJFBMkkkpHzLdhq",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP029",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP029.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "TGwTzhqzcBwmggdNFghzt",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP029",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Samuel Perin"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP029.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "hNtpt77b8dGgTbkCqzCLB",
     "name": "Comet Storm // Shock",
     "color": "Red",
@@ -86121,6 +87223,77 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "275732",
         "tcgplayer_url": "https://www.tcgplayer.com/product/275732?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "WBFjTCfmbwHCr8WNmz8RQ",
+    "name": "Confidence",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Token",
+      "Aura"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "At the start of your turn, destroy this, then the next attack card you play this turn can't be defended by more than 2 non-block cards.",
+    "functional_text_plain": "At the start of your turn, destroy this, then the next attack card you play this turn can't be defended by more than 2 non-block cards.",
+    "type_text": "Generic Token - Aura",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "cards_referenced_by": [
+      "7bfH9wkNGQKGzHKfGrQfd",
+      "wHhtChfRBPBbjKqcmrMJf",
+      "DcwnhL66BkhqjFcfzwwfQ",
+      "JhgRJb6nfctWkndbzrgnj",
+      "cfcQjNKbBQ6WtGcFRrhHd",
+      "PQLpnnKFRhCrdMnwgdNHH"
+    ],
+    "printings": [
+      {
+        "unique_id": "hm8QhGwrphpbGgKpdKdLg",
+        "set_printing_unique_id": "npPLBdtF6fRmmMgTjgP9j",
+        "id": "APS031",
+        "set_id": "APS",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "T",
+        "expansion_slot": false,
+        "artists": [
+          "Sebastian Giacobino"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/APS031.width-450.format-webp.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -94194,6 +95367,89 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "517753",
         "tcgplayer_url": "https://www.tcgplayer.com/product/517753?Language=English&Printing=Normal"
+      }
+    ]
+  },
+  {
+    "unique_id": "HF9r7w6kkD9C7Qddqn8kR",
+    "name": "Crowd Goes Wild",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "3",
+    "power": "6",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "If you've been cheered this turn, this costs {r}{r}{r} less to play.",
+    "functional_text_plain": "If you've been cheered this turn, this costs {r}{r}{r} less to play.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "RRLKr7cpwwWf6nbWFhpCD",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP019",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Kevin Sidharta"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP019.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "F7HCjTKWPLQm7HMBdjK7f",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP019",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Kevin Sidharta"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP019.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -108457,6 +109713,378 @@
         "flavor_text": "",
         "flavor_text_plain": "",
         "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SMP022.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "gncL7pDCJzDJffqCnGGQM",
+    "name": "Dig In",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "3",
+    "power": "7",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "functional_text_plain": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "THpt68MtdMnFjRrzhCjwT",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP036",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP036.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "wdq7TqLLhhpzWjnQptrpq",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP036",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP036.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "CWMhwKJN9DnTRdjhKTJMG",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB381",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "CWMhwKJN9DnTRdjhKTJMG",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB381",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "RhkhMcbkCpRhLmpfqmbDF",
+    "name": "Dig In",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "3",
+    "power": "6",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "functional_text_plain": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "RFmNBgbFrpJj8wDFt9r9T",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP037",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP037.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "dzBQ7jCT8dGRNDKJwbwbM",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP037",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP037.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "G9dJfGmRjPkTL6RWRJCKL",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB382",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "G9dJfGmRjPkTL6RWRJCKL",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB382",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "8TmrQnhqFHDGkCQGKzWTj",
+    "name": "Dig In",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "5",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "functional_text_plain": "When this defends, you may pay up to {r}{r}{r}. Create that many Toughness tokens.",
+    "type_text": "Revered Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "F8wDpzwhtHH96cKRCMqhG",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP038",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP038.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "rgbf6nmGmz6nhhzhCT98C",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP038",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP038.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "Ngf87LKqpgc68gTjJqDKd",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB383",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "Ngf87LKqpgc68gTjJqDKd",
+        "set_printing_unique_id": "j76qTFctqc8krqh9GKGmT",
+        "id": "FAB383",
+        "set_id": "FAB",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
         "image_rotation_degrees": 0
       }
     ]
@@ -165671,6 +167299,73 @@
     ]
   },
   {
+    "unique_id": "cz8WjTHRfmKBGtRfPrCWr",
+    "name": "Garland of Spring",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Equipment",
+      "Chest"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Action"
+    ],
+    "ability_and_effect_keywords": [
+      "Go again"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Action** - Destroy this: Gain {r}. **Go again**",
+    "functional_text_plain": "Action - Destroy this: Gain {r}. Go again",
+    "type_text": "Generic Equipment - Chest",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "T7fRqwDJM8JmqwhgLCRWh",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP212",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Andy Aslamov"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP212.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "MNLgkBbQcz8fQrqzfTjTj",
     "name": "Gas Guzzler",
     "color": "Red",
@@ -171025,7 +172720,11 @@
       "KgPDCHhKBMbLfN6c8kwBJ",
       "f9RrDh96NLGChKKrC9JGK",
       "FmmqBdRdbrjzcQ7cp6jKq",
+      "hWW6zdd6hQ7CwbBt6wc7d",
+      "RWHJMQ9jdRHFHKNqcJDMD",
+      "hBNhqr7gCLz6QMzBDLk8F",
       "69GnfBCnLKPjLMkhQ6gF6",
+      "nTWKhGp7pwKwMmtFnB8hc",
       "cTchBtPqMqnNgDGGW89Gp",
       "6CpcdCrJKFkpkdkdLPQqT",
       "8QrD8rDCQWm78C9fq7tpr",
@@ -172260,6 +173959,282 @@
     ]
   },
   {
+    "unique_id": "hWW6zdd6hQ7CwbBt6wc7d",
+    "name": "Golden Gait",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Warrior",
+      "Equipment",
+      "Legs"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Legendary",
+      "Olympia Specialization",
+      "Temper"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Legendary Olympia Specialization**\n\nThis counts as a Gold.\n\n**Temper**",
+    "functional_text_plain": "Legendary Olympia Specialization\nThis counts as a Gold.\nTemper",
+    "type_text": "Warrior Equipment - Legs",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "t7H7JCQcTb9TTjjCbNwDH",
+      "9JqrM7dbgfG87L6tPghrM",
+      "8qdmprPg7kckn8ktMTKQh"
+    ],
+    "printings": [
+      {
+        "unique_id": "DrzjW9HJ998Nc7rQWBWL6",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP250",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP250.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "LGLCKd79hc7MWFCP9tjJG",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP250",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP250-MV.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "RWHJMQ9jdRHFHKNqcJDMD",
+    "name": "Golden Galea",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Warrior",
+      "Equipment",
+      "Head"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Legendary",
+      "Olympia Specialization",
+      "Temper"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Legendary Olympia Specialization**\n\nThis counts as a Gold.\n\n**Temper**",
+    "functional_text_plain": "Legendary Olympia Specialization\nThis counts as a Gold.\nTemper",
+    "type_text": "Warrior Equipment - Head",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "t7H7JCQcTb9TTjjCbNwDH",
+      "9JqrM7dbgfG87L6tPghrM",
+      "8qdmprPg7kckn8ktMTKQh"
+    ],
+    "printings": [
+      {
+        "unique_id": "NbLz7LkKHWhCt8DCbgKjj",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP247",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP247.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "8LJmQjGzKQj9qwp9kDmNN",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP247",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP247-MV.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "hBNhqr7gCLz6QMzBDLk8F",
+    "name": "Golden Gauntlets",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Warrior",
+      "Equipment",
+      "Arms"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Legendary",
+      "Olympia Specialization",
+      "Temper"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Legendary Olympia Specialization**\n\nThis counts as a Gold.\n\n**Temper**",
+    "functional_text_plain": "Legendary Olympia Specialization\nThis counts as a Gold.\nTemper",
+    "type_text": "Warrior Equipment - Arms",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "t7H7JCQcTb9TTjjCbNwDH",
+      "9JqrM7dbgfG87L6tPghrM",
+      "8qdmprPg7kckn8ktMTKQh"
+    ],
+    "printings": [
+      {
+        "unique_id": "NzPBQ9gH6JBHPkqzJWMCM",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP249",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP249.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "7MjKmbMtbnKTbnz9tq7fm",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP249",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP249-MV.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "69GnfBCnLKPjLMkhQ6gF6",
     "name": "Golden Glare",
     "color": "",
@@ -172390,6 +174365,98 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "542281",
         "tcgplayer_url": "https://www.tcgplayer.com/product/542281?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "nTWKhGp7pwKwMmtFnB8hc",
+    "name": "Golden Heart Plate",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Warrior",
+      "Equipment",
+      "Chest"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Legendary",
+      "Olympia Specialization",
+      "Temper"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Legendary Olympia Specialization**\n\nThis counts as a Gold.\n\n**Temper**",
+    "functional_text_plain": "Legendary Olympia Specialization\nThis counts as a Gold.\nTemper",
+    "type_text": "Warrior Equipment - Chest",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "t7H7JCQcTb9TTjjCbNwDH",
+      "9JqrM7dbgfG87L6tPghrM",
+      "8qdmprPg7kckn8ktMTKQh"
+    ],
+    "printings": [
+      {
+        "unique_id": "NjRnFPhrnCGhpjz8Ncwcg",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP248",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP248.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "d88wCTzCkfNN6mg7tRwhr",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP248",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": true,
+        "artists": [
+          "Federico Musetti"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP248-MV.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -187304,6 +189371,71 @@
     ]
   },
   {
+    "unique_id": "HKqcfqWBCP9T6CHdQRCtn",
+    "name": "Helm of Hindsight",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Equipment",
+      "Head"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Instant** - {r}{r}{r}, destroy this: Put target attack action card from your graveyard on top of your deck.",
+    "functional_text_plain": "Instant - {r}{r}{r}, destroy this: Put target attack action card from your graveyard on top of your deck.",
+    "type_text": "Generic Equipment - Head",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "7dBHp9DgqkmCM8thhjWhK",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP211",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Thomas Ressuge"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP211.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "rjhDRz7JGN7kpDdjHQfrg",
     "name": "Helm of Isen's Peak",
     "color": "",
@@ -200431,6 +202563,73 @@
     ]
   },
   {
+    "unique_id": "9ktNWqbdPNrBJPNnCQCgb",
+    "name": "Hunter or Hunted?",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "",
+    "defense": "4",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Assassin",
+      "Defense Reaction"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Contract"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this defends, name a card. The attacking hero reveals the top card of their deck. If it's the named card, banish it, search their hand, deck, and arsenal for up to 3 cards with that name and banish them, then they shuffle.\n\n**Contract** - While this is defending, you are contracted to banish opponents' cards with the chosen name. Whenever you complete this contract, create a Silver token.",
+    "functional_text_plain": "When this defends, name a card. The attacking hero reveals the top card of their deck. If it's the named card, banish it, search their hand, deck, and arsenal for up to 3 cards with that name and banish them, then they shuffle.\nContract - While this is defending, you are contracted to banish opponents' cards with the chosen name. Whenever you complete this contract, create a Silver token.",
+    "type_text": "Assassin Defense Reaction",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "TNJz9fCgqmhhLz9rP9tkt"
+    ],
+    "printings": [
+      {
+        "unique_id": "mBDJwJHG9pKHKDRRD6tnk",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP245",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Ausonia"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "QTkWJ8jqCgbMCTcNpmMmC",
     "name": "Hunter's Klaive",
     "color": "",
@@ -205749,6 +207948,89 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "549755",
         "tcgplayer_url": "https://www.tcgplayer.com/product/549755?Language=English&Printing=Normal"
+      }
+    ]
+  },
+  {
+    "unique_id": "qqDbjmjjfHK9d8KJ8PcGm",
+    "name": "In the Palm of Your Hand",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "2",
+    "power": "",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Guardian",
+      "Instant",
+      "Aura"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Suspense"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Suspense**\n\nWhen this enters or leaves the arena, draw a card.",
+    "functional_text_plain": "Suspense\nWhen this enters or leaves the arena, draw a card.",
+    "type_text": "Guardian Instant - Aura",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "FHGn6jhFLrkNM7CnGnkTH",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP171",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP171.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "qRjTg8t7pjbbKQgF8HDcT",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP171",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Narendra B Adi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP171.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -221417,6 +223699,7 @@
       "8qdmprPg7kckn8ktMTKQh"
     ],
     "cards_referenced_by": [
+      "MBgNKqpNwzwM8n6KjMtFN",
       "RHrBnDBNJwLh8PDLGBmch",
       "6ntF8Rdm7PqLkHWnPMkrF",
       "JW7fjRH9gMGGLdgQRjNGk"
@@ -221576,6 +223859,7 @@
       "8qdmprPg7kckn8ktMTKQh"
     ],
     "cards_referenced_by": [
+      "MBgNKqpNwzwM8n6KjMtFN",
       "RHrBnDBNJwLh8PDLGBmch",
       "6ntF8Rdm7PqLkHWnPMkrF",
       "JW7fjRH9gMGGLdgQRjNGk"
@@ -221764,6 +224048,7 @@
       "gzDGmdfm6gHWctgrcgfKf"
     ],
     "cards_referenced_by": [
+      "MBgNKqpNwzwM8n6KjMtFN",
       "RHrBnDBNJwLh8PDLGBmch",
       "6ntF8Rdm7PqLkHWnPMkrF",
       "JW7fjRH9gMGGLdgQRjNGk"
@@ -223032,6 +225317,148 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "229770",
         "tcgplayer_url": "https://www.tcgplayer.com/product/229770?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "fMDbBJHTPL7dcMMFNkCCm",
+    "name": "Kayo, Underhanded Cheat",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "40",
+    "intelligence": "4",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Brute",
+      "Hero"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Boos"
+    ],
+    "functional_text": "You start the game with 1 weapon zone.\n\n**Instant** - {r}{r}{r}{r}, {t}: Target attack action card you control has 6 base {p}.\n\nWhenever the crowd boos you, create a Vigor token.",
+    "functional_text_plain": "You start the game with 1 weapon zone.\nInstant - {r}{r}{r}{r}, {t}: Target attack action card you control has 6 base {p}.\nWhenever the crowd boos you, create a Vigor token.",
+    "type_text": "Reviled Brute Hero",
+    "played_horizontally": false,
+    "blitz_legal": false,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "jmBr99LqHr7Gntgb9Q6Wj",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP063",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "B",
+        "expansion_slot": false,
+        "artists": [
+          "Jessada Sutthi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP063.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "kjRrJQRmMnTBzjNWd9LfK",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP063",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Jessada Sutthi"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP063-MV.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "hjN6TnDDzqJGBFmhmQR8N",
+            "is_front": true,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "hjN6TnDDzqJGBFmhmQR8N",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP063",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Jessada Sutthi"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP063-MV_BACK.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "hjN6TnDDzqJGBFmhmQR8N",
+            "is_front": false,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "pzTPCfMCCBqJbRWjnWLkD",
+        "set_printing_unique_id": "NrpJFBQQGpNM8D9w8BBfG",
+        "id": "HER148",
+        "set_id": "HER",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Jessada Sutthi"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/HER148-RF.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -230494,6 +232921,116 @@
     ]
   },
   {
+    "unique_id": "cHPKptkbztKtj7bQnWmmP",
+    "name": "Liar's Charm",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Guardian",
+      "Instant"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Steal",
+      "The Crowd Boos"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "Choose any number;\n- **Steal** a Toughness or Vigor token.\n- **The crowd boos** you.\n- Target hero loses and can't gain abilities this action phase unless they discard a card.",
+    "functional_text_plain": "Choose any number;\n- Steal a Toughness or Vigor token.\n- The crowd boos you.\n- Target hero loses and can't gain abilities this action phase unless they discard a card.",
+    "type_text": "Reviled Guardian Instant",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm",
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "pCRpq8KfHnw7BBpPDkftm",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP076",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "S",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP076.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "NcrWQ9CBFTKGMwLtBCcLD",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS425",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "NcrWQ9CBFTKGMwLtBCcLD",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS425",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "qqzmLCbJJ6nwQGtzrJMcL",
     "name": "Life for a Life",
     "color": "Red",
@@ -231403,6 +233940,89 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "633675",
         "tcgplayer_url": "https://www.tcgplayer.com/product/633675?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "hcPBRGtmCKRBDMFBTJFbT",
+    "name": "Light Up the Leaves",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "3",
+    "power": "",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "6",
+    "types": [
+      "Earth",
+      "Wizard",
+      "Action"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "Deal 6 arcane damage to any target.\n\n**Instant** - Discard this and an Earth card: Prevent the next 6 arcane damage target source would deal this turn.",
+    "functional_text_plain": "Deal 6 arcane damage to any target.\nInstant - Discard this and an Earth card: Prevent the next 6 arcane damage target source would deal this turn.",
+    "type_text": "Earth Wizard Action",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "TpMJTzH8KWKwCtJrQJFWr",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP264",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Rio Sabda"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP264.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "CPzLQk7KCPhmmqWQ6gpFB",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP264",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Rio Sabda"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP264.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -238173,6 +240793,150 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "224957",
         "tcgplayer_url": "https://www.tcgplayer.com/product/224957?Language=English&Printing=Normal"
+      }
+    ]
+  },
+  {
+    "unique_id": "MgKprw8PQjNKC7JDmppHh",
+    "name": "Lyath Goldmane, Vile Savant",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "40",
+    "intelligence": "5",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Guardian",
+      "Hero"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [
+      "The Crowd Boos"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Boos"
+    ],
+    "functional_text": "The base {p} and {d} of cards you control are halved, rounded up.\n\n**Instant** - {r}{r}, {t}: **The crowd boos** you. Defending action cards you control get +1{d} this turn.\n\nWhenever the crowd boos you, create a Might token.",
+    "functional_text_plain": "The base {p} and {d} of cards you control are halved, rounded up.\nInstant - {r}{r}, {t}: The crowd boos you. Defending action cards you control get +1{d} this turn.\nWhenever the crowd boos you, create a Might token.",
+    "type_text": "Reviled Guardian Hero",
+    "played_horizontally": false,
+    "blitz_legal": false,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "Lz7nbGDHbhkPNKcJptgQr",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP071",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "B",
+        "expansion_slot": false,
+        "artists": [
+          "Nathaniel Himawan"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP071.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "wJHKFwtNgKwGcT6WcQWGg",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP071",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Nathaniel Himawan"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP071-MV.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "bMCqz8rMLPnPNFf9rDQ97",
+            "is_front": true,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "bMCqz8rMLPnPNFf9rDQ97",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP071",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Nathaniel Himawan"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP071-MV_BACK.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "bMCqz8rMLPnPNFf9rDQ97",
+            "is_front": false,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "pJDPgdDcbfmMhcpGhGqBL",
+        "set_printing_unique_id": "NrpJFBQQGpNM8D9w8BBfG",
+        "id": "HER149",
+        "set_id": "HER",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Nathaniel Himawan"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/HER149-RF.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -246466,6 +249230,72 @@
     ]
   },
   {
+    "unique_id": "GmnHWfMKzgJgpWKhQBmrM",
+    "name": "Meet Madness",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "3",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Chaos",
+      "Assassin",
+      "Action",
+      "Attack"
+    ],
+    "traits": [
+      "Stealth"
+    ],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Stealth**\n\nWhen this hits a hero, choose 1 at random;\n- They choose a card in their hand. Banish it.\n- They choose a card in their arsenal. Banish it.\n- Banish the top card of their deck.",
+    "functional_text_plain": "Stealth\nWhen this hits a hero, choose 1 at random;\n- They choose a card in their hand. Banish it.\n- They choose a card in their arsenal. Banish it.\n- Banish the top card of their deck.",
+    "type_text": "Chaos Assassin Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "mRCB6tmCdLwgQwthtcq7G",
+        "set_printing_unique_id": "qcgTbrR8GHqQhRGTRTtNr",
+        "id": "AAC014",
+        "set_id": "AAC",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Sebastian Giacobino"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "DG7DRnLw6kjDcMGH6hCmg",
     "name": "Meganetic Lockwave",
     "color": "Blue",
@@ -248607,7 +251437,11 @@
     "commoner_suspended": false,
     "ll_restricted": false,
     "cards_referenced_by": [
+      "kBJJjzp8KMrRWcwMwKWcW",
       "QTpCnrrjTbQhdRdLBzLzB",
+      "kJzkbhWtqDJcCD6ngwkBH",
+      "jg7dz6tkjTTqgmcNQbLRW",
+      "CdnTg7KmhKzWpJcd9JHrR",
       "RKqGdm6WndJLgwRtTQkpc",
       "RKqGdm6WndJLgwRtTQkpc",
       "fkJjHhHdB79QkMRRGLRTr",
@@ -248637,11 +251471,14 @@
       "zCCQtzBrr9QWp6fqDQNrC",
       "PNLWb9zzTRkcJ6Dbrg67G",
       "WbckgKBJq6kBM88nRFGmB",
+      "MgKprw8PQjNKC7JDmppHh",
       "RGHRQgGJdBhBPgM9Pfgw7",
       "wWrJrBcLPWcwc7RTrc6Bk",
       "RjjGjcfnzzmwGGw6DcLWj",
       "RjjGjcfnzzmwGGw6DcLWj",
       "fgPwzMt7tqqtN77zFbjzP",
+      "wHhtChfRBPBbjKqcmrMJf",
+      "qLttRBczGdzDtWNtFTGMn",
       "bRM9LLRrhJ8LLqBrGKCgb",
       "jkPdKzd9rfgc7W87rjr6r",
       "hBNjTCpMptr8QmFbPHjN8",
@@ -248652,10 +251489,12 @@
       "BWnMgK7JcL6p9NDrQJMW7",
       "87pqdhz7F6GRCGzpD7cjj",
       "NqkBRhGqcjNCjBhMq8qpF",
+      "cfcQjNKbBQ6WtGcFRrhHd",
       "WJzNjPfQGqdTtjTHQP6rL",
       "Cqr7rhqq8hQPPhpHQBCHr",
       "JbQPwq8DkLpDdjHCP9www",
       "QBwMd7jJGmz7cFKLRDjHd",
+      "NwWCLDRkRhtkT8JrRnFgt",
       "PDPbhCGj7twzTP8HGfhBb",
       "KqtjpgTftPFhRbhwQkcBQ",
       "7HFBMWtFrdmQpQkLLwHGJ",
@@ -251283,6 +254122,255 @@
     ]
   },
   {
+    "unique_id": "m7nLdbTgfJKmdQrmCDTcq",
+    "name": "Mocking Blow",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "1",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Boos"
+    ],
+    "functional_text": "When this attacks a hero, if you have more {h} than them, **the crowd boos** you.\n\nIf you've been booed this turn, this gets +4{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have more {h} than them, the crowd boos you.\nIf you've been booed this turn, this gets +4{p}.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "LFwThrpfbjP7jPqPQfqQc",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP090",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP090.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "j8jHhPT9W6pRjKQqCKMRR",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP090",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP090.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "f68hNDr6wCPfJ9c9b7Lqf",
+    "name": "Mocking Blow",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "1",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Boos"
+    ],
+    "functional_text": "When this attacks a hero, if you have more {h} than them, **the crowd boos** you.\n\nIf you've been booed this turn, this gets +3{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have more {h} than them, the crowd boos you.\nIf you've been booed this turn, this gets +3{p}.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "pCwG9QgRGKGWgMTPfz8Jh",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP091",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP091.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "jPmrdfpqDqpwpwBR9DBcn",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP091",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP091.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "kTNFffN8hnrk7cr8zNkQP",
+    "name": "Mocking Blow",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "0",
+    "power": "1",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Boos"
+    ],
+    "functional_text": "When this attacks a hero, if you have more {h} than them, **the crowd boos** you.\n\nIf you've been booed this turn, this gets +2{p}.",
+    "functional_text_plain": "When this attacks a hero, if you have more {h} than them, the crowd boos you.\nIf you've been booed this turn, this gets +2{p}.",
+    "type_text": "Reviled Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "RbKLHk6bzdWbjH6Mqpqf7",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP092",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP092.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "DQcjfjLMK8p6rdtqHjKzF",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP092",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Nailsen Ivanderlie"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "flavor_text_plain": "\"Hah! Who's the buffon now, bigmouth?\" - Slapstick Sal",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP092.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "7mgnPjCmmLc9K9WwLdhJ6",
     "name": "Money Where Ya Mouth Is",
     "color": "Red",
@@ -253571,12 +256659,12 @@
     "commoner_suspended": false,
     "ll_restricted": false,
     "referenced_cards": [
+      "QnGJNBGBFw98q9n9NCdRW",
+      "nM8BHGHd9qLGTPgwtWzkJ",
       "hTMnFLppC7Pjdk6hq8nWb",
       "GqNTpPW79fHNzj7kB8Kkb",
       "Hpq8jQm9H97HbfhBKgctd",
-      "KtHkGCQfc6Td7Dg8htCcJ",
-      "QnGJNBGBFw98q9n9NCdRW",
-      "nM8BHGHd9qLGTPgwtWzkJ"
+      "KtHkGCQfc6Td7Dg8htCcJ"
     ],
     "cards_referenced_by": [
       "hTMnFLppC7Pjdk6hq8nWb"
@@ -260369,6 +263457,116 @@
     ]
   },
   {
+    "unique_id": "wHhtChfRBPBbjKqcmrMJf",
+    "name": "Numbskull Charm",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Brute",
+      "Instant"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "The Crowd Cheers"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "Choose any number;\n- Destroy a Confidence or Might token.\n- **The crowd cheers** you.\n- Pitch the top card of your deck. If it has 6 or more {p}, create a Vigor token.",
+    "functional_text_plain": "Choose any number;\n- Destroy a Confidence or Might token.\n- The crowd cheers you.\n- Pitch the top card of your deck. If it has 6 or more {p}, create a Vigor token.",
+    "type_text": "Revered Brute Instant",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ",
+      "6gqTwGnmHjkCLDqKPWt8c",
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "DPTg77BdDD9hbdGtM6wG8",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP007",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "S",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP007.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "RqtwrKcHQm6Q9MWqLcprq",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS422",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "RqtwrKcHQm6Q9MWqLcprq",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS422",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "prMJkPd8w9KQHQ9BjgMmG",
     "name": "Nuu",
     "color": "",
@@ -262238,6 +265436,92 @@
     ]
   },
   {
+    "unique_id": "qLttRBczGdzDtWNtFTGMn",
+    "name": "Offensive Behavior",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "0",
+    "power": "2",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Brute",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "If you control a Might or Vigor token, this gets +1{p}.\n\nWhen this hits a hero, create a Might and a Vigor token.",
+    "functional_text_plain": "If you control a Might or Vigor token, this gets +1{p}.\nWhen this hits a hero, create a Might and a Vigor token.",
+    "type_text": "Reviled Brute Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c",
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "RqCNLrDQHqbcTLdchRmBF",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP070",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Tomasz Jedruszek"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP070.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "WdMz7fPWNH8mFHpNTBhLq",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP070",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Tomasz Jedruszek"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP070.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "ph6zmRnbqhCtD7T7FwpdB",
     "name": "Okana Scar Wraps",
     "color": "",
@@ -262397,6 +265681,92 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "633673",
         "tcgplayer_url": "https://www.tcgplayer.com/product/633673?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "CDWJGrPLQbrqwkj7mzQ8B",
+    "name": "Old Leather and Vim",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "2",
+    "power": "6",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Brute",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "If you control a Toughness or Vigor token, this gets +1{p}.\n\nWhen this hits a hero, create a Toughness and a Vigor token.",
+    "functional_text_plain": "If you control a Toughness or Vigor token, this gets +1{p}.\nWhen this hits a hero, create a Toughness and a Vigor token.",
+    "type_text": "Revered Brute Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm",
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "mNmCRhk8kDJHqHdFGgFDR",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP008",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Galih M"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP008.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "jNCkLcQNpQRHMrMptRnwB",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP008",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Galih M"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP008.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -262834,6 +266204,10 @@
       "8qdmprPg7kckn8ktMTKQh"
     ],
     "cards_referenced_by": [
+      "hWW6zdd6hQ7CwbBt6wc7d",
+      "RWHJMQ9jdRHFHKNqcJDMD",
+      "hBNhqr7gCLz6QMzBDLk8F",
+      "nTWKhGp7pwKwMmtFnB8hc",
       "mRCfW6wBLjzRzjnNrKqQn",
       "W7QPrj9bzNgddWCCFFCRw",
       "ndg9MJNHtTFG6BQqK7Lgz"
@@ -262991,6 +266365,10 @@
       "8qdmprPg7kckn8ktMTKQh"
     ],
     "cards_referenced_by": [
+      "hWW6zdd6hQ7CwbBt6wc7d",
+      "RWHJMQ9jdRHFHKNqcJDMD",
+      "hBNhqr7gCLz6QMzBDLk8F",
+      "nTWKhGp7pwKwMmtFnB8hc",
       "mRCfW6wBLjzRzjnNrKqQn",
       "W7QPrj9bzNgddWCCFFCRw",
       "ndg9MJNHtTFG6BQqK7Lgz"
@@ -267331,6 +270709,92 @@
     ]
   },
   {
+    "unique_id": "f98CNTJTLWWTgPzmRpmGK",
+    "name": "Outside Interference",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "6",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Brute",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Instant** - Discard this: You may reveal a Reviled attack action card from your inventory and put it into your hand.",
+    "functional_text_plain": "Instant - Discard this: You may reveal a Reviled attack action card from your inventory and put it into your hand.",
+    "type_text": "Reviled Brute Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "bmwNNkJjTkFJNPWrBwMJh",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP066",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Septimius Ferdian"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP066.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "Qf7RwBpzrLWgFQp6LPT6D",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP066",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Septimius Ferdian"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP066-CF.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "dR8hjTth9bHpdLfTBPLNM",
     "name": "Ouvia",
     "color": "",
@@ -269254,6 +272718,89 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "533051",
         "tcgplayer_url": "https://www.tcgplayer.com/product/533051?Language=English&Printing=Cold+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "9zW8NL8CktpnMwmD7dWrh",
+    "name": "Overcrowded",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "0",
+    "power": "1",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Ambush"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Ambush**\n\nWhen this attacks or defends, it gets +1{p} +1{d} for each different name among aura tokens in the arena.",
+    "functional_text_plain": "Ambush\nWhen this attacks or defends, it gets +1{p} +1{d} for each different name among aura tokens in the arena.",
+    "type_text": "Generic Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "f9mKrf9RhRhQRzBz9RWrr",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP216",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Tomasz Jedruszek"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP216.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "PtGM6QCt9gbfGCGG7jtB9",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP216",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Tomasz Jedruszek"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP216.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -281267,6 +284814,219 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "612646",
         "tcgplayer_url": "https://www.tcgplayer.com/product/612646?Language=English&Printing=Rainbow+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "DcwnhL66BkhqjFcfzwwfQ",
+    "name": "Pleiades",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "20",
+    "intelligence": "4",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Hero",
+      "Young"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "**Instant** - {t}, remove a suspense counter from an aura you control: You may put a suspense counter on an aura of suspense you control.\n\nWhenever the crowd cheers you, create a Confidence token.",
+    "functional_text_plain": "Instant - {t}, remove a suspense counter from an aura you control: You may put a suspense counter on an aura of suspense you control.\nWhenever the crowd cheers you, create a Confidence token.",
+    "type_text": "Revered Guardian Hero - Young",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": false,
+    "commoner_legal": true,
+    "ll_legal": false,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ"
+    ],
+    "printings": [
+      {
+        "unique_id": "gjH8bq8gcQ97rdmghFttM",
+        "set_printing_unique_id": "npPLBdtF6fRmmMgTjgP9j",
+        "id": "APS002",
+        "set_id": "APS",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Livia Prima"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
+    "unique_id": "JhgRJb6nfctWkndbzrgnj",
+    "name": "Pleiades, Superstar",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "40",
+    "intelligence": "4",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Hero"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "**Instant** - {t}, remove a suspense counter from an aura you control: You may put a suspense counter on an aura of suspense you control.\n\nWhenever the crowd cheers you, create a Confidence token.",
+    "functional_text_plain": "Instant - {t}, remove a suspense counter from an aura you control: You may put a suspense counter on an aura of suspense you control.\nWhenever the crowd cheers you, create a Confidence token.",
+    "type_text": "Revered Guardian Hero",
+    "played_horizontally": false,
+    "blitz_legal": false,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ"
+    ],
+    "printings": [
+      {
+        "unique_id": "fjnzWwnMHHGdcR86CPpFz",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP009",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "B",
+        "expansion_slot": false,
+        "artists": [
+          "Livia Prima"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP009.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "Dtp7LrN8hKrmdQR8WPtQp",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP009",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Livia Prima"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP009-MV.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "6qBpKJrfzhmgJhNRGrcbn",
+            "is_front": true,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "6qBpKJrfzhmgJhNRGrcbn",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP009",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Livia Prima"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP009-MV_BACK.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "6qBpKJrfzhmgJhNRGrcbn",
+            "is_front": false,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "86NdnkQNKCcfrLQFgqKhf",
+        "set_printing_unique_id": "NrpJFBQQGpNM8D9w8BBfG",
+        "id": "HER147",
+        "set_id": "HER",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Livia Prima"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/HER147-RF.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -297018,6 +300778,73 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "225298",
         "tcgplayer_url": "https://www.tcgplayer.com/product/225298?Language=English&Printing=Unlimited+Edition+Rainbow+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "BJrdzPnKR6zFhPhpWkLqr",
+    "name": "Punching Gloves",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Equipment",
+      "Arms"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Action"
+    ],
+    "ability_and_effect_keywords": [
+      "Go again"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Action** - {r}{r}, destroy this: The next attack card you play this turn gets +2{p}. **Go again**",
+    "functional_text_plain": "Action - {r}{r}, destroy this: The next attack card you play this turn gets +2{p}. Go again",
+    "type_text": "Generic Equipment - Arms",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "PPWwJRT8h7nbPhBFhpGqb",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP213",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Marcus Reyno"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP213.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -318110,6 +321937,7 @@
     "commoner_suspended": false,
     "ll_restricted": false,
     "cards_referenced_by": [
+      "kBJJjzp8KMrRWcwMwKWcW",
       "GgDFFHhLh8Kc7tJK8nBLj",
       "t68gtGcPf8H9wTGBCfj8L",
       "BpjDRjGcMhFQkKQLnLLkQ",
@@ -318390,6 +322218,7 @@
     "commoner_suspended": false,
     "ll_restricted": false,
     "cards_referenced_by": [
+      "kBJJjzp8KMrRWcwMwKWcW",
       "GgDFFHhLh8Kc7tJK8nBLj",
       "t68gtGcPf8H9wTGBCfj8L",
       "BpjDRjGcMhFQkKQLnLLkQ",
@@ -322318,7 +326147,8 @@
       "6GbtFTnH86TCFdKLMdrPk",
       "BzRzJh9PcztPDn7fhNLF9",
       "RmpWGrQMtkjKRfd8QqrGJ",
-      "zRPmCL8MkNKkwkKb7GRbn"
+      "zRPmCL8MkNKkwkKb7GRbn",
+      "7MhmQ8chFGLcdjP66Jgj6"
     ],
     "printings": [
       {
@@ -322457,7 +326287,8 @@
       "6GbtFTnH86TCFdKLMdrPk",
       "BzRzJh9PcztPDn7fhNLF9",
       "RmpWGrQMtkjKRfd8QqrGJ",
-      "zRPmCL8MkNKkwkKb7GRbn"
+      "zRPmCL8MkNKkwkKb7GRbn",
+      "7MhmQ8chFGLcdjP66Jgj6"
     ],
     "printings": [
       {
@@ -362712,6 +366543,7 @@
       "QBDrnc9CmJD6BdzzhQGjJ",
       "Mqj9K8NgJ7LFBwMKWk6L7",
       "Ng9LqqDzcwcTmQmDzWzjT",
+      "9ktNWqbdPNrBJPNnCQCgb",
       "jtJnCFHwQf7w9hwzbBtQt",
       "zWjNwt6zMt9hMq9TDKJWp",
       "RnjfWPNBLBd9nGR8RdhnT",
@@ -383293,6 +387125,92 @@
     ]
   },
   {
+    "unique_id": "cfcQjNKbBQ6WtGcFRrhHd",
+    "name": "Spew Obscenities",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "3",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Reviled",
+      "Guardian",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "If you control a Confidence or Might token, this gets +1{p}.\n\nWhen this hits a hero, create a Confidence and a Might token.",
+    "functional_text_plain": "If you control a Confidence or Might token, this gets +1{p}.\nWhen this hits a hero, create a Confidence and a Might token.",
+    "type_text": "Reviled Guardian Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ",
+      "6gqTwGnmHjkCLDqKPWt8c"
+    ],
+    "printings": [
+      {
+        "unique_id": "zJzfJjNktMwLcHW9jgTQd",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP078",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Henrique Lindner"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Gallbladder &#$?&! privy with a blunt #$@!\" - Fugger Grimes, Baleful Horde",
+        "flavor_text_plain": "\"Gallbladder &#$?&! privy with a blunt #$@!\" - Fugger Grimes, Baleful Horde",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP078.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "LCtNGktDwGNd6nFDctRNK",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP078",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Henrique Lindner"
+        ],
+        "art_variations": [],
+        "flavor_text": "\"Gallbladder &#$?&! privy with a blunt #$@!\" - Fugger Grimes, Baleful Horde",
+        "flavor_text_plain": "\"Gallbladder &#$?&! privy with a blunt #$@!\" - Fugger Grimes, Baleful Horde",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP078.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "B6QBPpJtzFp6btg87zpqH",
     "name": "Spew Shadow",
     "color": "Red",
@@ -389524,6 +393442,72 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "533603",
         "tcgplayer_url": "https://www.tcgplayer.com/product/533603?Language=English&Printing=Rainbow+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "GzWDLbC8WgKLHkgBnQ8mc",
+    "name": "Standing Ovation",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "6",
+    "power": "8",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "Suspense"
+    ],
+    "functional_text": "If 3 or more auras of suspense have left the arena this turn, this gets \"When this hits a hero, take an extra turn after this one. At the beginning of the next end phase, they draw up to their {i}.\"",
+    "functional_text_plain": "If 3 or more auras of suspense have left the arena this turn, this gets \"When this hits a hero, take an extra turn after this one. At the beginning of the next end phase, they draw up to their {i}.\"",
+    "type_text": "Revered Guardian Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "RTLFGL9DwD8jgGFhJBGML",
+        "set_printing_unique_id": "npPLBdtF6fRmmMgTjgP9j",
+        "id": "APS019",
+        "set_id": "APS",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": false,
+        "artists": [
+          "Sebastian Giacobino"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/APS019.width-450.format-webp.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -406431,6 +410415,94 @@
     ]
   },
   {
+    "unique_id": "7MhmQ8chFGLcdjP66Jgj6",
+    "name": "Take the Bait",
+    "color": "Red",
+    "pitch": "1",
+    "cost": "0",
+    "power": "",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Ranger",
+      "Action"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Riptide Specialization",
+      "Go again"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Riptide Specialization**\n\nSearch your deck for a card, then shuffle and put it on top.\n\nCreate a Bait token under an opponent's control.\n\n**Go again**",
+    "functional_text_plain": "Riptide Specialization\nSearch your deck for a card, then shuffle and put it on top.\nCreate a Bait token under an opponent's control.\nGo again",
+    "type_text": "Ranger Action",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "DhffBQC7PHwzdJpjTjNBm",
+      "RNfgGmc8wHgBrmC6gkqBd",
+      "ndNkP7p6FDnNWzt7ckjPf"
+    ],
+    "printings": [
+      {
+        "unique_id": "9wfzHbBkW7LbbThrCbMFQ",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP258",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Orson CaptainSass"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP258.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "dQp67DbJptDwkdTLtKRmG",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP258",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "M",
+        "expansion_slot": true,
+        "artists": [
+          "Orson CaptainSass"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP258.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "TtF8Q9WNQqPmJdrd6qp7k",
     "name": "Take the Tempo",
     "color": "Red",
@@ -414429,6 +418501,115 @@
     ]
   },
   {
+    "unique_id": "NwWCLDRkRhtkT8JrRnFgt",
+    "name": "Thespian Charm",
+    "color": "Yellow",
+    "pitch": "2",
+    "cost": "0",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Instant"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "The Crowd Cheers"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "Choose any number;\n- Destroy a Might or Vigor token.\n- **The crowd cheers** you.\n- Return an aura permanent you control to its owner's hand.",
+    "functional_text_plain": "Choose any number;\n- Destroy a Might or Vigor token.\n- The crowd cheers you.\n- Return an aura permanent you control to its owner's hand.",
+    "type_text": "Revered Guardian Instant",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "6gqTwGnmHjkCLDqKPWt8c",
+      "DBhPCQqjnj6qqd9DtBB7W"
+    ],
+    "printings": [
+      {
+        "unique_id": "7CL6G7tTKtFHCDkcRT7bM",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP013",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "S",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP013.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "wLKmjz6K8BwbGtqmMkThm",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS423",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "wLKmjz6K8BwbGtqmMkThm",
+        "set_printing_unique_id": "Cbc6mFhKFNdqtCTJ9wwGJ",
+        "id": "LGS423",
+        "set_id": "LGS",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Grégory Nunkovics"
+        ],
+        "art_variations": [
+          "EA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "QDH7qtJbC6HLbqnGzDBkR",
     "name": "Thick Hide Hunter",
     "color": "Yellow",
@@ -420837,6 +425018,71 @@
     ]
   },
   {
+    "unique_id": "rKwFK8LDKhPht6b9pNF7P",
+    "name": "Toby Jugs",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "0",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Equipment",
+      "Legs"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Blade Break"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "When this defends, you may pay {r}. If you do, it gets +2{d} this turn.\n\n**Blade Break**",
+    "functional_text_plain": "When this defends, you may pay {r}. If you do, it gets +2{d} this turn.\nBlade Break",
+    "type_text": "Generic Equipment - Legs",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "6JDTHhCPTGFNkr6GzjcMk",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP214",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "C",
+        "expansion_slot": false,
+        "artists": [
+          "Kyxarie Peralta"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP214.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "Jdmqz8NgGbBJp88BN8TwK",
     "name": "Tome of Aeo",
     "color": "Blue",
@@ -423475,6 +427721,79 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "273149",
         "tcgplayer_url": "https://www.tcgplayer.com/product/273149?Language=English&Printing=Normal"
+      }
+    ]
+  },
+  {
+    "unique_id": "Cn8tK9KRm7d9KbcQk6Pqm",
+    "name": "Toughness",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Generic",
+      "Token",
+      "Aura"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "At the start of your opponent's turn, destroy this, then the next action card you defend with this turn gets +1{d} this chain link.",
+    "functional_text_plain": "At the start of your opponent's turn, destroy this, then the next action card you defend with this turn gets +1{d} this chain link.",
+    "type_text": "Generic Token - Aura",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": true,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "cards_referenced_by": [
+      "7bfH9wkNGQKGzHKfGrQfd",
+      "gncL7pDCJzDJffqCnGGQM",
+      "RhkhMcbkCpRhLmpfqmbDF",
+      "8TmrQnhqFHDGkCQGKzWTj",
+      "cHPKptkbztKtj7bQnWmmP",
+      "CDWJGrPLQbrqwkj7mzQ8B",
+      "wqmMJj8PqzNHg7Q7LMqTR",
+      "PQLpnnKFRhCrdMnwgdNHH"
+    ],
+    "printings": [
+      {
+        "unique_id": "f7bQcTgGzbpJWDDBHBJJw",
+        "set_printing_unique_id": "npPLBdtF6fRmmMgTjgP9j",
+        "id": "APS032",
+        "set_id": "APS",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "T",
+        "expansion_slot": false,
+        "artists": [
+          "Henrique Lindner"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/APS032.width-450.format-webp.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -428443,6 +432762,150 @@
     ]
   },
   {
+    "unique_id": "wqmMJj8PqzNHg7Q7LMqTR",
+    "name": "Tuffnut, Bumbling Hulkster",
+    "color": "",
+    "pitch": "",
+    "cost": "",
+    "power": "",
+    "defense": "",
+    "health": "40",
+    "intelligence": "3",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Brute",
+      "Hero"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [
+      "Instant"
+    ],
+    "ability_and_effect_keywords": [
+      "The Crowd Cheers"
+    ],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [
+      "The Crowd Cheers"
+    ],
+    "functional_text": "**Instant** - {t}: Pitch the top card of your deck. If it has 6 or more {p}, **the crowd cheers* you.\n\nWheenver the crowd cheers you, create a Toughness token.",
+    "functional_text_plain": "Instant - {t}: Pitch the top card of your deck. If it has 6 or more {p}, *the crowd cheers you.\nWheenver the crowd cheers you, create a Toughness token.",
+    "type_text": "Revered Brute Hero",
+    "played_horizontally": false,
+    "blitz_legal": false,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "zMzQznDgkkBMTLwTPd9Fd",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP001",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "B",
+        "expansion_slot": false,
+        "artists": [
+          "Wisnu Tan"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP001.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "wmGPCqtz7TWtTPRRMCRJR",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP001",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Wisnu Tan"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP001-MV.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "zkwNKBrhHmTnwMBrzhdfj",
+            "is_front": true,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "zkwNKBrhHmTnwMBrzhdfj",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP001",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "C",
+        "rarity": "V",
+        "expansion_slot": false,
+        "artists": [
+          "Wisnu Tan"
+        ],
+        "art_variations": [
+          "FA"
+        ],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP001-MV_BACK.webp",
+        "image_rotation_degrees": 0,
+        "double_sided_card_info": [
+          {
+            "other_face_unique_id": "zkwNKBrhHmTnwMBrzhdfj",
+            "is_front": false,
+            "is_DFC": false
+          }
+        ]
+      },
+      {
+        "unique_id": "GKzW9mhtMFRMfQNzpNcw8",
+        "set_printing_unique_id": "NrpJFBQQGpNM8D9w8BBfG",
+        "id": "HER146",
+        "set_id": "HER",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "P",
+        "expansion_slot": false,
+        "artists": [
+          "Wisnu Tan"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/HER146-ARF.webp",
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "67qdjCMdF7qMmrDpcjWWD",
     "name": "Turn Timber",
     "color": "Red",
@@ -433222,6 +437685,72 @@
     ]
   },
   {
+    "unique_id": "qGKpfJNFKgrQqDrwLzqdQ",
+    "name": "Up on a Pedestal",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "0",
+    "power": "",
+    "defense": "2",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Instant",
+      "Aura"
+    ],
+    "traits": [],
+    "card_keywords": [
+      "Suspense"
+    ],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "**Suspense**\n\nWhen this enters or leaves the arena, you may put a Revered or Guardian attack action card from your graveyard on top of your deck.",
+    "functional_text_plain": "Suspense\nWhen this enters or leaves the arena, you may put a Revered or Guardian attack action card from your graveyard on top of your deck.",
+    "type_text": "Revered Guardian Instant - Aura",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "printings": [
+      {
+        "unique_id": "Dnh6QH6nqnDd7LwNhQnWh",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP014",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "S",
+        "expansion_slot": false,
+        "artists": [
+          "Ina Wong"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": null,
+        "image_rotation_degrees": 0
+      }
+    ]
+  },
+  {
     "unique_id": "W7QPrj9bzNgddWCCFFCRw",
     "name": "Up the Ante",
     "color": "Blue",
@@ -433449,6 +437978,92 @@
         "image_rotation_degrees": 0,
         "tcgplayer_product_id": "554168",
         "tcgplayer_url": "https://www.tcgplayer.com/product/554168?Language=English&Printing=Rainbow+Foil"
+      }
+    ]
+  },
+  {
+    "unique_id": "PQLpnnKFRhCrdMnwgdNHH",
+    "name": "Uplifting Performance",
+    "color": "Blue",
+    "pitch": "3",
+    "cost": "3",
+    "power": "5",
+    "defense": "3",
+    "health": "",
+    "intelligence": "",
+    "arcane": "",
+    "types": [
+      "Revered",
+      "Guardian",
+      "Action",
+      "Attack"
+    ],
+    "traits": [],
+    "card_keywords": [],
+    "abilities_and_effects": [],
+    "ability_and_effect_keywords": [],
+    "granted_keywords": [],
+    "removed_keywords": [],
+    "interacts_with_keywords": [],
+    "functional_text": "If you control a Confidence or Toughness token, this gets +1{p}.\n\nWhen this hits a hero, create a Confidence and a Toughness token.",
+    "functional_text_plain": "If you control a Confidence or Toughness token, this gets +1{p}.\nWhen this hits a hero, create a Confidence and a Toughness token.",
+    "type_text": "Revered Guardian Action - Attack",
+    "played_horizontally": false,
+    "blitz_legal": true,
+    "cc_legal": true,
+    "commoner_legal": false,
+    "ll_legal": true,
+    "blitz_living_legend": false,
+    "cc_living_legend": false,
+    "blitz_banned": false,
+    "cc_banned": false,
+    "commoner_banned": false,
+    "ll_banned": false,
+    "upf_banned": false,
+    "blitz_suspended": false,
+    "cc_suspended": false,
+    "commoner_suspended": false,
+    "ll_restricted": false,
+    "referenced_cards": [
+      "WBFjTCfmbwHCr8WNmz8RQ",
+      "Cn8tK9KRm7d9KbcQk6Pqm"
+    ],
+    "printings": [
+      {
+        "unique_id": "jRwm7GJqpNzqL6PqnrzPc",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP016",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "S",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Marco Wulfr"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP016.webp",
+        "image_rotation_degrees": 0
+      },
+      {
+        "unique_id": "ThWhHtcmTdq78pbQ9NwWw",
+        "set_printing_unique_id": "wJwjGbHjzbbFJdGdGJMMh",
+        "id": "SUP016",
+        "set_id": "SUP",
+        "edition": "N",
+        "foiling": "R",
+        "rarity": "R",
+        "expansion_slot": false,
+        "artists": [
+          "Marco Wulfr"
+        ],
+        "art_variations": [],
+        "flavor_text": "",
+        "flavor_text_plain": "",
+        "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/SUP016.webp",
+        "image_rotation_degrees": 0
       }
     ]
   },
@@ -439907,16 +444522,22 @@
       "HhJtCMW6nLMfzGJLn7g8m",
       "WHLRchgdMH8Bjb8TDngkp",
       "GK6TKkztnwHHwqKPrGR9k",
+      "fMDbBJHTPL7dcMMFNkCCm",
       "CTq6Kdn7WcJ87LzrmznkH",
       "QqFg7dmp9NTgKcr88p6KG",
       "mRhcrTprzbbdTbB9gdTHw",
+      "cHPKptkbztKtj7bQnWmmP",
       "fgPwzMt7tqqtN77zFbjzP",
+      "wHhtChfRBPBbjKqcmrMJf",
+      "qLttRBczGdzDtWNtFTGMn",
+      "CDWJGrPLQbrqwkj7mzQ8B",
       "bRM9LLRrhJ8LLqBrGKCgb",
       "DTNR6KNnBDCBqkczc9PnT",
       "6JWDWhqwDrdDPnGfqMQQR",
       "jRGGnkWgcLPMMQ6D7bdnk",
       "WJzNjPfQGqdTtjTHQP6rL",
       "zt8NGKPrTHDJ8pDrDdJgw",
+      "NwWCLDRkRhtkT8JrRnFgt",
       "p9Mw8DBq9hPqKnPRrwCHz",
       "W7QPrj9bzNgddWCCFFCRw",
       "GpQBzCwwRFCKjWNq8Hgtj",
