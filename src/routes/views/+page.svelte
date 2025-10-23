@@ -16,6 +16,12 @@
 		</a>
 		<a class="border rounded text-center py-4 px-4 block" href="/views/topCut"> Top 8 Graphics </a>
 		<a class="border rounded text-center py-4 px-4 block" href="/views/metagame"> Metagame </a>
+		<a class="border rounded text-center py-4 px-4 block" href="/views/tournamentround">
+			Tournament Round
+		</a>
+		<a class="border rounded text-center py-4 px-4 block" href="/views/tournamentstandings">
+			Tournament Standings
+		</a>
 	</div>
 	<p class="container mx-auto text-xl px-4 mt-8">Draft Coverage</p>
 	<div class="text-white pt-6 container mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 px-4">

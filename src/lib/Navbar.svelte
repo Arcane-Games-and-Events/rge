@@ -12,6 +12,7 @@
 		{ name: 'Caster View', href: '/casterview', current: false },
 		{ name: 'Draft Picker', href: '/draftpicker', current: false },
 		{ name: 'Metagame', href: '/metagame', current: false },
+		{ name: 'Tournament', href: '/tournament', current: false },
 		{ name: 'Top 8', href: '/graphics', current: false },
 		{ name: 'Event Presets', href: '/eventpresets', current: false }
 	];
