@@ -282,7 +282,7 @@
 <div class="min-h-screen text-white p-4 sm:p-6">
 	<!-- Header -->
 	<div class="flex flex-wrap items-center gap-3 mb-4">
-		<h1 class="text-7xl font-bold">Round {currentRound} Standings</h1>
+		<h1 class="text-7xl font-bold">Round {currentRound}</h1>
 	</div>
 
 	<!-- Two fixed columns: 1–8 and 9–16 -->
