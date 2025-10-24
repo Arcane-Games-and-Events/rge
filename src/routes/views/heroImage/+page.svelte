@@ -17,9 +17,18 @@
 			.trim();
 	}
 
-	// Default to .jpg, fall back to .png using on:error in <img>
+	// Special-case check for Arakni, Huntsman
 	function getHeroImage(heroName) {
 		if (!heroName) return '/heroImages/default.jpg';
+
+		// Normalize the input for comparison
+		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
+
+		if (normalized === 'arakni huntsman') {
+			return '/heroImages/arakni-huntsman1.jpg';
+		}
+
+		// Default path
 		const slug = slugify(heroName);
 		return `/heroImages/${slug}.jpg`;
 	}

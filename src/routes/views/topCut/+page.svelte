@@ -31,6 +31,14 @@
 
 	let playersUnsub, matchesUnsub;
 
+	// === IMAGE HELPERS ===
+	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
+
+	// Exceptions map
+	const IMAGE_EXCEPTIONS = {
+		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
+	};
+
 	function slugify(str) {
 		return str
 			.toLowerCase()
@@ -42,7 +50,18 @@
 
 	function getHeroImage(hero) {
 		if (!hero) return '/heroImages/default.jpg';
+		const key = normalize(hero);
+		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
 		return `/heroImages/${slugify(hero)}.jpg`;
+	}
+
+	function heroImgError(e, hero) {
+		const key = normalize(hero);
+		if (key in IMAGE_EXCEPTIONS) {
+			e.target.src = IMAGE_EXCEPTIONS[key].replace(/\.jpg$/i, '.png');
+		} else {
+			e.target.src = `/heroImages/${slugify(hero)}.png`;
+		}
 	}
 
 	onMount(() => {
@@ -114,6 +133,7 @@
 									src={getHeroImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
+									on:error={(e) => heroImgError(e, players[seed].hero)}
 								/>
 							{/if}
 						</div>
@@ -146,6 +166,7 @@
 									src={getHeroImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
+									on:error={(e) => heroImgError(e, players[seed].hero)}
 								/>
 							{/if}
 						</div>
@@ -176,6 +197,7 @@
 							src={getHeroImage(players[seed].hero)}
 							alt={players[seed].hero}
 							class="w-[70px] h-[70px] rounded-full object-cover object-right"
+							on:error={(e) => heroImgError(e, players[seed].hero)}
 						/>
 					{/if}
 				</div>

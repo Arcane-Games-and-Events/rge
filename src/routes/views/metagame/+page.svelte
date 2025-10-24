@@ -17,7 +17,26 @@
 			.replace(/-+/g, '-')
 			.trim();
 	}
+
+	// Exceptions: normalized hero name -> explicit filename
+	const IMAGE_EXCEPTIONS = {
+		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
+		// add more like:
+		// 'some hero': '/heroImages/custom-file.jpg'
+	};
+
 	function imgSrc(name) {
+		if (!name) return '/heroImages/default.jpg';
+
+		// normalize for matching (lowercase, no quotes/commas, trimmed)
+		const normalized = (name || '').toLowerCase().replace(/["',]/g, '').trim();
+
+		// special-case hit?
+		if (normalized in IMAGE_EXCEPTIONS) {
+			return IMAGE_EXCEPTIONS[normalized];
+		}
+
+		// default path
 		return `/heroImages/${slugify(name)}.jpg`;
 	}
 
@@ -81,13 +100,23 @@
 					{/if}
 				</div>
 
-				<!-- Image wrapper: taller if >24 heroes -->
-				<div class={`w-full bg-gray-950 flex items-center justify-center`}>
+				<!-- Image wrapper -->
+				<div class="w-full bg-gray-950 flex items-center justify-center">
 					<img
 						src={imgSrc(r.name)}
 						alt={r.name}
 						class="max-h-full w-auto object-contain"
 						loading="lazy"
+						on:error={(e) => {
+							// fallback to .png while keeping exceptions honored
+							const normalized = (r.name || '').toLowerCase().replace(/["',]/g, '').trim();
+							if (normalized in IMAGE_EXCEPTIONS) {
+								// try a png variant of the exception if it exists; otherwise keep the exception jpg
+								e.target.src = IMAGE_EXCEPTIONS[normalized].replace(/\.jpg$/i, '.png');
+							} else {
+								e.target.src = `/heroImages/${slugify(r.name)}.png`;
+							}
+						}}
 					/>
 				</div>
 
