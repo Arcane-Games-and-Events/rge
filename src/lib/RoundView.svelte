@@ -17,6 +17,14 @@
 	let playersTick = 0;
 
 	// --- helpers ---
+	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
+
+	// Exceptions: normalized hero name -> explicit filename
+	const IMAGE_EXCEPTIONS = {
+		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
+		// add more here if needed
+	};
+
 	const slugify = (name) =>
 		(name || '')
 			.toLowerCase()
@@ -25,7 +33,23 @@
 			.replace(/\s+/g, '-')
 			.replace(/-+/g, '-')
 			.trim();
-	const imgSrc = (name) => `/heroImages/${slugify(name)}.jpg`;
+
+	function imgSrc(name) {
+		if (!name) return '/heroImages/default.jpg';
+		const key = normalize(name);
+		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
+		return `/heroImages/${slugify(name)}.jpg`;
+	}
+
+	function onImgError(e, name) {
+		const key = normalize(name || '');
+		if (key in IMAGE_EXCEPTIONS) {
+			e.target.src = IMAGE_EXCEPTIONS[key].replace(/\.jpg$/i, '.png');
+		} else {
+			e.target.src = `/heroImages/${slugify(name)}.png`;
+		}
+	}
+
 	const isBye = (x) => x === 'BYE';
 
 	// record color by losses
@@ -195,6 +219,7 @@
 												src={imgSrc(getPlayer(m.p1).hero)}
 												alt={getPlayer(m.p1).hero}
 												class="h-14 w-14 object-cover object-right"
+												on:error={(e) => onImgError(e, getPlayer(m.p1).hero)}
 											/>
 										{/if}
 									</div>
@@ -233,6 +258,7 @@
 												src={imgSrc(getPlayer(m.p2).hero)}
 												alt={getPlayer(m.p2).hero}
 												class="h-14 w-14 object-cover object-right"
+												on:error={(e) => onImgError(e, getPlayer(m.p2).hero)}
 											/>
 										{/if}
 									</div>
@@ -307,6 +333,7 @@
 												src={imgSrc(getPlayer(m.p1).hero)}
 												alt={getPlayer(m.p1).hero}
 												class="h-14 w-14 object-cover object-right"
+												on:error={(e) => onImgError(e, getPlayer(m.p1).hero)}
 											/>
 										{/if}
 									</div>
@@ -344,6 +371,7 @@
 												src={imgSrc(getPlayer(m.p2).hero)}
 												alt={getPlayer(m.p2).hero}
 												class="h-14 w-14 object-cover object-right"
+												on:error={(e) => onImgError(e, getPlayer(m.p2).hero)}
 											/>
 										{/if}
 									</div>

@@ -12,7 +12,15 @@
 	let historyMap = {};
 	let standings = [];
 
-	// helpers
+	// --- image helpers (with exceptions) ---
+	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
+
+	// Exceptions: normalized hero name -> explicit filename
+	const IMAGE_EXCEPTIONS = {
+		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
+		// add more here as needed
+	};
+
 	const slugify = (name) =>
 		(name || '')
 			.toLowerCase()
@@ -21,7 +29,22 @@
 			.replace(/\s+/g, '-')
 			.replace(/-+/g, '-')
 			.trim();
-	const imgSrc = (name) => `/heroImages/${slugify(name)}.jpg`;
+
+	function imgSrc(name) {
+		if (!name) return '/heroImages/default.jpg';
+		const key = normalize(name);
+		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
+		return `/heroImages/${slugify(name)}.jpg`;
+	}
+
+	function onImgError(e, name) {
+		const key = normalize(name || '');
+		if (key in IMAGE_EXCEPTIONS) {
+			e.target.src = IMAGE_EXCEPTIONS[key].replace(/\.jpg$/i, '.png');
+		} else {
+			e.target.src = `/heroImages/${slugify(name)}.png`;
+		}
+	}
 
 	function normalizePlayers(map) {
 		const ids = Object.keys(map || {})
@@ -150,7 +173,7 @@
 				// - W increases wins and MP and counts toward CMP
 				// - L increases losses
 				// - D increases draws
-				// - B/BYE is counted into "byes" ONLY (no MP/CMP/MLP effects, no opponent)
+				// - B/BYE goes to "byes" ONLY (no MP/CMP/MLP, no opponent)
 				if (res === 'W') {
 					wins++;
 					mp++;
@@ -164,13 +187,12 @@
 					if (opp !== '' && opp != null) opps.add(Number(opp));
 				} else if (res === 'B' || res === 'BYE') {
 					byes++; // display-only win
-					// no MP / no CMP / not an opponent
 				}
 			}
 
 			const cmp = winByRound.reduce((a, v, i) => a + (v ? weights[i] : 0), 0);
 
-			// MLP (ignore BYE rounds just like original behavior would)
+			// MLP (ignore BYE rounds)
 			let lossesCount = 0,
 				playedCount = 0;
 			for (let r = 1; r <= maxRound; r++) {
@@ -188,7 +210,7 @@
 				name: p.name,
 				hero: p.hero,
 				dropped: p.dropped,
-				record: { wins, losses, draws, byes }, // keep byes separately
+				record: { wins, losses, draws, byes },
 				mp,
 				cmp,
 				mlp,
@@ -302,6 +324,7 @@
 										src={imgSrc(s.hero)}
 										alt={s.hero}
 										class="h-14 w-14 object-cover object-right"
+										on:error={(e) => onImgError(e, s.hero)}
 									/>
 								{:else}
 									<div class="h-full w-full"></div>
@@ -342,6 +365,7 @@
 										src={imgSrc(s.hero)}
 										alt={s.hero}
 										class="h-14 w-14 object-cover object-right"
+										on:error={(e) => onImgError(e, s.hero)}
 									/>
 								{:else}
 									<div class="h-full w-full"></div>
