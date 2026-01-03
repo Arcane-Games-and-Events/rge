@@ -7,6 +7,8 @@
 
 	let rows = [];
 	let total = 0;
+	let imagesReady = false;
+	let preloadedImages = new Map();
 
 	function slugify(name) {
 		return (name || '')
@@ -41,9 +43,58 @@
 		return Math.ceil(count / 6);
 	}
 
+	// Preload a single image, trying jpg then png
+	function preloadImage(name) {
+		return new Promise((resolve) => {
+			const src = imgSrc(name);
+			const img = new Image();
+
+			img.onload = () => {
+				preloadedImages.set(name, src);
+				resolve(src);
+			};
+
+			img.onerror = () => {
+				// Try png fallback
+				const pngSrc = src.replace(/\.jpg$/i, '.png');
+				const img2 = new Image();
+				img2.onload = () => {
+					preloadedImages.set(name, pngSrc);
+					resolve(pngSrc);
+				};
+				img2.onerror = () => {
+					// Use default or just resolve with original
+					preloadedImages.set(name, src);
+					resolve(src);
+				};
+				img2.src = pngSrc;
+			};
+
+			img.src = src;
+		});
+	}
+
+	// Preload all hero images
+	async function preloadAllImages(heroes) {
+		if (heroes.length === 0) {
+			imagesReady = true;
+			return;
+		}
+
+		imagesReady = false;
+		const promises = heroes.map(hero => preloadImage(hero.name));
+		await Promise.all(promises);
+		imagesReady = true;
+	}
+
+	// Get the preloaded (or fallback) image src
+	function getImageSrc(name) {
+		return preloadedImages.get(name) || imgSrc(name);
+	}
+
 	onMount(() => {
 		const r = ref(db, PATH);
-		const unsub = onValue(r, (snap) => {
+		const unsub = onValue(r, async (snap) => {
 			const val = snap.val() || {};
 			rows = Object.entries(val).map(([id, v]) => ({
 				id,
@@ -51,6 +102,10 @@
 				count: Number(v?.count) || 0
 			}));
 			total = rows.reduce((a, r) => a + (isFinite(r.count) ? r.count : 0), 0);
+
+			// Preload images for visible heroes
+			const visibleHeroes = [...rows].filter((r) => r.count > 0).sort((a, b) => (b.count || 0) - (a.count || 0));
+			await preloadAllImages(visibleHeroes);
 		});
 		return () => unsub?.();
 	});
@@ -62,29 +117,20 @@
 </script>
 
 <div class="metagame-container">
-	{#if heroCount > 0}
+	{#if heroCount > 0 && imagesReady}
 		<div
 			class="metagame-grid"
 			style="--cols: {columns}; --rows: {rowCount};"
 		>
 			{#each visible as hero, idx (hero.id)}
 				{@const percentage = total > 0 ? Math.round((hero.count / total) * 100) : 0}
-				<div class="hero-card" style="--delay: {idx * 80}ms;">
+				<div class="hero-card" style="--delay: {idx * 50}ms;">
 					<!-- Hero Image -->
 					<div class="hero-image-wrapper">
 						<img
-							src={imgSrc(hero.name)}
+							src={getImageSrc(hero.name)}
 							alt={hero.name}
 							class="hero-image"
-							loading="lazy"
-							on:error={(e) => {
-								const normalized = (hero.name || '').toLowerCase().replace(/["',]/g, '').trim();
-								if (normalized in IMAGE_EXCEPTIONS) {
-									e.target.src = IMAGE_EXCEPTIONS[normalized].replace(/\.jpg$/i, '.png');
-								} else {
-									e.target.src = `/heroImages/${slugify(hero.name)}.png`;
-								}
-							}}
 						/>
 						<!-- Gradient Overlay -->
 						<div class="image-overlay"></div>

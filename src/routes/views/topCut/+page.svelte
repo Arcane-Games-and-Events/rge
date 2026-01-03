@@ -30,6 +30,8 @@
 	}
 
 	let playersUnsub, matchesUnsub;
+	let imagesReady = false;
+	let preloadedImages = new Map();
 
 	// === IMAGE HELPERS ===
 	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
@@ -55,23 +57,75 @@
 		return `/heroImages/${slugify(hero)}.jpg`;
 	}
 
-	function heroImgError(e, hero) {
-		const key = normalize(hero);
-		if (key in IMAGE_EXCEPTIONS) {
-			e.target.src = IMAGE_EXCEPTIONS[key].replace(/\.jpg$/i, '.png');
-		} else {
-			e.target.src = `/heroImages/${slugify(hero)}.png`;
+	// Get preloaded image or fallback
+	function getPreloadedImage(hero) {
+		if (!hero) return '/heroImages/default.jpg';
+		return preloadedImages.get(hero) || getHeroImage(hero);
+	}
+
+	// Preload a single image, trying jpg then png
+	function preloadImage(hero) {
+		return new Promise((resolve) => {
+			if (!hero) {
+				resolve(null);
+				return;
+			}
+
+			const src = getHeroImage(hero);
+			const img = new Image();
+
+			img.onload = () => {
+				preloadedImages.set(hero, src);
+				resolve(src);
+			};
+
+			img.onerror = () => {
+				// Try png fallback
+				const pngSrc = src.replace(/\.jpg$/i, '.png');
+				const img2 = new Image();
+				img2.onload = () => {
+					preloadedImages.set(hero, pngSrc);
+					resolve(pngSrc);
+				};
+				img2.onerror = () => {
+					preloadedImages.set(hero, src);
+					resolve(src);
+				};
+				img2.src = pngSrc;
+			};
+
+			img.src = src;
+		});
+	}
+
+	// Preload all player hero images
+	async function preloadAllImages(playerList) {
+		const heroesToLoad = playerList
+			.map(p => p.hero)
+			.filter(h => h && h.trim());
+
+		if (heroesToLoad.length === 0) {
+			imagesReady = true;
+			return;
 		}
+
+		imagesReady = false;
+		const promises = heroesToLoad.map(hero => preloadImage(hero));
+		await Promise.all(promises);
+		imagesReady = true;
 	}
 
 	onMount(() => {
-		playersUnsub = onValue(ref(db, 'top8/players'), (snap) => {
+		playersUnsub = onValue(ref(db, 'top8/players'), async (snap) => {
 			const d = snap.val() || {};
 			players = players.map((_, i) => ({
 				name: d[i]?.name ?? '',
 				hero: d[i]?.hero ?? ''
 			}));
 			localStorage.setItem('top8Players', JSON.stringify(players));
+
+			// Preload all hero images
+			await preloadAllImages(players);
 		});
 
 		matchesUnsub = onValue(ref(db, 'top8/matches'), (snap) => {
@@ -111,6 +165,7 @@
 	$: viewFinalSeeds = [matches.m4, matches.m5];
 </script>
 
+{#if imagesReady}
 <div class="w-full py-8">
 	<div class="mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-8">
 		<!-- Quarterfinals -->
@@ -118,7 +173,7 @@
 			{#each viewQuarterSeeds as seeds, matchIdx}
 				<div class="space-y-[28px]">
 					{#each seeds as seed, playerIdx}
-						{@const delay = (matchIdx * 2 + playerIdx) * 100}
+						{@const delay = (matchIdx * 2 + playerIdx) * 80}
 						<div class="player-row flex justify-end gap-x-2 h-[70px]" style="--delay: {delay}ms;">
 							<div class="flex flex-col text-right -space-y-1">
 								<div class="text-[25px] font-bold text-white">
@@ -130,11 +185,9 @@
 							</div>
 							{#if players[seed].hero}
 								<img
-									loading="lazy"
-									src={getHeroImage(players[seed].hero)}
+									src={getPreloadedImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
-									on:error={(e) => heroImgError(e, players[seed].hero)}
 								/>
 							{/if}
 						</div>
@@ -148,7 +201,7 @@
 			{#each viewSemiSeeds as seeds, matchIdx}
 				<div class="space-y-[36px]">
 					{#each seeds as seed, playerIdx}
-						{@const delay = 800 + (matchIdx * 2 + playerIdx) * 100}
+						{@const delay = 640 + (matchIdx * 2 + playerIdx) * 80}
 						<div
 							class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 							class:opacity-0={seed === null}
@@ -165,11 +218,9 @@
 									</div>
 								</div>
 								<img
-									loading="lazy"
-									src={getHeroImage(players[seed].hero)}
+									src={getPreloadedImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
-									on:error={(e) => heroImgError(e, players[seed].hero)}
 								/>
 							{/if}
 						</div>
@@ -181,7 +232,7 @@
 		<!-- Final (fade-in winners) -->
 		<div class="space-y-[30px]">
 			{#each viewFinalSeeds as seed, idx}
-				{@const delay = 1200 + idx * 100}
+				{@const delay = 960 + idx * 80}
 				<div
 					class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 					class:opacity-0={seed === null}
@@ -198,11 +249,9 @@
 							</div>
 						</div>
 						<img
-							loading="lazy"
-							src={getHeroImage(players[seed].hero)}
+							src={getPreloadedImage(players[seed].hero)}
 							alt={players[seed].hero}
 							class="w-[70px] h-[70px] rounded-full object-cover object-right"
-							on:error={(e) => heroImgError(e, players[seed].hero)}
 						/>
 					{/if}
 				</div>
@@ -210,6 +259,7 @@
 		</div>
 	</div>
 </div>
+{/if}
 
 <style>
 	.player-row {
