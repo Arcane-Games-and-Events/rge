@@ -58,7 +58,8 @@
 					{ href: '/views/playerinfo', label: 'Player Info' },
 					{ href: '/views/lifecounter', label: 'Life Counter' },
 					{ href: '/views/timer', label: 'Timer' },
-					{ href: '/views/cardreader', label: 'Card Reader' }
+					{ href: '/views/cardreader', label: 'Card Reader' },
+					{ href: '/views/eventtext', label: 'Event Text' }
 				] as item}
 					<div class="flex items-center gap-1">
 						<a

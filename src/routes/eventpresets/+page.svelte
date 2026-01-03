@@ -15,6 +15,7 @@
 	let format = ''; // Format input
 	let sets = []; // Available sets
 	let selectedSet = ''; // Selected set
+	let eventText = ''; // Event text line
 
 	// Load sets from cards.json
 	const loadSets = () => {
@@ -41,6 +42,7 @@
 		const commentator4SubtitleRef = ref(db, 'commentators/CommentatorFour/subtitle');
 		const formatRef = ref(db, 'format'); // Reference for format
 		const selectedSetRef = ref(db, 'draftTool/selectedSet'); // Reference for the selected set
+		const eventTextRef = ref(db, 'eventText'); // Reference for event text
 
 		onValue(commentator1NameRef, (snapshot) => (commentator1 = snapshot.val() ?? ''));
 		onValue(commentator1SubtitleRef, (snapshot) => (subtitle1 = snapshot.val() ?? ''));
@@ -52,6 +54,7 @@
 		onValue(commentator4SubtitleRef, (snapshot) => (subtitle4 = snapshot.val() ?? ''));
 		onValue(formatRef, (snapshot) => (format = snapshot.val() ?? ''));
 		onValue(selectedSetRef, (snapshot) => (selectedSet = snapshot.val() ?? ''));
+		onValue(eventTextRef, (snapshot) => (eventText = snapshot.val() ?? ''));
 	};
 
 	const updateDatabase = async (key, value) => {
@@ -140,6 +143,19 @@
 							<option value={set}>{set}</option>
 						{/each}
 					</select>
+				</div>
+
+				<div>
+					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300">Event Text</label>
+					<input
+						id="event-text"
+						type="text"
+						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+						placeholder="e.g., Pro Tour Chicago 2025"
+						bind:value={eventText}
+						on:input={(e) => updateDatabase('eventText', e.target.value)}
+					/>
+					<p class="mt-1 text-xs text-gray-500">View at /views/eventtext</p>
 				</div>
 			</div>
 		</div>
