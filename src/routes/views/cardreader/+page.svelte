@@ -3,48 +3,59 @@
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
 
-	let imageUrl = ''; // Holds the current image URL
-	let tempImageUrl = ''; // Temporarily holds the new image URL during loading
-	let showImage = false; // Controls image visibility
-	const displayDuration = 20000; // Image display duration (20 seconds)
-	let hideTimeout; // Stores the timeout ID for hiding the image
+	let currentUrl = '';
+	let pendingUrl = '';
+	let showImage = false;
+	const displayDuration = 20000;
+	const fadeTime = 300;
+	let hideTimeout;
 
-	const fetchCardImage = () => {
-		const cardRef = ref(db, 'cardReaderURL');
-		onValue(cardRef, (snapshot) => {
-			const newImageUrl = snapshot.val();
-			console.log('New image URL fetched:', newImageUrl);
-
-			// If the new image URL is different from the current one, update the image
-			if (newImageUrl && newImageUrl !== imageUrl) {
-				clearTimeout(hideTimeout); // Clear the existing timeout
-				showImage = false; // Immediately hide the current image
-				tempImageUrl = newImageUrl; // Set the temporary URL for loading
-			}
-		});
-	};
-
-	// Triggered when the new image is fully loaded
-	function handleImageLoad() {
-		imageUrl = tempImageUrl;
-		showImage = true;
-
-		// Set a new timeout to hide the image after the display duration
-		hideTimeout = setTimeout(() => {
+	async function showNewCard(url) {
+		// If a card is currently showing, fade it out first
+		if (showImage) {
 			showImage = false;
-		}, displayDuration);
+			await new Promise(r => setTimeout(r, fadeTime));
+		}
+
+		// Now set the new URL and wait for it to load
+		currentUrl = url;
 	}
 
 	onMount(() => {
-		fetchCardImage(); // Start listening to the database on component mount
+		if (!db) return;
+
+		const cardRef = ref(db, 'cardReaderURL');
+		onValue(cardRef, (snapshot) => {
+			const newUrl = snapshot.val();
+
+			clearTimeout(hideTimeout);
+
+			if (newUrl && newUrl !== '') {
+				pendingUrl = newUrl;
+				showNewCard(newUrl);
+			} else {
+				// URL cleared - fade out
+				showImage = false;
+			}
+		});
 	});
+
+	function handleImageLoad() {
+		// Only show if this is still the pending URL (not stale)
+		if (currentUrl === pendingUrl) {
+			showImage = true;
+			hideTimeout = setTimeout(() => {
+				showImage = false;
+			}, displayDuration);
+		}
+	}
 </script>
 
 <div class="card-container mt-4">
-	{#if tempImageUrl}
+	{#if currentUrl}
 		<img
-			src={tempImageUrl}
-			alt={tempImageUrl}
+			src={currentUrl}
+			alt="Card"
 			class="card-image w-72 fade-in-out {showImage ? 'show' : ''}"
 			on:load={handleImageLoad}
 		/>
@@ -53,7 +64,7 @@
 
 <style>
 	.fade-in-out {
-		transition: opacity 0.3s;
+		transition: opacity 0.3s ease-in-out;
 		opacity: 0;
 	}
 	.fade-in-out.show {

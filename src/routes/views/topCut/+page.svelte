@@ -36,7 +36,7 @@
 
 	// Exceptions map
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
+		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
 	};
 
 	function slugify(str) {
@@ -115,10 +115,11 @@
 	<div class="mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-8">
 		<!-- Quarterfinals -->
 		<div class="space-y-[45px]">
-			{#each viewQuarterSeeds as seeds}
+			{#each viewQuarterSeeds as seeds, matchIdx}
 				<div class="space-y-[28px]">
-					{#each seeds as seed}
-						<div class="flex justify-end gap-x-2 h-[70px]">
+					{#each seeds as seed, playerIdx}
+						{@const delay = (matchIdx * 2 + playerIdx) * 100}
+						<div class="player-row flex justify-end gap-x-2 h-[70px]" style="--delay: {delay}ms;">
 							<div class="flex flex-col text-right -space-y-1">
 								<div class="text-[25px] font-bold text-white">
 									({seed + 1}) {players[seed].name || '—'}
@@ -144,13 +145,15 @@
 
 		<!-- Semifinals (fade-in winners) -->
 		<div class="space-y-[100px]">
-			{#each viewSemiSeeds as seeds}
+			{#each viewSemiSeeds as seeds, matchIdx}
 				<div class="space-y-[36px]">
-					{#each seeds as seed}
+					{#each seeds as seed, playerIdx}
+						{@const delay = 800 + (matchIdx * 2 + playerIdx) * 100}
 						<div
-							class="flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
+							class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 							class:opacity-0={seed === null}
 							class:opacity-100={seed !== null}
+							style="--delay: {delay}ms;"
 						>
 							{#if seed !== null}
 								<div class="flex flex-col text-right -space-y-1">
@@ -177,11 +180,13 @@
 
 		<!-- Final (fade-in winners) -->
 		<div class="space-y-[30px]">
-			{#each viewFinalSeeds as seed}
+			{#each viewFinalSeeds as seed, idx}
+				{@const delay = 1200 + idx * 100}
 				<div
-					class="flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
+					class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
 					class:opacity-0={seed === null}
 					class:opacity-100={seed !== null}
+					style="--delay: {delay}ms;"
 				>
 					{#if seed !== null}
 						<div class="flex flex-col text-right -space-y-1">
@@ -205,3 +210,23 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.player-row {
+		animation: slideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+		animation-delay: var(--delay, 0ms);
+	}
+
+	@keyframes slideReveal {
+		0% {
+			opacity: 0;
+			transform: translateX(-30px);
+			clip-path: inset(0 100% 0 0);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+			clip-path: inset(0 0 0 0);
+		}
+	}
+</style>

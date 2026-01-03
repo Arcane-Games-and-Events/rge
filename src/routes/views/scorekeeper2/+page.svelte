@@ -65,15 +65,15 @@
 		calculateDisplayTime();
 	}
 
-	// Update a player's life total in Firebase
+	// Update a player's life total in Firebase (Table 2)
 	async function updateScore(player, newScore) {
 		const clampedScore = Math.max(0, newScore);
 		if (player === 'player1') {
 			player1Score = clampedScore;
-			await set(ref(db, 'lifecounter/p1'), clampedScore);
+			await set(ref(db, 'lifecounter2/p1'), clampedScore);
 		} else {
 			player2Score = clampedScore;
-			await set(ref(db, 'lifecounter/p2'), clampedScore);
+			await set(ref(db, 'lifecounter2/p2'), clampedScore);
 		}
 	}
 
@@ -136,20 +136,20 @@
 	onMount(() => {
 		viewportHeight = window.innerHeight;
 
-		// Subscribe to names
-		onValue(ref(db, 'playerInfo/p1/name'), (snap) => {
+		// Subscribe to names (Table 2)
+		onValue(ref(db, 'playerInfo2/p1/name'), (snap) => {
 			playerOneName = snap.val() ?? '';
 		});
-		onValue(ref(db, 'playerInfo/p2/name'), (snap) => {
+		onValue(ref(db, 'playerInfo2/p2/name'), (snap) => {
 			playerTwoName = snap.val() ?? '';
 		});
 
-		// Subscribe to life totals
-		onValue(ref(db, 'lifecounter/p1'), (snap) => {
+		// Subscribe to life totals (Table 2)
+		onValue(ref(db, 'lifecounter2/p1'), (snap) => {
 			const v = snap.val();
 			if (v != null) player1Score = v;
 		});
-		onValue(ref(db, 'lifecounter/p2'), (snap) => {
+		onValue(ref(db, 'lifecounter2/p2'), (snap) => {
 			const v = snap.val();
 			if (v != null) player2Score = v;
 		});
@@ -172,13 +172,27 @@
 			calculateDisplayTime();
 		});
 
-		// Subscribe to start signal
-		onValue(ref(db, 'timers/Round/startSignal'), (snap) => {
-			showStartSignal = snap.val() ?? false;
+		// Subscribe to start signal (Table 2) - uses timestamp for auto-expiry
+		onValue(ref(db, 'signals/table2/startSignal'), (snap) => {
+			const data = snap.val();
+			if (data && data.active && data.triggeredAt) {
+				const elapsed = Date.now() - data.triggeredAt;
+				if (elapsed < 10000) {
+					showStartSignal = true;
+					// Auto-expire after remaining time
+					setTimeout(() => {
+						showStartSignal = false;
+					}, 10000 - elapsed);
+				} else {
+					showStartSignal = false;
+				}
+			} else {
+				showStartSignal = false;
+			}
 		});
 
-		// Subscribe to custom signal
-		onValue(ref(db, 'timers/Round/customSignal'), (snap) => {
+		// Subscribe to custom signal (Table 2)
+		onValue(ref(db, 'signals/table2/customSignal'), (snap) => {
 			const data = snap.val();
 			if (data) {
 				showCustomSignal = data.active ?? false;

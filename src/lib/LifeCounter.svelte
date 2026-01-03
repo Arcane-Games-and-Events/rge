@@ -69,67 +69,65 @@
 	fetchCounters();
 </script>
 
-<div class="w-full mt-4 sm:mt-0 border border-gray-500 rounded-lg text-white">
-	<div class="p-4">
-		<p class="my-2 font-bold text-2xl text-center">Life Counter</p>
-
-		<div class="flex flex-col sm:flex-row justify-around items-center mb-5 space-y-4 sm:space-y-0">
-			<div class="text-center">
-				<h2 class="text-lg font-semibold mb-2">Player 1</h2>
-				<div class="flex items-center justify-center space-x-2">
-					<button
-						class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-						on:click={() => updateCounter('p1', -1)}
-					>
-						-
-					</button>
-					<span class="text-3xl font-bold">{p1Counter}</span>
-					<button
-						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-						on:click={() => updateCounter('p1', 1)}
-					>
-						+
-					</button>
-				</div>
-			</div>
-
-			<div class="text-center">
-				<h2 class="text-lg font-semibold mb-2">Player 2</h2>
-				<div class="flex items-center justify-center space-x-2">
-					<button
-						class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-						on:click={() => updateCounter('p2', -1)}
-					>
-						-
-					</button>
-					<span class="text-3xl font-bold">{p2Counter}</span>
-					<button
-						class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-						on:click={() => updateCounter('p2', 1)}
-					>
-						+
-					</button>
-				</div>
+<div class="space-y-6 text-white">
+	<div class="grid grid-cols-2 gap-4">
+		<!-- Player 1 -->
+		<div class="rounded-lg border border-gray-700 bg-gray-800/50 p-4 text-center">
+			<h3 class="text-sm font-medium text-gray-400 mb-3">Player 1</h3>
+			<div class="flex items-center justify-center gap-3">
+				<button
+					class="h-10 w-10 rounded-lg bg-red-500/20 text-red-400 font-bold text-xl transition-all hover:bg-red-500 hover:text-white"
+					on:click={() => updateCounter('p1', -1)}
+				>
+					-
+				</button>
+				<span class="text-4xl font-display font-bold w-16">{p1Counter}</span>
+				<button
+					class="h-10 w-10 rounded-lg bg-blue-500/20 text-blue-400 font-bold text-xl transition-all hover:bg-blue-500 hover:text-white"
+					on:click={() => updateCounter('p1', 1)}
+				>
+					+
+				</button>
 			</div>
 		</div>
 
-		<div class="flex justify-center text-center mt-4 gap-4">
-			<button
-				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
-				on:click={() => resetCounters(40)}
-			>
-				Reset Life Totals to 40
-			</button>
-			<button
-				class="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600"
-				on:click={() => resetCounters(20)}
-			>
-				Reset Life Totals to 20
-			</button>
+		<!-- Player 2 -->
+		<div class="rounded-lg border border-gray-700 bg-gray-800/50 p-4 text-center">
+			<h3 class="text-sm font-medium text-gray-400 mb-3">Player 2</h3>
+			<div class="flex items-center justify-center gap-3">
+				<button
+					class="h-10 w-10 rounded-lg bg-red-500/20 text-red-400 font-bold text-xl transition-all hover:bg-red-500 hover:text-white"
+					on:click={() => updateCounter('p2', -1)}
+				>
+					-
+				</button>
+				<span class="text-4xl font-display font-bold w-16">{p2Counter}</span>
+				<button
+					class="h-10 w-10 rounded-lg bg-blue-500/20 text-blue-400 font-bold text-xl transition-all hover:bg-blue-500 hover:text-white"
+					on:click={() => updateCounter('p2', 1)}
+				>
+					+
+				</button>
+			</div>
 		</div>
-
-		{#if error}
-			<div class="text-red-500 mt-5">{error}</div>
-		{/if}
 	</div>
+
+	<div class="flex justify-center gap-3">
+		<button
+			class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-green-500 hover:text-green-400"
+			on:click={() => resetCounters(40)}
+		>
+			Reset to 40
+		</button>
+		<button
+			class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-all hover:border-green-500 hover:text-green-400"
+			on:click={() => resetCounters(20)}
+		>
+			Reset to 20
+		</button>
+	</div>
+
+	{#if error}
+		<div class="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm text-red-400">{error}</div>
+	{/if}
 </div>

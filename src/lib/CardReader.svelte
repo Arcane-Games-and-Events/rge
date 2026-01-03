@@ -3,6 +3,7 @@
 	import { ref, set } from 'firebase/database';
 	import { db } from '../firebaseClient';
 	import cardsData from '$lib/data/cards.json';
+	import { getCardImageUrl } from '$lib/cardImageUtils';
 
 	let cards = cardsData;
 	let selectedCard = null;
@@ -15,13 +16,13 @@
 	const pitchBorderColor = (pitch) => {
 		switch (pitch) {
 			case '1':
-				return 'border-red-500';
+				return 'border-l-red-500';
 			case '2':
-				return 'border-yellow-500';
+				return 'border-l-yellow-500';
 			case '3':
-				return 'border-blue-500';
+				return 'border-l-blue-500';
 			default:
-				return 'border-gray-500';
+				return 'border-l-gray-500';
 		}
 	};
 
@@ -30,30 +31,52 @@
 			query.trim() === ''
 				? []
 				: cards.filter((card) => card.name.toLowerCase().includes(query.toLowerCase()));
-		highlightedIndex = -1; // Reset the highlighted index whenever the filtered cards are updated
+		highlightedIndex = -1;
 	};
 
 	const handleCardChange = async (card) => {
 		selectedCard = card;
+		query = card.name;
 		isDropdownOpen = false;
 		if (card) {
-			const cardUrl = card.printings[0].image_url;
-			try {
-				await set(ref(db, 'cardReaderURL'), cardUrl);
-			} catch (err) {
-				console.error('Error saving image URL to Firebase:', err);
-				error = err.message;
+			const cardUrl = getCardImageUrl(card);
+			if (cardUrl) {
+				// Add timestamp to force browser to reload image
+				const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+				try {
+					await set(ref(db, 'cardReaderURL'), urlWithTimestamp);
+				} catch (err) {
+					console.error('Error saving image URL to Firebase:', err);
+					error = err.message;
+				}
 			}
-		} else {
-			console.log('No card selected');
 		}
 	};
 
-	const handleClear = () => {
+	const handleClear = async () => {
 		query = '';
 		filteredCards = [];
 		selectedCard = null;
 		isDropdownOpen = false;
+		try {
+			await set(ref(db, 'cardReaderURL'), '');
+		} catch (err) {
+			console.error('Error clearing card URL:', err);
+		}
+	};
+
+	const showCard = async () => {
+		if (!selectedCard) return;
+		const cardUrl = getCardImageUrl(selectedCard);
+		if (!cardUrl) return;
+		// Add timestamp to force browser to reload image
+		const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+		try {
+			await set(ref(db, 'cardReaderURL'), urlWithTimestamp);
+		} catch (err) {
+			console.error('Error showing card:', err);
+			error = err.message;
+		}
 	};
 
 	const handleKeyDown = (event) => {
@@ -75,8 +98,6 @@
 				if (highlightedIndex >= 0 && highlightedIndex < filteredCards.length) {
 					handleCardChange(filteredCards[highlightedIndex]);
 				}
-				break;
-			default:
 				break;
 		}
 
@@ -102,19 +123,17 @@
 	});
 </script>
 
-<div class="w-full mt-4 sm:mt-0 p-4 border border-gray-500 rounded-lg">
-	<div class="mb-4">
-		<label for="combobox" class="block text-sm font-medium leading-6 text-white"
-			>Select a Card</label
-		>
-		<div class="relative mt-2 combobox">
+<div class="space-y-2 text-white">
+	<!-- Search Row -->
+	<div class="flex items-center gap-1.5">
+		<div class="relative combobox flex-1">
 			<input
-				id="combobox"
 				type="text"
-				class="w-full rounded-md border-0 bg-gray-800 py-3 pl-3 pr-12 text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+				placeholder="Search card..."
+				class="w-full px-2 py-2 rounded text-sm bg-gray-800 border border-gray-700 focus:border-blue-500 focus:outline-none transition-colors"
 				role="combobox"
 				aria-controls="options"
-				aria-expanded={isDropdownOpen.toString()}
+				aria-expanded={isDropdownOpen}
 				on:input={(e) => {
 					query = e.target.value;
 					updateFilteredCards();
@@ -124,88 +143,64 @@
 				on:keydown={handleKeyDown}
 				bind:value={query}
 			/>
-			<button
-				type="button"
-				class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-				on:click={() => (isDropdownOpen = !isDropdownOpen)}
-			>
-				<svg
-					class="h-5 w-5 text-gray-400"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-					aria-hidden="true"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</button>
 
 			{#if isDropdownOpen && filteredCards.length > 0}
 				<ul
-					class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+					class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-700 bg-gray-800 py-1 shadow-xl"
 					id="options"
 					role="listbox"
 				>
-					{#each filteredCards.slice(0, 20) as card, index}
+					{#each filteredCards.slice(0, 15) as card, index}
 						<li
-							class="relative cursor-default select-none py-2 pl-3 pr-9 text-white border-l-8 {pitchBorderColor(
-								card.pitch
-							)} {highlightedIndex === index ? 'bg-indigo-600 text-white' : ''}"
+							class="cursor-pointer select-none py-2 px-2 text-sm border-l-2 {pitchBorderColor(card.pitch)} {highlightedIndex === index ? 'bg-blue-600/50' : 'hover:bg-gray-700'}"
 							id={'option-' + index}
 							role="option"
-							aria-selected="true"
-							tabindex="-1"
+							aria-selected={highlightedIndex === index}
+							on:mouseenter={() => (highlightedIndex = index)}
 						>
 							<button
 								type="button"
-								class="w-full text-left flex items-center"
+								class="w-full text-left truncate"
 								on:click={() => handleCardChange(card)}
-								on:keydown={(event) => handleKeyDown(event, card)}
 							>
-								<div class="w-2 h-full mr-2 {pitchBorderColor(card.pitch)}"></div>
-								<div class="flex-grow">
-									<span class="block truncate">{card.name}</span>
-								</div>
-								{#if selectedCard && selectedCard.unique_id === card.unique_id}
-									<span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-										<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-											<path
-												fill-rule="evenodd"
-												d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</span>
-								{/if}
+								{card.name}
 							</button>
 						</li>
 					{/each}
 				</ul>
 			{/if}
 		</div>
+		{#if selectedCard}
+			<button
+				type="button"
+				class="px-3 py-2 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors flex-shrink-0"
+				on:click={showCard}
+			>
+				Show
+			</button>
+		{/if}
 		<button
 			type="button"
-			class="w-full mt-4 pt-1 pb-1 rounded text-red-500 border border-red-500"
+			class="px-3 py-2 rounded text-xs bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white transition-colors flex-shrink-0"
 			on:click={handleClear}
 		>
 			Clear
 		</button>
-
-		{#if selectedCard}
-			<div class="mt-6">
-				<img
-					src={selectedCard.printings[0].image_url}
-					alt={selectedCard.name}
-					class="block w-full mx-auto rounded-md shadow-md"
-					loading="lazy"
-				/>
-			</div>
-		{/if}
-		{#if error}
-			<div class="text-red-500 mt-5">{error}</div>
-		{/if}
 	</div>
+
+	<!-- Card Preview -->
+	{#if selectedCard}
+		<div class="flex justify-center pt-2">
+			<img
+				src={getCardImageUrl(selectedCard)}
+				alt={selectedCard.name}
+				class="w-96 sm:w-[28rem] rounded shadow-lg"
+				loading="lazy"
+			/>
+		</div>
+	{/if}
+
+	{#if error}
+		<div class="text-xs text-red-400 mt-2">{error}</div>
+	{/if}
 </div>

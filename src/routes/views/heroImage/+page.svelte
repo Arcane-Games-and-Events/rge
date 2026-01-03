@@ -25,7 +25,7 @@
 		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
 
 		if (normalized === 'arakni huntsman') {
-			return '/heroImages/arakni-huntsman1.jpg';
+			return '/heroImages/arakni-huntsman.jpg';
 		}
 
 		// Default path

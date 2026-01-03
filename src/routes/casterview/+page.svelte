@@ -314,25 +314,31 @@
 </script>
 
 <!-- Main Container -->
-<div class="px-4 py-6 bg-gray-800 text-white min-h-screen">
-	<div class="max-w-7xl container mx-auto">
-		<div class="flex flex-wrap md:flex-nowrap gap-8 gallery">
+<div class="min-h-screen bg-gray-950 px-4 py-8 text-white">
+	<div class="mx-auto max-w-7xl">
+		<!-- Header -->
+		<div class="mb-8">
+			<h1 class="font-display text-3xl font-bold text-white">Caster View</h1>
+			<p class="mt-2 text-gray-400">Browse and display cards from the draft pool.</p>
+		</div>
+
+		<div class="flex flex-wrap gap-8 md:flex-nowrap">
 			<!-- LEFT: Grid/List Section -->
-			<div class="w-full md:w-3/4 mb-8">
-				<div class="relative overflow-hidden grid-container">
+			<div class="mb-8 w-full md:w-3/4">
+				<div class="grid-container relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900/50 p-4 backdrop-blur-sm">
 					{#if showImageGrid}
-						<div class="w-full inset-0" in:fade={{ duration: 1000 }} out:fade={{ duration: 1000 }}>
-							<div class="max-w-4xl mx-auto h-full">
+						<div class="inset-0 w-full" in:fade={{ duration: 1000 }} out:fade={{ duration: 1000 }}>
+							<div class="mx-auto h-full max-w-4xl">
 								{#key currentPage}
 									<div
 										class="h-full"
 										in:slide={{ direction: slideDirection, duration: 300 }}
 										out:slide={{ direction: slideDirection, duration: 300 }}
 									>
-										<div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+										<div class="grid grid-cols-3 gap-4 md:grid-cols-4">
 											{#each displayedCards as card, i (card.id)}
 												<button
-													class="relative shadow overflow-hidden cursor-pointer"
+													class="relative cursor-pointer overflow-hidden rounded-lg shadow-lg transition-transform hover:scale-105"
 													on:click={() => openModal(card)}
 													in:fly={{ x: 50, duration: 300, delay: i * 50 }}
 													out:fly={{ x: 50, duration: 300, delay: i * 50 }}
@@ -341,10 +347,10 @@
 														<LazyImage
 															src={card.printings[0].image_url}
 															alt={card.name}
-															class="object-cover w-full h-full"
+															class="h-full w-full object-cover"
 														/>
 													{:else}
-														<div class="bg-red-400 text-white p-2">
+														<div class="bg-red-500/20 p-2 text-red-400">
 															No image for {card.name}
 														</div>
 													{/if}
@@ -355,19 +361,19 @@
 								{/key}
 
 								<!-- Pagination Controls -->
-								<div class="flex justify-between items-center mt-4">
+								<div class="mt-6 flex items-center justify-between">
 									<button
-										class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+										class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
 										on:click={() => changePage(currentPage - 1)}
 										disabled={currentPage === 1}
 									>
 										&larr; Previous
 									</button>
-									<span class="text-gray-300">
+									<span class="text-gray-400">
 										Page {currentPage} of {totalPages}
 									</span>
 									<button
-										class="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+										class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
 										on:click={() => changePage(currentPage + 1)}
 										disabled={currentPage === totalPages}
 									>
@@ -378,28 +384,24 @@
 						</div>
 					{:else}
 						<div
-							class="absolute center inset-0"
+							class="absolute inset-0"
 							in:fade={{ duration: 1000 }}
 							out:fade={{ duration: 100 }}
 						>
 							<div class="h-full">
-								<div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+								<div class="grid grid-cols-2 gap-2 lg:grid-cols-4">
 									{#each displayedCards as card, i (card.id)}
 										<button
-											class="border-l-8 p-2 bg-gray-100 relative border-{pitchColorClass(
-												card.pitch
-											)}"
+											class="relative rounded-lg border-l-4 bg-gray-800 p-3 transition-colors hover:bg-gray-700 border-{pitchColorClass(card.pitch)}"
 											on:click={() => openModal(card)}
 											in:fly={{ x: 50, duration: 300, delay: i * 50 }}
 										>
-											<div class="px-2 flex justify-between items-center overflow-hidden">
-												<p class="text-sm font-bold text-gray-800 truncate">
+											<div class="flex items-center justify-between overflow-hidden">
+												<p class="truncate text-sm font-medium text-white">
 													{card.name}
 												</p>
-												<p
-													class="text-sm font-bold {rarityColorClass(card.printings?.[0]?.rarity)}"
-												>
-													{card.printings?.[0]?.rarity || 'Unknown'}
+												<p class="text-xs font-semibold {rarityColorClass(card.printings?.[0]?.rarity)}">
+													{card.printings?.[0]?.rarity || '?'}
 												</p>
 											</div>
 										</button>
@@ -412,81 +414,70 @@
 			</div>
 
 			<!-- RIGHT: Stats Panel -->
-			<div class="w-full md:w-1/4 mb-8">
-				<h2 class="text-xl font-bold mb-4">Pool Stats</h2>
-				<div class="mb-4 border border-gray-600 p-3 rounded-lg">
-					<h2 class="text-lg">
-						<p>Player: <span class="font-bold text-green-400">{draftInfo.name}</span></p>
-						<div class="flex gap-4">
-							<p>
-								Pod:
-								<span class="font-bold text-green-400">{draftInfo.pod}</span>
-							</p>
-							<p>
-								Seat:
-								<span class="font-bold text-green-400">{draftInfo.seat}</span>
-							</p>
+			<div class="mb-8 w-full md:w-1/4">
+				<div class="rounded-xl border border-gray-800 bg-gray-900/50 p-4 backdrop-blur-sm">
+					<h2 class="mb-4 font-display text-lg font-semibold text-white">Pool Stats</h2>
+					<div class="mb-4 rounded-lg border border-gray-700 bg-gray-800/50 p-3">
+						<p class="text-sm text-gray-400">Player: <span class="font-semibold text-blue-400">{draftInfo.name}</span></p>
+						<div class="mt-1 flex gap-4 text-sm">
+							<p class="text-gray-400">Pod: <span class="font-semibold text-blue-400">{draftInfo.pod}</span></p>
+							<p class="text-gray-400">Seat: <span class="font-semibold text-blue-400">{draftInfo.seat}</span></p>
 						</div>
-					</h2>
-				</div>
+					</div>
 
-				<!-- Pitch Stats -->
-				{#if Object.keys(pitchStats).length > 0}
-					<h3 class="text-lg font-bold mb-2">Pitch Distribution</h3>
-					{#each Object.keys(pitchStats).sort((a, b) => a - b) as pitch}
-						<button
-							class="w-full block flex items-center mb-2 cursor-pointer {filteredWord === pitch
-								? 'ring-2 ring-green-400'
-								: ''}"
-							on:click={() => toggleFilteredWord(pitch)}
-						>
-							<div
-								class="h-4 rounded-xl bg-{pitchColorClass(pitch)}"
-								style="width: {(pitchStats[pitch] / Math.max(...Object.values(pitchStats))) * 100}%"
-							></div>
-							<span class="ml-2">{pitchStats[pitch]}</span>
-						</button>
-					{/each}
-				{:else}
-					<p class="text-sm text-gray-400">No pitch data available.</p>
-				{/if}
+					<!-- Pitch Stats -->
+					{#if Object.keys(pitchStats).length > 0}
+						<h3 class="mb-3 text-sm font-semibold text-gray-300">Pitch Distribution</h3>
+						{#each Object.keys(pitchStats).sort((a, b) => a - b) as pitch}
+							<button
+								class="mb-2 flex w-full cursor-pointer items-center rounded-lg p-1 transition-colors hover:bg-white/5 {filteredWord === pitch ? 'ring-2 ring-blue-500' : ''}"
+								on:click={() => toggleFilteredWord(pitch)}
+							>
+								<div
+									class="h-3 rounded bg-{pitchColorClass(pitch)}"
+									style="width: {(pitchStats[pitch] / Math.max(...Object.values(pitchStats))) * 100}%"
+								></div>
+								<span class="ml-2 text-sm text-gray-300">{pitchStats[pitch]}</span>
+							</button>
+						{/each}
+					{:else}
+						<p class="text-sm text-gray-500">No pitch data available.</p>
+					{/if}
 
-				<!-- Keyword Stats -->
-				<h3 class="text-lg font-bold mt-4 mb-2">Keyword Stats</h3>
-				<div class="grid grid-cols-2 gap-x-10">
-					{#each Array.from(selectedKeywords.keys()) as keyword}
-						<button
-							class="inline-block pt-1 pb-2 text-left text-sm text-gray-300 cursor-pointer
-							  {filteredWord === keyword ? 'font-bold bg-white bg-opacity-10' : ''}"
-							on:click={() => toggleFilteredWord(keyword)}
-						>
-							<div class="text-center">
-								<p class="text-2xl text-green-500 font-bold">
+					<!-- Keyword Stats -->
+					<h3 class="mb-3 mt-4 text-sm font-semibold text-gray-300">Keyword Stats</h3>
+					<div class="grid grid-cols-2 gap-2">
+						{#each Array.from(selectedKeywords.keys()) as keyword}
+							<button
+								class="cursor-pointer rounded-lg p-2 text-center transition-colors hover:bg-white/5 {filteredWord === keyword ? 'bg-blue-500/20 ring-1 ring-blue-500' : ''}"
+								on:click={() => toggleFilteredWord(keyword)}
+							>
+								<p class="text-xl font-bold text-blue-400">
 									{selectedKeywordCounts.get(keyword) ?? 0}
 								</p>
-								<p>{keyword}</p>
-							</div>
-						</button>
-					{/each}
+								<p class="text-xs text-gray-400">{keyword}</p>
+							</button>
+						{/each}
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Keyword Selection List -->
-		<div class="mb-8">
-			<h2 class="text-xl font-bold mb-4">Keyword List</h2>
-			<div class="grid grid-cols-2 md:grid-cols-6 gap-2">
+		<div class="mb-8 rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
+			<h2 class="mb-4 font-display text-lg font-semibold text-white">Keyword List</h2>
+			<div class="grid grid-cols-2 gap-2 md:grid-cols-6">
 				{#each Object.entries(keywordCounts).sort(([, a], [, b]) => b - a) as [keyword, count]}
-					<label class="flex items-center space-x-2 bg-gray-900 p-2 rounded shadow cursor-pointer">
+					<label class="flex cursor-pointer items-center space-x-2 rounded-lg border border-gray-700 bg-gray-800 p-2 transition-colors hover:border-gray-600 hover:bg-gray-700">
 						<input
 							type="checkbox"
 							checked={selectedKeywords.has(keyword)}
 							on:change={() => toggleKeyword(keyword)}
-							disabled={!selectedKeywords.has(keyword) &&
-								selectedKeywords.size >= MAX_SELECTED_KEYWORDS}
+							disabled={!selectedKeywords.has(keyword) && selectedKeywords.size >= MAX_SELECTED_KEYWORDS}
+							class="rounded border-gray-600 bg-gray-900 text-blue-500 focus:ring-blue-500"
 						/>
-						<span class="text-green-400 text-xl font-bold">{keyword}</span>
-						<span class="text-gray-300 text-xs">({count})</span>
+						<span class="text-sm font-medium text-blue-400">{keyword}</span>
+						<span class="text-xs text-gray-500">({count})</span>
 					</label>
 				{/each}
 			</div>
@@ -496,20 +487,17 @@
 
 <!-- Modal Overlay -->
 <button
-	class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center
-		transition-opacity ease-in-out duration-500
-		opacity-0 pointer-events-none
-		-mt-32"
+	class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out opacity-0 pointer-events-none"
 	class:opacity-100={showModal}
 	class:pointer-events-auto={showModal}
 	on:click={closeModal}
 >
-	<button class="relative max-w-sm p-4 rounded shadow-lg" on:click|stopPropagation>
+	<button class="relative max-w-sm rounded-xl p-4 shadow-2xl" on:click|stopPropagation>
 		{#if modalCard}
 			<img
 				src={modalCard.printings?.[0]?.image_url}
 				alt={modalCard.name}
-				class="object-cover w-full max-w-md"
+				class="max-w-md w-full rounded-lg object-cover"
 			/>
 		{/if}
 	</button>

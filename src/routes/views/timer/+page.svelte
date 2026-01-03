@@ -3,32 +3,105 @@
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
 
-	// Two display strings, one for each timer
+	// Timer state for independent calculation
+	let timers = {
+		Round: { remainingTime: 0, startTime: null, isPaused: true, isCountingUp: false },
+		Break: { remainingTime: 0, startTime: null, isPaused: true }
+	};
+
+	// Display strings
 	let displayRound = '00:00';
 	let displayBreak = '00:00';
 
-	// Hold unsubscribe functions so we can detach on destroy
-	let roundUnsub;
-	let breakUnsub;
+	// Interval for updating display
+	let updateInterval;
+
+	// Unsubscribe functions
+	let unsubscribers = [];
+
+	function formatTime(seconds) {
+		const m = Math.floor(Math.abs(seconds) / 60).toString().padStart(2, '0');
+		const s = (Math.abs(seconds) % 60).toString().padStart(2, '0');
+		return `${m}:${s}`;
+	}
+
+	function getCurrentTime(type) {
+		const timer = timers[type];
+		if (!timer.startTime || timer.isPaused) {
+			return timer.remainingTime;
+		}
+
+		const elapsed = Math.floor((Date.now() - timer.startTime) / 1000);
+		const isCountingUp = type === 'Round' && timer.isCountingUp;
+
+		if (isCountingUp) {
+			return timer.remainingTime + elapsed;
+		} else {
+			return Math.max(0, timer.remainingTime - elapsed);
+		}
+	}
+
+	function updateDisplays() {
+		displayRound = formatTime(getCurrentTime('Round'));
+		displayBreak = formatTime(getCurrentTime('Break'));
+	}
 
 	onMount(() => {
-		// Subscribe to Round timer displayTime
-		const roundRef = ref(db, 'timers/Round/displayTime');
-		roundUnsub = onValue(roundRef, (snap) => {
-			displayRound = snap.val() ?? '00:00';
-		});
+		// Subscribe to Round timer data
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Round/remainingTime'), (snap) => {
+				timers.Round.remainingTime = snap.val() ?? 0;
+				updateDisplays();
+			})
+		);
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Round/startTime'), (snap) => {
+				timers.Round.startTime = snap.val() ?? null;
+				updateDisplays();
+			})
+		);
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Round/isPaused'), (snap) => {
+				timers.Round.isPaused = snap.val() ?? true;
+				updateDisplays();
+			})
+		);
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Round/isCountingUp'), (snap) => {
+				timers.Round.isCountingUp = snap.val() ?? false;
+				updateDisplays();
+			})
+		);
 
-		// Subscribe to Break timer displayTime
-		const breakRef = ref(db, 'timers/Break/displayTime');
-		breakUnsub = onValue(breakRef, (snap) => {
-			displayBreak = snap.val() ?? '00:00';
-		});
+		// Subscribe to Break timer data
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Break/remainingTime'), (snap) => {
+				timers.Break.remainingTime = snap.val() ?? 0;
+				updateDisplays();
+			})
+		);
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Break/startTime'), (snap) => {
+				timers.Break.startTime = snap.val() ?? null;
+				updateDisplays();
+			})
+		);
+		unsubscribers.push(
+			onValue(ref(db, 'timers/Break/isPaused'), (snap) => {
+				timers.Break.isPaused = snap.val() ?? true;
+				updateDisplays();
+			})
+		);
+
+		// Start interval to update displays every second
+		updateInterval = setInterval(updateDisplays, 1000);
 	});
 
 	onDestroy(() => {
+		// Clear interval
+		clearInterval(updateInterval);
 		// Detach Firebase listeners
-		roundUnsub && roundUnsub();
-		breakUnsub && breakUnsub();
+		unsubscribers.forEach(unsub => unsub && unsub());
 	});
 </script>
 

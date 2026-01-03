@@ -116,83 +116,97 @@
 	$: total = rows.reduce((a, r) => a + (isFinite(r.count) ? r.count : 0), 0);
 </script>
 
-<!-- Sticky, minimal header -->
-<div class="sticky top-0 z-20 bg-gray-900/90 backdrop-blur px-3 py-2 border-b border-gray-800">
-	<div class="flex items-center gap-2">
-		<div class="text-white font-semibold text-sm">Metagame Manager</div>
-		<div class="ml-auto flex items-center gap-2">
-			<input
-				class="px-2 py-1 text-sm rounded bg-gray-800 text-white w-48"
-				placeholder="Filter heroes…"
-				bind:value={filter}
-			/>
-			<label class="flex items-center gap-1 text-xs text-gray-300 select-none">
-				<input type="checkbox" bind:checked={hideZero} class="accent-blue-500" />
-				hide zeroes
-			</label>
-			<button
-				class="px-2 py-1 rounded bg-blue-600 text-white text-xs hover:bg-blue-700"
-				on:click={saveAll}
-				type="button"
-			>
-				Save All
-			</button>
-			<button
-				class="px-2 py-1 rounded bg-gray-700 text-white text-xs hover:bg-gray-600"
-				on:click={resetAll}
-				type="button"
-			>
-				Reset All
-			</button>
-			<div class="text-xs text-gray-300 ml-2">
-				Total: <span class="text-white font-semibold">{total}</span>
+<div class="p-3 sm:p-4 max-w-6xl mx-auto space-y-3">
+	<!-- Header Card -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="flex flex-col sm:flex-row sm:items-center gap-3">
+			<!-- Search & Filter -->
+			<div class="flex items-center gap-2 flex-1">
+				<input
+					class="flex-1 max-w-xs rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-blue-500 focus:outline-none"
+					placeholder="Filter heroes..."
+					bind:value={filter}
+				/>
+				<label class="flex cursor-pointer select-none items-center gap-2 text-xs text-gray-400 whitespace-nowrap">
+					<input type="checkbox" bind:checked={hideZero} class="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500" />
+					Hide 0
+				</label>
+			</div>
+
+			<!-- Stats & Actions -->
+			<div class="flex items-center gap-2 flex-wrap">
+				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
+					<span class="text-gray-500">Total:</span>
+					<span class="font-mono font-bold text-blue-400 tabular-nums">{total}</span>
+				</div>
+				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
+					<span class="text-gray-500">Heroes:</span>
+					<span class="font-mono font-bold text-green-400 tabular-nums">{list.filter(r => r.count > 0).length}</span>
+				</div>
+				<button
+					class="px-3 py-1.5 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+					on:click={saveAll}
+					type="button"
+				>
+					Save All
+				</button>
+				<button
+					class="px-3 py-1.5 rounded text-xs bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white transition-colors"
+					on:click={resetAll}
+					type="button"
+				>
+					Reset
+				</button>
 			</div>
 		</div>
 	</div>
-</div>
 
-<!-- Dense grid: more columns, tighter cards -->
-<div
-	class="p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-2"
->
-	{#each list as r, i (r.id)}
-		<div class="flex items-center gap-2 p-2 rounded border border-gray-800 bg-gray-900">
-			<img
-				src={imgSrc(r.name)}
-				alt={r.name}
-				class="w-8 h-8 rounded object-cover flex-none"
-				loading="lazy"
-			/>
-			<div class="truncate text-xs text-gray-200 flex-1" title={r.name}>{r.name}</div>
+	<!-- Hero Grid -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-3">Heroes ({list.length})</div>
+		<div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+			{#each list as r, i (r.id)}
+				<div class="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors hover:border-gray-700 hover:bg-gray-800 {r.count > 0 ? 'border-l-2 border-l-blue-500' : ''}">
+					<img
+						src={imgSrc(r.name)}
+						alt={r.name}
+						class="h-8 w-8 flex-none rounded object-cover"
+						loading="lazy"
+					/>
+					<div class="min-w-0 flex-1">
+						<div class="truncate text-xs font-medium text-white" title={r.name}>{r.name}</div>
+					</div>
 
-			<div class="flex items-center gap-1">
-				<button
-					class="px-2 py-1 rounded bg-gray-800 text-white text-xs"
-					on:click={() => step(i, -1)}
-					type="button"
-					aria-label="decrement">−</button
-				>
+					<div class="flex items-center gap-0.5">
+						<button
+							class="w-7 h-7 rounded bg-gray-700 text-sm text-white transition-colors hover:bg-red-600"
+							on:click={() => step(i, -1)}
+							type="button"
+							aria-label="decrement"
+						>
+							-
+						</button>
 
-				<input
-					class="w-14 px-2 py-1 rounded bg-gray-800 text-white text-right text-sm"
-					bind:value={list[i].count}
-					on:input={(e) =>
-						setCount(
-							rows.findIndex((x) => x.id === r.id),
-							e.target.value
-						)}
-					on:keydown={(e) => onKey(e, i)}
-					inputmode="numeric"
-					data-idx={i}
-				/>
+						<input
+							class="w-10 h-7 rounded border border-gray-700 bg-gray-900 text-center text-xs font-mono font-bold text-white focus:border-blue-500 focus:outline-none"
+							bind:value={list[i].count}
+							on:input={(e) => setCount(rows.findIndex((x) => x.id === r.id), e.target.value)}
+							on:keydown={(e) => onKey(e, i)}
+							inputmode="numeric"
+							data-idx={i}
+						/>
 
-				<button
-					class="px-2 py-1 rounded bg-gray-800 text-white text-xs"
-					on:click={() => step(i, +1)}
-					type="button"
-					aria-label="increment">+</button
-				>
-			</div>
+						<button
+							class="w-7 h-7 rounded bg-gray-700 text-sm text-white transition-colors hover:bg-green-600"
+							on:click={() => step(i, +1)}
+							type="button"
+							aria-label="increment"
+						>
+							+
+						</button>
+					</div>
+				</div>
+			{/each}
 		</div>
-	{/each}
+	</div>
 </div>

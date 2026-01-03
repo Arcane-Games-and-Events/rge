@@ -51,51 +51,36 @@
 	});
 </script>
 
-<!-- Component UI -->
-<div class="w-full mt-4 sm:mt-0 border border-gray-500 text-white rounded-lg p-4">
-	<h2 class="text-lg font-medium leading-6 mb-2">Draft Information</h2>
-
+<div class="space-y-2 text-white">
 	<!-- Player Name -->
-	<div class="mb-4">
-		<label for="name" class="block text-sm font-medium leading-6">Player Name</label>
+	<input
+		type="text"
+		id="name"
+		class="w-full rounded border border-gray-700 bg-gray-800 px-2 py-2 text-sm placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:outline-none"
+		placeholder="Player name"
+		bind:value={players.name}
+		on:input={(e) => handleInputChange('name', e.target.value)}
+	/>
+
+	<div class="grid grid-cols-2 gap-1.5">
+		<!-- Pod -->
 		<input
 			type="text"
-			id="name"
-			class="mt-2 w-full rounded-md border-0 bg-gray-800 py-2 px-3 shadow-sm
-			       ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
-			       focus:ring-indigo-600 sm:text-sm sm:leading-6"
-			bind:value={players.name}
-			on:input={(e) => handleInputChange('name', e.target.value)}
+			id="pod"
+			class="w-full rounded border border-gray-700 bg-gray-800 px-2 py-2 text-sm placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:outline-none"
+			placeholder="Pod #"
+			bind:value={players.pod}
+			on:input={(e) => handleInputChange('pod', e.target.value)}
 		/>
-	</div>
-
-	<div class="flex gap-4">
-		<!-- Pod -->
-		<div class="w-1/2 mb-4">
-			<label for="pod" class="block text-sm font-medium leading-6">Pod</label>
-			<input
-				type="text"
-				id="pod"
-				class="mt-2 w-full rounded-md border-0 bg-gray-800 py-2 px-3 shadow-sm
-			       ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
-			       focus:ring-indigo-600 sm:text-sm sm:leading-6"
-				bind:value={players.pod}
-				on:input={(e) => handleInputChange('pod', e.target.value)}
-			/>
-		</div>
 
 		<!-- Seat -->
-		<div class="w-1/2 mb-4">
-			<label for="seat" class="block text-sm font-medium leading-6">Seat</label>
-			<input
-				type="text"
-				id="seat"
-				class="mt-2 w-full rounded-md border-0 bg-gray-800 py-2 px-3 shadow-sm
-			       ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
-			       focus:ring-indigo-600 sm:text-sm sm:leading-6"
-				bind:value={players.seat}
-				on:input={(e) => handleInputChange('seat', e.target.value)}
-			/>
-		</div>
+		<input
+			type="text"
+			id="seat"
+			class="w-full rounded border border-gray-700 bg-gray-800 px-2 py-2 text-sm placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:outline-none"
+			placeholder="Seat #"
+			bind:value={players.seat}
+			on:input={(e) => handleInputChange('seat', e.target.value)}
+		/>
 	</div>
 </div>

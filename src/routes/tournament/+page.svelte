@@ -2,4 +2,6 @@
 	import TournamentManager from '$lib/TournamentManager.svelte';
 </script>
 
-<TournamentManager />
+<div class="min-h-screen bg-gray-950">
+	<TournamentManager />
+</div>

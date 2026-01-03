@@ -4,6 +4,7 @@
 	import { db } from '../../../firebaseClient';
 	import { fade } from 'svelte/transition';
 	import LazyImage from '../../../lib/LazyImage.svelte';
+	import { getCardImageUrl } from '$lib/cardImageUtils';
 
 	// --------------------
 	// State
@@ -154,9 +155,9 @@
 	<!-- The PREVIEW (absolute, overlaps the same space as the list) -->
 	{#if displayMode === 'preview'}
 		<div class="absolute center p-8" in:fade={{ duration: 500 }} out:fade={{ duration: 100 }}>
-			{#if previewCard && previewCard.printings?.[0]?.image_url}
+			{#if previewCard && getCardImageUrl(previewCard)}
 				<div class="">
-					<LazyImage src={previewCard.printings[0].image_url} alt={previewCard.name} />
+					<LazyImage src={getCardImageUrl(previewCard)} alt={previewCard.name} />
 				</div>
 			{:else}
 				<p></p>

@@ -424,353 +424,322 @@
 		row.winner === row[seatKey];
 </script>
 
-<div class="space-y-6 p-4 sm:p-6 bg-gray-900 text-white">
-	<!-- Header -->
-	<div class="flex flex-wrap items-center gap-3">
-		<h2 class="text-lg sm:text-xl font-bold">Tournament Manager</h2>
-		<div class="text-xs sm:text-sm text-gray-300">
-			Current Round: <span class="font-semibold text-white">{currentRound}</span>
-		</div>
-		<div class="ml-auto flex flex-wrap gap-2">
-			<select
-				class="px-2 py-1 rounded bg-gray-800 text-white text-xs sm:text-sm"
-				on:change={onPickRound}
-				bind:value={selectedRound}
-			>
-				{#if roundsList.length === 0}
-					<option value={1}>Round 1</option>
-				{/if}
-				{#each roundsList as r}<option value={r}>Round {r}</option>{/each}
-			</select>
-			<button
-				class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs sm:text-sm"
-				on:click={setAsCurrent}>Set as Current</button
-			>
-			<button
-				class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs sm:text-sm"
-				on:click={createNextRound}>Create Next Round</button
-			>
-			<button
-				class="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-xs sm:text-sm"
-				on:click={deleteRound}>Delete Round</button
-			>
-		</div>
-	</div>
-
-	<!-- Players (desktop/tablet) -->
-	<div class="hidden md:block border border-gray-700 rounded overflow-hidden mx-auto">
-		<div class="grid grid-cols-12 bg-gray-800 text-gray-300 text-xs font-medium px-2 py-1">
-			<div class="col-span-1">Seed</div>
-			<div class="col-span-4">Name</div>
-			<div class="col-span-3">Hero</div>
-			<div class="col-span-1 text-right">W</div>
-			<div class="col-span-1 text-right">L</div>
-			<div class="col-span-2 text-right">Rec / Drop</div>
-		</div>
-		{#each players as p}
-			<div
-				class="grid grid-cols-12 gap-1 px-2 py-1 border-t border-gray-700 items-center {p.dropped
-					? 'opacity-60'
-					: ''}"
-			>
-				<div class="col-span-1 text-xs text-gray-400">{p.id + 1}</div>
-				<div class="col-span-4">
-					<input
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
-						bind:value={p.name}
-						on:change={(e) => setPlayerField(p.id, 'name', e.target.value)}
-					/>
+<div class="p-3 sm:p-4 max-w-7xl mx-auto space-y-3 text-white">
+	<!-- Header Card -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="flex flex-col sm:flex-row sm:items-center gap-3">
+			<!-- Round Info -->
+			<div class="flex items-center gap-3 flex-1">
+				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
+					<span class="text-gray-500">Current:</span>
+					<span class="font-mono font-bold text-green-400 tabular-nums">Round {currentRound}</span>
 				</div>
-				<div class="col-span-3 flex items-center gap-2">
-					<img
-						src={imgSrc(p.hero)}
-						alt={p.hero}
-						class="w-6 h-6 rounded object-cover object-right"
-					/>
-					<select
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
-						bind:value={p.hero}
-						on:change={(e) => setPlayerField(p.id, 'hero', e.target.value)}
-					>
-						<option value="">Select hero…</option>
-						{#each heroOptions as h}<option value={h}>{h}</option>{/each}
-					</select>
-				</div>
-				<div class="col-span-1">
-					<input
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs text-right"
-						bind:value={p.wins}
-						on:change={(e) => setPlayerField(p.id, 'wins', e.target.value)}
-						inputmode="numeric"
-					/>
-				</div>
-				<div class="col-span-1">
-					<input
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs text-right"
-						bind:value={p.losses}
-						on:change={(e) => setPlayerField(p.id, 'losses', e.target.value)}
-						inputmode="numeric"
-					/>
-				</div>
-				<div class="col-span-2 text-xs text-right flex items-center justify-end gap-2">
-					<span class="text-gray-200">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
-					<button
-						type="button"
-						class="text-xs px-2 py-1 rounded border border-gray-600 hover:bg-gray-800 {p.dropped
-							? 'text-emerald-400'
-							: 'text-red-400'}"
-						on:click={() => toggleDrop(p.id)}
-					>
-						{p.dropped ? 'Restore' : 'Drop'}
-					</button>
-				</div>
+				<select
+					class="px-3 py-1.5 rounded border border-gray-700 bg-gray-800 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
+					on:change={onPickRound}
+					bind:value={selectedRound}
+				>
+					{#if roundsList.length === 0}
+						<option value={1}>Round 1</option>
+					{/if}
+					{#each roundsList as r}<option value={r}>Round {r}</option>{/each}
+				</select>
 			</div>
-		{/each}
+
+			<!-- Actions -->
+			<div class="flex items-center gap-2 flex-wrap">
+				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
+					<span class="text-gray-500">Players:</span>
+					<span class="font-mono font-bold text-blue-400 tabular-nums">{totalPlayers}</span>
+				</div>
+				<button
+					class="px-3 py-1.5 rounded text-xs font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+					on:click={setAsCurrent}
+				>
+					Set Current
+				</button>
+				<button
+					class="px-3 py-1.5 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+					on:click={createNextRound}
+				>
+					New Round
+				</button>
+				<button
+					class="px-3 py-1.5 rounded text-xs bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white transition-colors"
+					on:click={deleteRound}
+				>
+					Delete
+				</button>
+			</div>
+		</div>
 	</div>
 
-	<!-- Players (mobile) -->
-	<div class="md:hidden space-y-2">
-		{#each players as p}
-			<div class="rounded border border-gray-700 p-3 {p.dropped ? 'opacity-60' : ''}">
-				<div class="flex items-center justify-between gap-2">
-					<div class="text-sm font-semibold">{p.name || `Player ${p.id}`}</div>
-					<button
-						type="button"
-						class="text-[11px] px-2 py-1 rounded border border-gray-600 hover:bg-gray-800 {p.dropped
-							? 'text-emerald-400'
-							: 'text-red-400'}"
-						on:click={() => toggleDrop(p.id)}
-					>
-						{p.dropped ? 'Restore' : 'Drop'}
-					</button>
-				</div>
+	<!-- Players Card -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-3">Players ({players.filter(p => p.name).length})</div>
 
-				<div class="mt-2 grid grid-cols-6 gap-2 items-center">
-					<div class="col-span-6">
+		<!-- Desktop/Tablet Grid -->
+		<div class="hidden md:block">
+			<div class="grid grid-cols-12 text-[10px] text-gray-500 uppercase tracking-wider font-medium px-2 py-1 mb-2">
+				<div class="col-span-1">#</div>
+				<div class="col-span-4">Name</div>
+				<div class="col-span-3">Hero</div>
+				<div class="col-span-1 text-center">W</div>
+				<div class="col-span-1 text-center">L</div>
+				<div class="col-span-2 text-right">Record</div>
+			</div>
+			<div class="space-y-1">
+				{#each players as p}
+					<div
+						class="grid grid-cols-12 gap-1 px-2 py-1.5 items-center rounded-lg border border-gray-800 bg-gray-800/50 transition-colors hover:border-gray-700 hover:bg-gray-800 {p.dropped ? 'opacity-50' : ''} {p.name && !p.dropped ? 'border-l-2 border-l-blue-500' : ''}"
+					>
+						<div class="col-span-1 text-xs font-mono text-gray-500">{p.id + 1}</div>
+						<div class="col-span-4">
+							<input
+								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-colors"
+								placeholder="Player name"
+								bind:value={p.name}
+								on:change={(e) => setPlayerField(p.id, 'name', e.target.value)}
+							/>
+						</div>
+						<div class="col-span-3 flex items-center gap-2">
+							<img
+								src={imgSrc(p.hero)}
+								alt={p.hero}
+								class="w-6 h-6 rounded object-cover object-right flex-shrink-0"
+								loading="lazy"
+							/>
+							<select
+								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors"
+								bind:value={p.hero}
+								on:change={(e) => setPlayerField(p.id, 'hero', e.target.value)}
+							>
+								<option value="">Select hero</option>
+								{#each heroOptions as h}<option value={h}>{h}</option>{/each}
+							</select>
+						</div>
+						<div class="col-span-1">
+							<input
+								class="w-full rounded border border-gray-700 bg-gray-900 px-1 py-1 text-xs text-center font-mono text-white focus:border-blue-500 focus:outline-none transition-colors"
+								bind:value={p.wins}
+								on:change={(e) => setPlayerField(p.id, 'wins', e.target.value)}
+								inputmode="numeric"
+							/>
+						</div>
+						<div class="col-span-1">
+							<input
+								class="w-full rounded border border-gray-700 bg-gray-900 px-1 py-1 text-xs text-center font-mono text-white focus:border-blue-500 focus:outline-none transition-colors"
+								bind:value={p.losses}
+								on:change={(e) => setPlayerField(p.id, 'losses', e.target.value)}
+								inputmode="numeric"
+							/>
+						</div>
+						<div class="col-span-2 flex items-center justify-end gap-2">
+							<span class="font-mono text-xs text-gray-300 tabular-nums">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
+							<button
+								type="button"
+								class="w-7 h-7 rounded text-xs transition-colors {p.dropped ? 'bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white' : 'bg-gray-700 text-gray-400 hover:bg-red-600 hover:text-white'}"
+								on:click={() => toggleDrop(p.id)}
+								title={p.dropped ? 'Restore player' : 'Drop player'}
+							>
+								{p.dropped ? '+' : 'x'}
+							</button>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Mobile Grid -->
+		<div class="md:hidden grid grid-cols-1 gap-1.5">
+			{#each players as p}
+				<div
+					class="rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors hover:border-gray-700 hover:bg-gray-800 {p.dropped ? 'opacity-50' : ''} {p.name && !p.dropped ? 'border-l-2 border-l-blue-500' : ''}"
+				>
+					<div class="flex items-center gap-2">
+						<span class="text-xs font-mono text-gray-500 w-5">{p.id + 1}</span>
 						<input
-							class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
+							class="flex-1 rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
 							placeholder="Name"
 							bind:value={p.name}
 							on:change={(e) => setPlayerField(p.id, 'name', e.target.value)}
 						/>
+						<button
+							type="button"
+							class="w-7 h-7 rounded text-xs transition-colors flex-shrink-0 {p.dropped ? 'bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white' : 'bg-gray-700 text-gray-400 hover:bg-red-600 hover:text-white'}"
+							on:click={() => toggleDrop(p.id)}
+						>
+							{p.dropped ? '+' : 'x'}
+						</button>
 					</div>
-
-					<div class="col-span-6 flex items-center gap-2">
+					<div class="flex items-center gap-2 mt-1.5 pl-7">
 						<img
 							src={imgSrc(p.hero)}
 							alt={p.hero}
-							class="w-7 h-7 rounded object-cover object-right"
+							class="w-6 h-6 rounded object-cover object-right flex-shrink-0"
+							loading="lazy"
 						/>
 						<select
-							class="flex-1 bg-gray-800 rounded px-2 py-1 text-xs"
+							class="flex-1 rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
 							bind:value={p.hero}
 							on:change={(e) => setPlayerField(p.id, 'hero', e.target.value)}
 						>
-							<option value="">Select hero…</option>
+							<option value="">Select hero</option>
 							{#each heroOptions as h}<option value={h}>{h}</option>{/each}
 						</select>
-					</div>
-
-					<div class="col-span-3">
-						<label class="block text-[11px] text-gray-400">W</label>
-						<input
-							class="w-full bg-gray-800 rounded px-2 py-1 text-xs text-right"
-							inputmode="numeric"
-							bind:value={p.wins}
-							on:change={(e) => setPlayerField(p.id, 'wins', e.target.value)}
-						/>
-					</div>
-					<div class="col-span-3">
-						<label class="block text-[11px] text-gray-400">L</label>
-						<input
-							class="w-full bg-gray-800 rounded px-2 py-1 text-xs text-right"
-							inputmode="numeric"
-							bind:value={p.losses}
-							on:change={(e) => setPlayerField(p.id, 'losses', e.target.value)}
-						/>
-					</div>
-
-					<div class="col-span-6 text-right text-xs text-gray-300">
-						Record: <span class="text-white">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
+						<span class="font-mono text-xs text-gray-300 tabular-nums flex-shrink-0">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
 					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
+		</div>
 	</div>
 
-	<!-- Pairings (desktop/tablet) -->
-	<div class="hidden md:block border border-gray-700 rounded overflow-hidden">
-		<div class="flex justify-between items-center px-2 py-1 bg-gray-800 text-xs text-gray-300">
-			<span>Round {selectedRound} Pairings</span>
-			<span class="text-gray-400">Players entered: {totalPlayers}</span>
+	<!-- Pairings Card -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="flex items-center justify-between mb-3">
+			<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Round {selectedRound} Pairings</div>
 		</div>
-		<div class="grid grid-cols-12 text-xs text-gray-300 px-2 py-1">
-			<div class="col-span-1">Tbl</div>
-			<div class="col-span-5">Player 1</div>
-			<div class="col-span-5">Player 2</div>
-			<div class="col-span-1 text-right">Result</div>
-		</div>
-		{#each pairings as m, idx}
-			<div class="grid grid-cols-12 gap-1 px-2 py-1 border-t border-gray-700 items-center">
-				<div class="col-span-1 text-xs text-gray-400">{m.table}</div>
 
-				<div class="col-span-5">
-					<select
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
-						bind:value={pairings[idx].p1}
-						on:change={(e) => setSeat(idx, 'p1', e.target.value)}
-					>
-						<option value="">—</option>
-						<option value="BYE">Bye</option>
-						{#each eligiblePlayersFor(selectedRound, pairings[idx].p1) as p}
-							<option value={p.id}
-								>{playerLabel(p)}{p.dropped && selectedRound <= currentRound
-									? ' (dropped)'
-									: ''}</option
-							>
-						{/each}
-					</select>
-				</div>
-
-				<div class="col-span-5">
-					<select
-						class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
-						bind:value={pairings[idx].p2}
-						on:change={(e) => setSeat(idx, 'p2', e.target.value)}
-					>
-						<option value="">—</option>
-						<option value="BYE">Bye</option>
-						{#each eligiblePlayersFor(selectedRound, pairings[idx].p2) as p}
-							<option value={p.id}
-								>{playerLabel(p)}{p.dropped && selectedRound <= currentRound
-									? ' (dropped)'
-									: ''}</option
-							>
-						{/each}
-					</select>
-				</div>
-
-				<div class="col-span-1 flex justify-end gap-1">
-					<button
-						class={`bg-gray-800 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded ${isWinnerSeat(pairings[idx], 'p1') ? 'ring-2 ring-emerald-400' : ''}`}
-						on:click={() => setWinner(idx, pairings[idx].p1)}
-						disabled={pairings[idx].p1 === '' ||
-							pairings[idx].p2 === '' ||
-							pairings[idx].p1 === 'BYE'}
-					>
-						P1
-					</button>
-					<button
-						class={`bg-gray-800 hover:bg-gray-700 text-white text-xs px-2 py-1 rounded ${isWinnerSeat(pairings[idx], 'p2') ? 'ring-2 ring-emerald-400' : ''}`}
-						on:click={() => setWinner(idx, pairings[idx].p2)}
-						disabled={pairings[idx].p1 === '' ||
-							pairings[idx].p2 === '' ||
-							pairings[idx].p2 === 'BYE'}
-					>
-						P2
-					</button>
-					<button
-						class={`bg-amber-600 hover:bg-amber-700 text-white text-xs px-2 py-1 rounded ${pairings[idx].winner === 'draw' ? 'ring-2 ring-amber-300' : ''}`}
-						on:click={() => setWinner(idx, 'draw')}
-						disabled={pairings[idx].p1 === '' ||
-							pairings[idx].p2 === '' ||
-							pairings[idx].p1 === 'BYE' ||
-							pairings[idx].p2 === 'BYE'}
-					>
-						Draw
-					</button>
-				</div>
+		<!-- Desktop/Tablet View -->
+		<div class="hidden md:block">
+			<div class="grid grid-cols-12 text-[10px] text-gray-500 uppercase tracking-wider font-medium px-2 py-1 mb-2">
+				<div class="col-span-1">Tbl</div>
+				<div class="col-span-4">Player 1</div>
+				<div class="col-span-4">Player 2</div>
+				<div class="col-span-3 text-right">Result</div>
 			</div>
-		{/each}
+			<div class="space-y-1">
+				{#each pairings as m, idx}
+					<div class="grid grid-cols-12 gap-1.5 px-2 py-1.5 items-center rounded-lg border border-gray-800 bg-gray-800/50 transition-colors hover:border-gray-700 hover:bg-gray-800 {m.winner !== null ? 'border-l-2 border-l-green-500' : ''}">
+						<div class="col-span-1 text-xs font-mono text-gray-500">{m.table}</div>
+
+						<div class="col-span-4">
+							<select
+								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'border-green-500 bg-green-900/20' : ''}"
+								bind:value={pairings[idx].p1}
+								on:change={(e) => setSeat(idx, 'p1', e.target.value)}
+							>
+								<option value="">Select player</option>
+								<option value="BYE">Bye</option>
+								{#each eligiblePlayersFor(selectedRound, pairings[idx].p1) as p}
+									<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
+								{/each}
+							</select>
+						</div>
+
+						<div class="col-span-4">
+							<select
+								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'border-green-500 bg-green-900/20' : ''}"
+								bind:value={pairings[idx].p2}
+								on:change={(e) => setSeat(idx, 'p2', e.target.value)}
+							>
+								<option value="">Select player</option>
+								<option value="BYE">Bye</option>
+								{#each eligiblePlayersFor(selectedRound, pairings[idx].p2) as p}
+									<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
+								{/each}
+							</select>
+						</div>
+
+						<div class="col-span-3 flex justify-end gap-1">
+							<button
+								class="w-8 h-7 rounded text-xs font-medium transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
+								on:click={() => setWinner(idx, pairings[idx].p1)}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE'}
+							>
+								P1
+							</button>
+							<button
+								class="w-8 h-7 rounded text-xs font-medium transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
+								on:click={() => setWinner(idx, pairings[idx].p2)}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p2 === 'BYE'}
+							>
+								P2
+							</button>
+							<button
+								class="px-2 h-7 rounded text-xs font-medium transition-colors {pairings[idx].winner === 'draw' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white'}"
+								on:click={() => setWinner(idx, 'draw')}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE' || pairings[idx].p2 === 'BYE'}
+							>
+								Draw
+							</button>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
 	</div>
 
-	<!-- Pairings (mobile) -->
-	<div class="md:hidden space-y-2">
-		<div class="flex items-center justify-between text-[12px] text-gray-300">
-			<span>Round {selectedRound} Pairings</span>
-			<span class="text-gray-400">Players: {totalPlayers}</span>
-		</div>
-
-		{#each pairings as m, idx}
-			<div class="rounded border border-gray-700 p-3 space-y-2">
-				<div class="flex items-center justify-between">
-					<div class="text-xs text-gray-300">Table {m.table}</div>
-					<div class="flex gap-2">
-						<button
-							class={`px-2 py-1 text-[12px] rounded ${isWinnerSeat(pairings[idx], 'p1') ? 'bg-emerald-600' : 'bg-gray-800'}`}
-							on:click={() => setWinner(idx, pairings[idx].p1)}
-							disabled={pairings[idx].p1 === '' ||
-								pairings[idx].p2 === '' ||
-								pairings[idx].p1 === 'BYE'}>P1</button
-						>
-						<button
-							class={`px-2 py-1 text-[12px] rounded ${isWinnerSeat(pairings[idx], 'p2') ? 'bg-emerald-600' : 'bg-gray-800'}`}
-							on:click={() => setWinner(idx, pairings[idx].p2)}
-							disabled={pairings[idx].p1 === '' ||
-								pairings[idx].p2 === '' ||
-								pairings[idx].p2 === 'BYE'}>P2</button
-						>
-						<button
-							class={`px-2 py-1 text-[12px] rounded ${pairings[idx].winner === 'draw' ? 'bg-amber-600' : 'bg-gray-800'}`}
-							on:click={() => setWinner(idx, 'draw')}
-							disabled={pairings[idx].p1 === '' ||
-								pairings[idx].p2 === '' ||
-								pairings[idx].p1 === 'BYE' ||
-								pairings[idx].p2 === 'BYE'}>Draw</button
-						>
+	<!-- Pairings Mobile -->
+	<div class="md:hidden bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-3">Round {selectedRound} Pairings</div>
+		<div class="grid grid-cols-1 gap-1.5">
+			{#each pairings as m, idx}
+				<div class="rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors {m.winner !== null ? 'border-l-2 border-l-green-500' : ''}">
+					<div class="flex items-center justify-between mb-2">
+						<span class="text-xs font-mono text-gray-500">Table {m.table}</span>
+						<div class="flex gap-1">
+							<button
+								class="w-8 h-6 rounded text-[10px] font-medium transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'}"
+								on:click={() => setWinner(idx, pairings[idx].p1)}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE'}
+							>
+								P1
+							</button>
+							<button
+								class="w-8 h-6 rounded text-[10px] font-medium transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'}"
+								on:click={() => setWinner(idx, pairings[idx].p2)}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p2 === 'BYE'}
+							>
+								P2
+							</button>
+							<button
+								class="px-2 h-6 rounded text-[10px] font-medium transition-colors {pairings[idx].winner === 'draw' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300'}"
+								on:click={() => setWinner(idx, 'draw')}
+								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE' || pairings[idx].p2 === 'BYE'}
+							>
+								D
+							</button>
+						</div>
 					</div>
-				</div>
-
-				<div class="space-y-2">
-					<div>
-						<label class="block text-[11px] text-gray-400 mb-1">Player 1</label>
+					<div class="space-y-1.5">
 						<select
-							class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
+							class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none {isWinnerSeat(pairings[idx], 'p1') ? 'border-green-500 bg-green-900/20' : ''}"
 							bind:value={pairings[idx].p1}
 							on:change={(e) => setSeat(idx, 'p1', e.target.value)}
 						>
-							<option value="">—</option>
+							<option value="">Player 1</option>
 							<option value="BYE">Bye</option>
 							{#each eligiblePlayersFor(selectedRound, pairings[idx].p1) as p}
-								<option value={p.id}
-									>{playerLabel(p)}{p.dropped && selectedRound <= currentRound
-										? ' (dropped)'
-										: ''}</option
-								>
+								<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
 							{/each}
 						</select>
-					</div>
-
-					<div>
-						<label class="block text-[11px] text-gray-400 mb-1">Player 2</label>
 						<select
-							class="w-full bg-gray-800 rounded px-2 py-1 text-xs"
+							class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none {isWinnerSeat(pairings[idx], 'p2') ? 'border-green-500 bg-green-900/20' : ''}"
 							bind:value={pairings[idx].p2}
 							on:change={(e) => setSeat(idx, 'p2', e.target.value)}
 						>
-							<option value="">—</option>
+							<option value="">Player 2</option>
 							<option value="BYE">Bye</option>
 							{#each eligiblePlayersFor(selectedRound, pairings[idx].p2) as p}
-								<option value={p.id}
-									>{playerLabel(p)}{p.dropped && selectedRound <= currentRound
-										? ' (dropped)'
-										: ''}</option
-								>
+								<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
 							{/each}
 						</select>
 					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
+		</div>
 	</div>
 
-	<!-- Actions -->
-	<div class="flex flex-wrap gap-2">
-		<button
-			class="bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm rounded text-white"
-			on:click={submitAndAdvance}
-		>
-			Submit & Advance
-		</button>
+	<!-- Actions Card -->
+	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
+		<div class="flex items-center gap-2">
+			<button
+				class="px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+				on:click={submitAndAdvance}
+			>
+				Submit & Advance Round
+			</button>
+		</div>
 	</div>
 </div>

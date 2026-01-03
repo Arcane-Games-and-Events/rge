@@ -6,23 +6,27 @@
 
 	injectSpeedInsights();
 
-	// Define routes where the navbar should be hidden
+	// Define routes where the navbar and dark theme should be hidden (OBS views)
 	const excludedRoutes = ['/views/'];
 
-	// Reactive store to determine if the navbar should be shown
-	let showNavbar = true;
+	// Reactive variable to determine if we're on an admin/control route (not OBS views)
+	let isAdminRoute = true;
 
 	// Reactively determine if the current route is excluded
 	$: {
-		// Ensure `page` is available and check the current path
 		const currentPath = $page?.url?.pathname || '';
-		showNavbar = !excludedRoutes.some((route) => currentPath.startsWith(route));
+		isAdminRoute = !excludedRoutes.some((route) => currentPath.startsWith(route));
 	}
 </script>
 
-<!-- Conditionally display the navbar -->
-{#if showNavbar}
-	<Navbar />
+{#if isAdminRoute}
+	<div class="dark-theme min-h-screen bg-gray-950">
+		<Navbar />
+		<main class="relative">
+			<slot />
+		</main>
+	</div>
+{:else}
+	<!-- OBS views render without navbar or dark theme -->
+	<slot />
 {/if}
-
-<slot />
