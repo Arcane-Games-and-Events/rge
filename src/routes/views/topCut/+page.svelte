@@ -33,6 +33,11 @@
 	let imagesReady = false;
 	let preloadedImages = new Map();
 
+	// Two-phase rendering: track DOM image loads
+	let domImagesLoaded = 0;
+	let displayReady = false;
+	let expectedImageCount = 0;
+
 	// === IMAGE HELPERS ===
 	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
 
@@ -104,8 +109,13 @@
 			.map(p => p.hero)
 			.filter(h => h && h.trim());
 
+		// Count how many images will be in the DOM (quarterfinals always show 8)
+		const qfImageCount = playerList.filter(p => p.hero && p.hero.trim()).length;
+		resetDisplayState(qfImageCount);
+
 		if (heroesToLoad.length === 0) {
 			imagesReady = true;
+			displayReady = true;
 			return;
 		}
 
@@ -113,6 +123,24 @@
 		const promises = heroesToLoad.map(hero => preloadImage(hero));
 		await Promise.all(promises);
 		imagesReady = true;
+	}
+
+	// Handle when a DOM <img> element finishes loading/decoding
+	function handleDomImageLoad() {
+		domImagesLoaded++;
+		if (domImagesLoaded >= expectedImageCount && expectedImageCount > 0) {
+			// All DOM images ready, trigger reveal after a tiny delay for paint
+			setTimeout(() => {
+				displayReady = true;
+			}, 50);
+		}
+	}
+
+	// Reset display state when data changes
+	function resetDisplayState(count) {
+		domImagesLoaded = 0;
+		displayReady = false;
+		expectedImageCount = count;
 	}
 
 	onMount(() => {
@@ -166,7 +194,7 @@
 </script>
 
 {#if imagesReady}
-<div class="w-full py-8">
+<div class="w-full py-8" class:ready={displayReady}>
 	<div class="mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-8">
 		<!-- Quarterfinals -->
 		<div class="space-y-[45px]">
@@ -174,7 +202,7 @@
 				<div class="space-y-[28px]">
 					{#each seeds as seed, playerIdx}
 						{@const delay = (matchIdx * 2 + playerIdx) * 80}
-						<div class="player-row flex justify-end gap-x-2 h-[70px]" style="--delay: {delay}ms;">
+						<div class="player-row flex justify-end gap-x-2 h-[70px]" class:animate={displayReady} style="--delay: {delay}ms;">
 							<div class="flex flex-col text-right -space-y-1">
 								<div class="text-[25px] font-bold text-white">
 									({seed + 1}) {players[seed].name || '—'}
@@ -188,6 +216,8 @@
 									src={getPreloadedImage(players[seed].hero)}
 									alt={players[seed].hero}
 									class="w-[70px] h-[70px] rounded-full object-cover object-right"
+									on:load={handleDomImageLoad}
+									on:error={handleDomImageLoad}
 								/>
 							{/if}
 						</div>
@@ -204,6 +234,7 @@
 						{@const delay = 640 + (matchIdx * 2 + playerIdx) * 80}
 						<div
 							class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
+							class:animate={displayReady}
 							class:opacity-0={seed === null}
 							class:opacity-100={seed !== null}
 							style="--delay: {delay}ms;"
@@ -235,6 +266,7 @@
 				{@const delay = 960 + idx * 80}
 				<div
 					class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
+					class:animate={displayReady}
 					class:opacity-0={seed === null}
 					class:opacity-100={seed !== null}
 					style="--delay: {delay}ms;"
@@ -262,8 +294,25 @@
 {/if}
 
 <style>
+	/* Container hidden until ready */
+	.w-full {
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.w-full.ready {
+		opacity: 1;
+		visibility: visible;
+	}
+
 	.player-row {
-		animation: slideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+		/* No animation until ready */
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+
+	.player-row.animate {
+		animation: slideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 		animation-delay: var(--delay, 0ms);
 	}
 

@@ -10,6 +10,11 @@
 	let imagesReady = false;
 	let preloadedImages = new Map();
 
+	// Two-phase rendering: track DOM image loads
+	let domImagesLoaded = 0;
+	let displayReady = false;
+	let expectedImageCount = 0;
+
 	function slugify(name) {
 		return (name || '')
 			.toLowerCase()
@@ -92,6 +97,24 @@
 		return preloadedImages.get(name) || imgSrc(name);
 	}
 
+	// Handle when a DOM <img> element finishes loading/decoding
+	function handleDomImageLoad() {
+		domImagesLoaded++;
+		if (domImagesLoaded >= expectedImageCount && expectedImageCount > 0) {
+			// All DOM images ready, trigger reveal after a tiny delay for paint
+			setTimeout(() => {
+				displayReady = true;
+			}, 50);
+		}
+	}
+
+	// Reset display state when data changes
+	function resetDisplayState(count) {
+		domImagesLoaded = 0;
+		displayReady = false;
+		expectedImageCount = count;
+	}
+
 	onMount(() => {
 		const r = ref(db, PATH);
 		const unsub = onValue(r, async (snap) => {
@@ -105,6 +128,10 @@
 
 			// Preload images for visible heroes
 			const visibleHeroes = [...rows].filter((r) => r.count > 0).sort((a, b) => (b.count || 0) - (a.count || 0));
+
+			// Reset display state for new data
+			resetDisplayState(visibleHeroes.length);
+
 			await preloadAllImages(visibleHeroes);
 		});
 		return () => unsub?.();
@@ -120,17 +147,20 @@
 	{#if heroCount > 0 && imagesReady}
 		<div
 			class="metagame-grid"
+			class:ready={displayReady}
 			style="--cols: {columns}; --rows: {rowCount};"
 		>
 			{#each visible as hero, idx (hero.id)}
 				{@const percentage = total > 0 ? Math.round((hero.count / total) * 100) : 0}
-				<div class="hero-card" style="--delay: {idx * 50}ms;">
+				<div class="hero-card" class:animate={displayReady} style="--delay: {idx * 50}ms;">
 					<!-- Hero Image -->
 					<div class="hero-image-wrapper">
 						<img
 							src={getImageSrc(hero.name)}
 							alt={hero.name}
 							class="hero-image"
+							on:load={handleDomImageLoad}
+							on:error={handleDomImageLoad}
 						/>
 						<!-- Gradient Overlay -->
 						<div class="image-overlay"></div>
@@ -173,16 +203,14 @@
 		height: 100%;
 		max-width: 1840px;
 		max-height: 900px;
-		animation: gridFadeIn 0.3s ease-out backwards;
+		/* Hidden until all DOM images loaded */
+		opacity: 0;
+		visibility: hidden;
 	}
 
-	@keyframes gridFadeIn {
-		0% {
-			opacity: 0;
-		}
-		100% {
-			opacity: 1;
-		}
+	.metagame-grid.ready {
+		opacity: 1;
+		visibility: visible;
 	}
 
 	.hero-card {
@@ -193,7 +221,13 @@
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		border-radius: 6px;
 		overflow: hidden;
-		animation: cardSlideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+		/* No animation until ready */
+		opacity: 0;
+		transform: translateX(-40px);
+	}
+
+	.hero-card.animate {
+		animation: cardSlideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 		animation-delay: var(--delay, 0ms);
 	}
 
