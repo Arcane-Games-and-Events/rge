@@ -49,6 +49,12 @@
 			}, displayDuration);
 		}
 	}
+
+	function handleImageError() {
+		// Hide the image if it fails to load
+		showImage = false;
+		console.error('Failed to load card image:', currentUrl);
+	}
 </script>
 
 <div class="card-container mt-4">
@@ -58,6 +64,7 @@
 			alt="Card"
 			class="card-image w-72 fade-in-out {showImage ? 'show' : ''}"
 			on:load={handleImageLoad}
+			on:error={handleImageError}
 		/>
 	{/if}
 </div>

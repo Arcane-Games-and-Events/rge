@@ -6,6 +6,23 @@
 // CDN configuration
 export const FAB_IMAGE_CDN = 'https://d2wlb52bya4y8z.cloudfront.net/media/cards/large';
 
+// Foil suffix mapping for CDN URLs
+const FOIL_SUFFIXES = {
+	S: '-CF', // Cold Foil (special)
+	C: '-CF', // Cold Foil
+	R: '-RF', // Rainbow Foil
+	G: '-GF' // Gold Foil
+};
+
+/**
+ * Get the CDN URL suffix for a foiling type
+ * @param {string} foiling - Foiling code (S, C, R, G, or empty)
+ * @returns {string} - URL suffix (e.g., '-CF', '-RF') or empty string
+ */
+function getFoilSuffix(foiling) {
+	return FOIL_SUFFIXES[foiling] || '';
+}
+
 // Sets that don't work with the official CDN
 export const NON_CDN_SETS = new Set([
 	'FAB', 'LGS', 'HER', 'JDG', 'WIN', 'LSS', 'GEM', 'TCC',
@@ -41,9 +58,9 @@ export function findBestPrinting(printings) {
 	);
 	if (cdnNonFoil) return { printing: cdnNonFoil, useCdn: true };
 
-	// Priority 2: CDN-compatible cold foil
+	// Priority 2: CDN-compatible cold foil (S or C)
 	const cdnColdFoil = printings.find(
-		(p) => passesBasicFilters(p) && isCdnCompatible(p) && p.foiling === 'S'
+		(p) => passesBasicFilters(p) && isCdnCompatible(p) && (p.foiling === 'S' || p.foiling === 'C')
 	);
 	if (cdnColdFoil) return { printing: cdnColdFoil, useCdn: true };
 
@@ -54,7 +71,9 @@ export function findBestPrinting(printings) {
 	if (cdnRainbowFoil) return { printing: cdnRainbowFoil, useCdn: true };
 
 	// Priority 4: Any CDN printing (except gold foil)
-	const anyCdnPrinting = printings.find((p) => p.id && isCdnCompatible(p) && p.foiling !== 'G');
+	const anyCdnPrinting = printings.find(
+		(p) => passesBasicFilters(p) && isCdnCompatible(p) && p.foiling !== 'G'
+	);
 	if (anyCdnPrinting) return { printing: anyCdnPrinting, useCdn: true };
 
 	// Priority 5: Fallback to image_url (non-foil first)
@@ -86,7 +105,11 @@ export function getCardImageUrl(card) {
 	if (!result) return card.printings[0]?.image_url || null;
 
 	const { printing, useCdn } = result;
-	return useCdn ? `${FAB_IMAGE_CDN}/${printing.id}.webp` : printing.image_url;
+	if (useCdn) {
+		const suffix = getFoilSuffix(printing.foiling);
+		return `${FAB_IMAGE_CDN}/${printing.id}${suffix}.webp`;
+	}
+	return printing.image_url;
 }
 
 /**
@@ -103,7 +126,55 @@ export function getImageUrlFromPrintings(printings) {
 	if (!result) return printings[0]?.image_url || null;
 
 	const { printing, useCdn } = result;
-	return useCdn ? `${FAB_IMAGE_CDN}/${printing.id}.webp` : printing.image_url;
+	if (useCdn) {
+		const suffix = getFoilSuffix(printing.foiling);
+		return `${FAB_IMAGE_CDN}/${printing.id}${suffix}.webp`;
+	}
+	return printing.image_url;
+}
+
+// Sets to exclude from fallback (History Packs, etc.)
+const FALLBACK_EXCLUDED_SETS = new Set(['1HP', '2HP']);
+
+// Rarities to exclude from fallback (Promos, Marvels)
+const FALLBACK_EXCLUDED_RARITIES = new Set(['P', 'M']);
+
+/**
+ * Get a fallback image URL from a card's printings
+ * Used when the primary CDN URL fails to load
+ * Excludes marvels, promos, and history pack printings
+ * @param {Object} card - Card object with printings array
+ * @returns {string|null} - Fallback image URL or null
+ */
+export function getFallbackImageUrl(card) {
+	if (!card?.printings || card.printings.length === 0) return null;
+
+	const validPrinting = card.printings.find(
+		(p) =>
+			p.image_url &&
+			!FALLBACK_EXCLUDED_SETS.has(p.set_id) &&
+			!FALLBACK_EXCLUDED_RARITIES.has(p.rarity)
+	);
+
+	return validPrinting?.image_url || null;
+}
+
+/**
+ * Get a fallback image URL from a printings array directly
+ * @param {Array} printings - Array of printing objects
+ * @returns {string|null} - Fallback image URL or null
+ */
+export function getFallbackImageUrlFromPrintings(printings) {
+	if (!printings || printings.length === 0) return null;
+
+	const validPrinting = printings.find(
+		(p) =>
+			p.image_url &&
+			!FALLBACK_EXCLUDED_SETS.has(p.set_id) &&
+			!FALLBACK_EXCLUDED_RARITIES.has(p.rarity)
+	);
+
+	return validPrinting?.image_url || null;
 }
 
 /**

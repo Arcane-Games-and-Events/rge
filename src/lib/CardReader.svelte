@@ -3,7 +3,7 @@
 	import { ref, set } from 'firebase/database';
 	import { db } from '../firebaseClient';
 	import cardsData from '$lib/data/cards.json';
-	import { getCardImageUrl } from '$lib/cardImageUtils';
+	import { getCardImageUrl, getFallbackImageUrl } from '$lib/cardImageUtils';
 
 	let cards = cardsData;
 	let selectedCard = null;
@@ -12,6 +12,7 @@
 	let isDropdownOpen = false;
 	let filteredCards = [];
 	let highlightedIndex = -1;
+	let previewImageUrl = '';
 
 	const pitchBorderColor = (pitch) => {
 		switch (pitch) {
@@ -40,6 +41,7 @@
 		isDropdownOpen = false;
 		if (card) {
 			const cardUrl = getCardImageUrl(card);
+			previewImageUrl = cardUrl || '';
 			if (cardUrl) {
 				// Add timestamp to force browser to reload image
 				const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
@@ -53,10 +55,25 @@
 		}
 	};
 
+	const handlePreviewImageError = () => {
+		if (selectedCard) {
+			const fallbackUrl = getFallbackImageUrl(selectedCard);
+			if (fallbackUrl && fallbackUrl !== previewImageUrl) {
+				previewImageUrl = fallbackUrl;
+				// Also update Firebase with the fallback URL
+				const urlWithTimestamp = `${fallbackUrl}${fallbackUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+				set(ref(db, 'cardReaderURL'), urlWithTimestamp).catch((err) => {
+					console.error('Error updating to fallback URL:', err);
+				});
+			}
+		}
+	};
+
 	const handleClear = async () => {
 		query = '';
 		filteredCards = [];
 		selectedCard = null;
+		previewImageUrl = '';
 		isDropdownOpen = false;
 		try {
 			await set(ref(db, 'cardReaderURL'), '');
@@ -69,6 +86,7 @@
 		if (!selectedCard) return;
 		const cardUrl = getCardImageUrl(selectedCard);
 		if (!cardUrl) return;
+		previewImageUrl = cardUrl;
 		// Add timestamp to force browser to reload image
 		const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
 		try {
@@ -189,13 +207,14 @@
 	</div>
 
 	<!-- Card Preview -->
-	{#if selectedCard}
+	{#if selectedCard && previewImageUrl}
 		<div class="flex justify-center pt-2">
 			<img
-				src={getCardImageUrl(selectedCard)}
+				src={previewImageUrl}
 				alt={selectedCard.name}
 				class="w-96 sm:w-[28rem] rounded shadow-lg"
 				loading="lazy"
+				on:error={handlePreviewImageError}
 			/>
 		</div>
 	{/if}
