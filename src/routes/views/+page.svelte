@@ -96,7 +96,9 @@
 				{#each [
 					{ href: '/views/scorekeeper2', label: 'Score Keeper (Table 2)' },
 					{ href: '/views/lifecounter2', label: 'Life Counter (Table 2)' },
-					{ href: '/views/playerinfo2', label: 'Player Info (Table 2)' }
+					{ href: '/views/playerinfo2', label: 'Player Info (Table 2)' },
+					{ href: '/views/heroImage/table2/left', label: 'Hero Image Left (T2-P1)' },
+					{ href: '/views/heroImage/table2/right', label: 'Hero Image Right (T2-P2)' }
 				] as item}
 					<div class="flex items-center gap-1">
 						<a
