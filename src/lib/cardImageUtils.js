@@ -45,7 +45,7 @@ export const NON_CDN_SETS = new Set([
 export function findBestPrinting(printings) {
 	if (!printings || printings.length === 0) return null;
 
-	const excludedRarities = ['P', 'V'];
+	const excludedRarities = ['P', 'V', 'F']; // Promos, Variants, Fabled
 	const excludedEditions = ['N'];
 
 	const passesBasicFilters = (p) =>
@@ -106,7 +106,8 @@ export function getCardImageUrl(card) {
 
 	const { printing, useCdn } = result;
 	if (useCdn) {
-		const suffix = getFoilSuffix(printing.foiling);
+		// Marvel cards (M) don't have foil suffixes on CDN
+		const suffix = printing.rarity === 'M' ? '' : getFoilSuffix(printing.foiling);
 		return `${FAB_IMAGE_CDN}/${printing.id}${suffix}.webp`;
 	}
 	return printing.image_url;
@@ -127,7 +128,8 @@ export function getImageUrlFromPrintings(printings) {
 
 	const { printing, useCdn } = result;
 	if (useCdn) {
-		const suffix = getFoilSuffix(printing.foiling);
+		// Marvel cards (M) don't have foil suffixes on CDN
+		const suffix = printing.rarity === 'M' ? '' : getFoilSuffix(printing.foiling);
 		return `${FAB_IMAGE_CDN}/${printing.id}${suffix}.webp`;
 	}
 	return printing.image_url;
