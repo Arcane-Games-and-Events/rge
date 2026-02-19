@@ -15,16 +15,16 @@
 	}
 
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
+		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
 	};
 
 	function getHeroImage(heroName) {
-		if (!heroName) return '/heroImages/default.webp';
+		if (!heroName) return '/heroImages/default.jpg';
 		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
 		if (normalized in IMAGE_EXCEPTIONS) {
 			return IMAGE_EXCEPTIONS[normalized];
 		}
-		return `/heroImages/${slugify(heroName)}.webp`;
+		return `/heroImages/${slugify(heroName)}.jpg`;
 	}
 
 	onMount(() => {

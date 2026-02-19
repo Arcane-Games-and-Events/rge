@@ -13,8 +13,8 @@
 	let displayRound = '00:00';
 	let displayBreak = '00:00';
 
-	// Interval for updating display
-	let updateInterval;
+	// Animation frame for updating display
+	let animFrame;
 
 	// Unsubscribe functions
 	let unsubscribers = [];
@@ -93,13 +93,17 @@
 			})
 		);
 
-		// Update frequently to avoid skipping displayed seconds due to setInterval drift
-		updateInterval = setInterval(updateDisplays, 200);
+		// Use requestAnimationFrame for smooth updates — unlike setInterval,
+		// rAF syncs with the render cycle and isn't throttled by OBS's CEF browser
+		function tick() {
+			updateDisplays();
+			animFrame = requestAnimationFrame(tick);
+		}
+		animFrame = requestAnimationFrame(tick);
 	});
 
 	onDestroy(() => {
-		// Clear interval
-		clearInterval(updateInterval);
+		cancelAnimationFrame(animFrame);
 		// Detach Firebase listeners
 		unsubscribers.forEach(unsub => unsub && unsub());
 	});

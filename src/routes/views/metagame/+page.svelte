@@ -26,16 +26,16 @@
 	}
 
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
+		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
 	};
 
 	function imgSrc(name) {
-		if (!name) return '/heroImages/default.webp';
+		if (!name) return '/heroImages/default.jpg';
 		const normalized = (name || '').toLowerCase().replace(/["',]/g, '').trim();
 		if (normalized in IMAGE_EXCEPTIONS) {
 			return IMAGE_EXCEPTIONS[normalized];
 		}
-		return `/heroImages/${slugify(name)}.webp`;
+		return `/heroImages/${slugify(name)}.jpg`;
 	}
 
 	function getOptimalColumns(count) {

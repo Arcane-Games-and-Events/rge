@@ -120,7 +120,9 @@
 		});
 		onValue(getRef('displayTime'), (snap) => {
 			const dt = snap.val();
-			if (dt != null) displayTime = dt;
+			// Only accept Firebase displayTime when paused to avoid feedback loop
+			// (we write displayTime to Firebase, then the echo would overwrite our local calculation)
+			if (dt != null && isPaused) displayTime = dt;
 		});
 	}
 

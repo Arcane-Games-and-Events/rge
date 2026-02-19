@@ -79,7 +79,7 @@
 	}
 
 	function imgSrc(name) {
-		return `/heroImages/${slugify(name)}.webp`;
+		return `/heroImages/${slugify(name)}.jpg`;
 	}
 
 	// Keyboard niceties for quick entry

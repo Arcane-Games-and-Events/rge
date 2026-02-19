@@ -43,7 +43,7 @@
 
 	// Exceptions map
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
+		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
 	};
 
 	function slugify(str) {
@@ -56,15 +56,15 @@
 	}
 
 	function getHeroImage(hero) {
-		if (!hero) return '/heroImages/default.webp';
+		if (!hero) return '/heroImages/default.jpg';
 		const key = normalize(hero);
 		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
-		return `/heroImages/${slugify(hero)}.webp`;
+		return `/heroImages/${slugify(hero)}.jpg`;
 	}
 
 	// Get preloaded image or fallback
 	function getPreloadedImage(hero) {
-		if (!hero) return '/heroImages/default.webp';
+		if (!hero) return '/heroImages/default.jpg';
 		return preloadedImages.get(hero) || getHeroImage(hero);
 	}
 
