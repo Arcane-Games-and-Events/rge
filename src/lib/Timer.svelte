@@ -42,12 +42,17 @@
 
 	function startDisplayTimeInterval() {
 		clearInterval(timerInterval);
+		let lastWrittenTime = '';
 		timerInterval = setInterval(() => {
 			if (!isPaused) {
 				calculateDisplayTime();
-				set(getRef('displayTime'), displayTime);
+				// Only write to DB when the displayed value actually changes
+				if (displayTime !== lastWrittenTime) {
+					lastWrittenTime = displayTime;
+					set(getRef('displayTime'), displayTime);
+				}
 			}
-		}, 1000);
+		}, 200);
 	}
 
 	async function startTimer() {

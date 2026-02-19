@@ -53,19 +53,23 @@
 </script>
 
 {#if players.p1.hero}
-	<img
-		class="scale-x-[-1]"
-		src={getHeroImage(players.p1.hero)}
-		alt={players.p1.hero}
-		width="1000"
-	/>
+	{#key players.p1.hero}
+		<img
+			class="scale-x-[-1]"
+			src={getHeroImage(players.p1.hero)}
+			alt={players.p1.hero}
+			width="1000"
+		/>
+	{/key}
 {/if}
 
 {#if players.p2.hero}
-	<img
-		class="mt-4"
-		src={getHeroImage(players.p2.hero)}
-		alt={players.p2.hero}
-		width="1000"
-	/>
+	{#key players.p2.hero}
+		<img
+			class="mt-4"
+			src={getHeroImage(players.p2.hero)}
+			alt={players.p2.hero}
+			width="1000"
+		/>
+	{/key}
 {/if}

@@ -93,8 +93,8 @@
 			})
 		);
 
-		// Start interval to update displays every second
-		updateInterval = setInterval(updateDisplays, 1000);
+		// Update frequently to avoid skipping displayed seconds due to setInterval drift
+		updateInterval = setInterval(updateDisplays, 200);
 	});
 
 	onDestroy(() => {

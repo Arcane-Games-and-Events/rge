@@ -37,9 +37,11 @@
 </script>
 
 {#if hero}
-	<img
-		src={getHeroImage(hero)}
-		alt={hero}
-		width="1000"
-	/>
+	{#key hero}
+		<img
+			src={getHeroImage(hero)}
+			alt={hero}
+			width="1000"
+		/>
+	{/key}
 {/if}

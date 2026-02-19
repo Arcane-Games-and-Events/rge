@@ -37,10 +37,12 @@
 </script>
 
 {#if hero}
-	<img
-		class="scale-x-[-1]"
-		src={getHeroImage(hero)}
-		alt={hero}
-		width="1000"
-	/>
+	{#key hero}
+		<img
+			class="scale-x-[-1]"
+			src={getHeroImage(hero)}
+			alt={hero}
+			width="1000"
+		/>
+	{/key}
 {/if}
