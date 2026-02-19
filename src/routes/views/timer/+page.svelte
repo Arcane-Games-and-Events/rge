@@ -102,7 +102,7 @@
 	});
 
 	onDestroy(() => {
-		cancelAnimationFrame(animFrame);
+		if (typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(animFrame);
 		unsubscribers.forEach(unsub => unsub && unsub());
 	});
 </script>
