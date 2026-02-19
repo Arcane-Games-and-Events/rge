@@ -19,18 +19,18 @@
 
 	// Special-case check for Arakni, Huntsman
 	function getHeroImage(heroName) {
-		if (!heroName) return '/heroImages/default.jpg';
+		if (!heroName) return '/heroImages/default.webp';
 
 		// Normalize the input for comparison
 		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
 
 		if (normalized === 'arakni huntsman') {
-			return '/heroImages/arakni-huntsman.jpg';
+			return '/heroImages/arakni-huntsman.webp';
 		}
 
 		// Default path
 		const slug = slugify(heroName);
-		return `/heroImages/${slug}.jpg`;
+		return `/heroImages/${slug}.webp`;
 	}
 
 	function fetchData() {
@@ -58,10 +58,6 @@
 		src={getHeroImage(players.p1.hero)}
 		alt={players.p1.hero}
 		width="1000"
-		on:error={(e) => {
-			const slug = slugify(players.p1.hero);
-			e.target.src = `/heroImages/${slug}.png`;
-		}}
 	/>
 {/if}
 
@@ -71,9 +67,5 @@
 		src={getHeroImage(players.p2.hero)}
 		alt={players.p2.hero}
 		width="1000"
-		on:error={(e) => {
-			const slug = slugify(players.p2.hero);
-			e.target.src = `/heroImages/${slug}.png`;
-		}}
 	/>
 {/if}

@@ -15,16 +15,16 @@
 	}
 
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
+		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
 	};
 
 	function getHeroImage(heroName) {
-		if (!heroName) return '/heroImages/default.jpg';
+		if (!heroName) return '/heroImages/default.webp';
 		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
 		if (normalized in IMAGE_EXCEPTIONS) {
 			return IMAGE_EXCEPTIONS[normalized];
 		}
-		return `/heroImages/${slugify(heroName)}.jpg`;
+		return `/heroImages/${slugify(heroName)}.webp`;
 	}
 
 	onMount(() => {
@@ -42,13 +42,5 @@
 		src={getHeroImage(hero)}
 		alt={hero}
 		width="1000"
-		on:error={(e) => {
-			const normalized = hero.toLowerCase().replace(/["',]/g, '').trim();
-			if (normalized in IMAGE_EXCEPTIONS) {
-				e.target.src = IMAGE_EXCEPTIONS[normalized].replace(/\.jpg$/i, '.png');
-			} else {
-				e.target.src = `/heroImages/${slugify(hero)}.png`;
-			}
-		}}
 	/>
 {/if}

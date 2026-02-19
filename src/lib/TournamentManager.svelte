@@ -23,7 +23,7 @@
 			.replace(/\s+/g, '-')
 			.replace(/-+/g, '-')
 			.trim();
-	const imgSrc = (name) => `/heroImages/${slugify(name)}.jpg`;
+	const imgSrc = (name) => `/heroImages/${slugify(name)}.webp`;
 
 	function blankPlayers() {
 		return Array.from({ length: PLAYER_COUNT }, (_, id) => ({

@@ -43,7 +43,7 @@
 
 	// Exceptions map
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
+		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
 	};
 
 	function slugify(str) {
@@ -56,19 +56,19 @@
 	}
 
 	function getHeroImage(hero) {
-		if (!hero) return '/heroImages/default.jpg';
+		if (!hero) return '/heroImages/default.webp';
 		const key = normalize(hero);
 		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
-		return `/heroImages/${slugify(hero)}.jpg`;
+		return `/heroImages/${slugify(hero)}.webp`;
 	}
 
 	// Get preloaded image or fallback
 	function getPreloadedImage(hero) {
-		if (!hero) return '/heroImages/default.jpg';
+		if (!hero) return '/heroImages/default.webp';
 		return preloadedImages.get(hero) || getHeroImage(hero);
 	}
 
-	// Preload a single image, trying jpg then png
+	// Preload a single image
 	function preloadImage(hero) {
 		return new Promise((resolve) => {
 			if (!hero) {
@@ -85,18 +85,8 @@
 			};
 
 			img.onerror = () => {
-				// Try png fallback
-				const pngSrc = src.replace(/\.jpg$/i, '.png');
-				const img2 = new Image();
-				img2.onload = () => {
-					preloadedImages.set(hero, pngSrc);
-					resolve(pngSrc);
-				};
-				img2.onerror = () => {
-					preloadedImages.set(hero, src);
-					resolve(src);
-				};
-				img2.src = pngSrc;
+				preloadedImages.set(hero, src);
+				resolve(src);
 			};
 
 			img.src = src;

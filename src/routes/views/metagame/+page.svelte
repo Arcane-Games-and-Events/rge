@@ -26,16 +26,16 @@
 	}
 
 	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman.jpg'
+		'arakni huntsman': '/heroImages/arakni-huntsman.webp'
 	};
 
 	function imgSrc(name) {
-		if (!name) return '/heroImages/default.jpg';
+		if (!name) return '/heroImages/default.webp';
 		const normalized = (name || '').toLowerCase().replace(/["',]/g, '').trim();
 		if (normalized in IMAGE_EXCEPTIONS) {
 			return IMAGE_EXCEPTIONS[normalized];
 		}
-		return `/heroImages/${slugify(name)}.jpg`;
+		return `/heroImages/${slugify(name)}.webp`;
 	}
 
 	function getOptimalColumns(count) {
@@ -48,7 +48,7 @@
 		return Math.ceil(count / 6);
 	}
 
-	// Preload a single image, trying jpg then png
+	// Preload a single image
 	function preloadImage(name) {
 		return new Promise((resolve) => {
 			const src = imgSrc(name);
@@ -60,19 +60,8 @@
 			};
 
 			img.onerror = () => {
-				// Try png fallback
-				const pngSrc = src.replace(/\.jpg$/i, '.png');
-				const img2 = new Image();
-				img2.onload = () => {
-					preloadedImages.set(name, pngSrc);
-					resolve(pngSrc);
-				};
-				img2.onerror = () => {
-					// Use default or just resolve with original
-					preloadedImages.set(name, src);
-					resolve(src);
-				};
-				img2.src = pngSrc;
+				preloadedImages.set(name, src);
+				resolve(src);
 			};
 
 			img.src = src;

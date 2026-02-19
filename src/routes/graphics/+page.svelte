@@ -65,7 +65,7 @@
 			.trim();
 	}
 	function heroFilename(name) {
-		return name ? `/heroImages/${slugify(name)}.jpg` : '';
+		return name ? `/heroImages/${slugify(name)}.webp` : '';
 	}
 
 	// Hero options sorted
