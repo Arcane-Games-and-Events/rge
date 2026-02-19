@@ -110,14 +110,14 @@
 <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-8">
 	<!-- Round timer -->
 	<div>
-		<p class="text-8xl text-center text-white font-bold">
+		<p class="text-8xl text-left text-white font-bold tabular-nums">
 			{displayRound}
 		</p>
 	</div>
 
 	<!-- Break timer -->
 	<div>
-		<p class="text-8xl text-center text-white font-bold">
+		<p class="text-8xl text-left text-white font-bold tabular-nums">
 			{displayBreak}
 		</p>
 	</div>
