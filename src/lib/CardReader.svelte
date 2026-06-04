@@ -14,6 +14,12 @@
 	let highlightedIndex = -1;
 	let previewImageUrl = '';
 
+	const isAllowedPrinting = (p) =>
+		p.rarity !== 'P' && !(p.art_variations || []).includes('FA');
+
+	const withAllowedPrintings = (card) =>
+		card ? { ...card, printings: (card.printings || []).filter(isAllowedPrinting) } : card;
+
 	const pitchBorderColor = (pitch) => {
 		switch (pitch) {
 			case '1':
@@ -40,7 +46,7 @@
 		query = card.name;
 		isDropdownOpen = false;
 		if (card) {
-			const cardUrl = getCardImageUrl(card);
+			const cardUrl = getCardImageUrl(withAllowedPrintings(card));
 			previewImageUrl = cardUrl || '';
 			if (cardUrl) {
 				// Add timestamp to force browser to reload image
@@ -57,7 +63,7 @@
 
 	const handlePreviewImageError = () => {
 		if (selectedCard) {
-			const fallbackUrl = getFallbackImageUrl(selectedCard);
+			const fallbackUrl = getFallbackImageUrl(withAllowedPrintings(selectedCard));
 			if (fallbackUrl && fallbackUrl !== previewImageUrl) {
 				previewImageUrl = fallbackUrl;
 				// Also update Firebase with the fallback URL
@@ -84,7 +90,7 @@
 
 	const showCard = async () => {
 		if (!selectedCard) return;
-		const cardUrl = getCardImageUrl(selectedCard);
+		const cardUrl = getCardImageUrl(withAllowedPrintings(selectedCard));
 		if (!cardUrl) return;
 		previewImageUrl = cardUrl;
 		// Add timestamp to force browser to reload image

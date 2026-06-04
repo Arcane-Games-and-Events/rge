@@ -6,6 +6,8 @@
 	{ "name": "Arakni, Solitary Confinement" },
 	{ "name": "Arakni, Web of Deceit" },
 	{ "name": "Aurora" },
+	{ "name": "Aurora, Emissary of Lightning" },
+	{ "name": "Aurora, Legacy of Tempest" },
 	{ "name": "Aurora, Shooting Star" },
 	{ "name": "Azalea" },
 	{ "name": "Azalea, Ace in the Hole" },
@@ -78,6 +80,8 @@
 	{ "name": "Olympia, Prized Fighter" },
 	{ "name": "Oscilio" },
 	{ "name": "Oscilio, Constella Intelligence" },
+	{ "name": "Oscilio, Forked Continuum" },
+	{ "name": "Oscilio, Scion of the Third Age" },
 	{ "name": "Pleiades" },
 	{ "name": "Pleiades, Superstar" },
 	{ "name": "Prism" },
@@ -109,5 +113,7 @@
 	{ "name": "Vynnset" },
 	{ "name": "Vynnset, Iron Maiden" },
 	{ "name": "Zen" },
-	{ "name": "Zen, Tamer of Purpose" }
+	{ "name": "Zen, Tamer of Purpose" },
+	{ "name": "Zyggy" },
+	{ "name": "Zyggy Starlight" }
 ]
