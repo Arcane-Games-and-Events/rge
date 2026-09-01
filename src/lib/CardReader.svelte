@@ -449,7 +449,7 @@
 			<img
 				src={previewUrl}
 				alt={previewCard.name}
-				class="w-96 sm:w-[28rem] rounded shadow-lg {isLive ? '' : 'opacity-70'}"
+				class="w-full max-w-[26rem] rounded shadow-lg {isLive ? '' : 'opacity-70'}"
 				on:error={handlePreviewImageError}
 			/>
 		</div>
