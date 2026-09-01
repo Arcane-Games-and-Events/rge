@@ -19,10 +19,34 @@ const toAscii = (name) =>
 		.replace(/æ/g, 'ae')
 		.replace(/Æ/g, 'AE');
 
+// Matches the slugify used by the views that build /heroImages paths.
+const slugify = (name) =>
+	(name || '')
+		.toLowerCase()
+		.replace(/["',]/g, '')
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-')
+		.trim();
+
+// Which art actually exists, resolved at build time so no filesystem access is
+// needed at runtime. Heroes without art report image: null, which lets callers
+// render a placeholder instead of requesting a URL that 404s.
+const artFiles = Object.keys(import.meta.glob('/static/heroImages/*.{jpg,png}'));
+const artBySlug = new Map(
+	artFiles.map((path) => {
+		const file = path.split('/').pop();
+		return [file.replace(/\.(jpg|png)$/i, ''), `/heroImages/${file}`];
+	})
+);
+
 const heroes = [
 	...new Set(cards.filter((c) => (c.types || []).includes('Hero')).map((c) => c.name))
 ]
-	.map((name) => ({ name: toAscii(name) }))
+	.map((raw) => {
+		const name = toAscii(raw);
+		return { name, image: artBySlug.get(slugify(name)) ?? null };
+	})
 	.sort((a, b) => a.name.localeCompare(b.name));
 
 export async function GET() {

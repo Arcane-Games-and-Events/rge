@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ref, set, onValue, off, get } from 'firebase/database';
 	import { db } from '../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
+	import { heroes, loadHeroes } from '$lib/heroes';
 	import debounce from 'lodash.debounce';
 
 	let players = {
@@ -127,7 +127,7 @@
 		players[playerId].filteredHeroes =
 			players[playerId].query.trim() === ''
 				? []
-				: heroes.filter((h) =>
+				: $heroes.filter((h) =>
 						h.name.toLowerCase().includes(players[playerId].query.toLowerCase())
 					);
 		players[playerId].highlightedIndex = -1;
@@ -138,7 +138,7 @@
 		players2[playerId].filteredHeroes =
 			players2[playerId].query.trim() === ''
 				? []
-				: heroes.filter((h) =>
+				: $heroes.filter((h) =>
 						h.name.toLowerCase().includes(players2[playerId].query.toLowerCase())
 					);
 		players2[playerId].highlightedIndex = -1;
@@ -338,6 +338,7 @@
 	}
 
 	onMount(() => {
+		loadHeroes();
 		fetchData();
 		fetchData2();
 		document.addEventListener('click', handleClickOutside);

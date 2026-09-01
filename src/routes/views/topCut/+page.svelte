@@ -2,7 +2,6 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
 
 	// Hydrate from localStorage or defaults
 	let players, matches;

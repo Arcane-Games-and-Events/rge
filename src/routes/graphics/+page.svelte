@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
+	import { heroes, loadHeroes } from '$lib/heroes';
 
 	// 8 fixed seed slots and their current heroes
 	let players = Array(8)
@@ -12,6 +12,7 @@
 	let matches = {};
 
 	onMount(() => {
+		loadHeroes();
 		onValue(ref(db, 'top8/players'), (snap) => {
 			const data = snap.val() || {};
 			players = players.map((_, i) => ({
@@ -69,7 +70,7 @@
 	}
 
 	// Hero options sorted
-	const heroOptions = heroes
+	$: heroOptions = $heroes
 		.map((h) => h?.name?.trim())
 		.filter(Boolean)
 		.sort((a, b) => a.localeCompare(b));

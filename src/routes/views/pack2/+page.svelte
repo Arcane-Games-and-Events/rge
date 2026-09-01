@@ -4,7 +4,7 @@
 	import { db } from '../../../firebaseClient';
 	import { fade } from 'svelte/transition';
 	import LazyImage from '../../../lib/LazyImage.svelte';
-	import { getCardImageUrl } from '$lib/cardImageUtils';
+	import { getDraftCardImageUrl as getCardImageUrl } from '$lib/draftCardImage';
 
 	// --------------------
 	// State

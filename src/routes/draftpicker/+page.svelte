@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { ref, push, remove, onValue } from 'firebase/database';
 	import { db } from '../../firebaseClient';
-	import cards from '../../lib/data/cards.json'; // Adjust the path to your cards.json file
 
 	let query = '';
 	let filteredCards = [];
@@ -19,7 +18,8 @@
 
 	// Determine the border color based on the pitch value
 	const pitchBorderColor = (pitch) => {
-		switch (pitch) {
+		// Cards saved before the data move stored pitch as a string.
+		switch (String(pitch ?? '')) {
 			case '1':
 				return 'border-l-8 border-red-500';
 			case '2':
@@ -47,15 +47,37 @@
 		});
 	};
 
-	// Filter cards based on set_id and query
-	const updateFilteredCards = () => {
-		filteredCards = cards.filter(
-			(card) =>
-				card.printings.some((printing) => printing.set_id === setId) &&
-				card.name.toLowerCase().includes(query.toLowerCase())
-		);
-		highlightedIndex = -1; // Reset the highlighted index when the list updates
-		isDropdownOpen = query.trim() !== '' && filteredCards.length > 0; // Open dropdown only when there is input and results
+	// Cards for the selected set come from /api/cards/by-set; the dataset is far
+	// too large to ship to the browser. Responses can land out of order while
+	// typing, so only the newest one is applied.
+	let latestLookupId = 0;
+
+	const updateFilteredCards = async () => {
+		const lookupId = ++latestLookupId;
+		highlightedIndex = -1;
+
+		if (!setId || query.trim() === '') {
+			filteredCards = [];
+			isDropdownOpen = false;
+			return;
+		}
+
+		try {
+			const res = await fetch(
+				`/api/cards/by-set?set=${encodeURIComponent(setId)}&q=${encodeURIComponent(query)}`
+			);
+			const data = await res.json();
+			if (lookupId !== latestLookupId) return;
+			if (!res.ok) throw new Error(data.error || 'Card lookup failed');
+			filteredCards = data.results || [];
+			isDropdownOpen = filteredCards.length > 0;
+		} catch (err) {
+			if (lookupId !== latestLookupId) return;
+			console.error('Error looking up cards:', err);
+			error = err.message;
+			filteredCards = [];
+			isDropdownOpen = false;
+		}
 	};
 
 	// Fetch saved cards for the selected pack

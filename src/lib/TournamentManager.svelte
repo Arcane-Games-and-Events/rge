@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue, set, update, get } from 'firebase/database';
 	import { db } from '../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
+	import { heroes, loadHeroes } from '$lib/heroes';
 
 	const ROOT = 'tournament';
 	const PLAYER_COUNT = 16;
@@ -45,7 +45,7 @@
 		}));
 	}
 
-	const heroOptions = heroes
+	$: heroOptions = $heroes
 		.map((h) => h?.name?.trim())
 		.filter(Boolean)
 		.sort((a, b) => a.localeCompare(b));
@@ -79,6 +79,7 @@
 
 	// Firebase wiring
 	onMount(async () => {
+		loadHeroes();
 		await ensureBootstrapped();
 
 		const unsub1 = onValue(ref(db, `${ROOT}/currentRound`), (snap) => {

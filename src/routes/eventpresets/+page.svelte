@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient'; // Adjust the path to your Firebase setup
-	import cardData from '$lib/data/cards.json'; // Import the cards JSON data
 
 	let commentator1 = '';
 	let subtitle1 = '';
@@ -17,18 +16,18 @@
 	let selectedSet = ''; // Selected set
 	let eventText = ''; // Event text line
 
-	// Load sets from cards.json
-	const loadSets = () => {
-		const uniqueSets = new Set();
-
-		// Loop through each card and extract set_id from printings
-		cardData.forEach((card) => {
-			card.printings.forEach((printing) => {
-				if (printing.set_id) uniqueSets.add(printing.set_id);
-			});
-		});
-
-		sets = Array.from(uniqueSets).sort(); // Sort alphabetically for user convenience
+	// Set codes come from /api/cards/sets, which derives them from
+	// @flesh-and-blood/cards on the server.
+	const loadSets = async () => {
+		try {
+			const res = await fetch('/api/cards/sets');
+			if (!res.ok) throw new Error(`Failed to load sets: ${res.status}`);
+			const data = await res.json();
+			sets = data.sets || [];
+		} catch (err) {
+			console.error('Error loading sets:', err);
+			sets = [];
+		}
 	};
 
 	const syncWithDatabase = () => {

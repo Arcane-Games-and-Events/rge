@@ -2,7 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import { ref, onValue, update, set } from 'firebase/database';
 	import { db } from '../../firebaseClient';
-	import heroes from '$lib/data/heroes.json';
+	import { heroes, loadHeroes } from '$lib/heroes';
 
 	const PATH = 'metagame';
 
@@ -28,24 +28,31 @@
 	}
 
 	function seedFromHeroes(existingMap = {}) {
-		rows = heroes
+		rows = $heroes
 			.map((h) => {
 				const id = slugify(h.name);
 				const existing = existingMap[id];
-				return { id, name: h.name, count: Number(existing?.count ?? 0) };
+				return { id, name: h.name, image: h.image, count: Number(existing?.count ?? 0) };
 			})
 			.sort((a, b) => a.name.localeCompare(b.name));
 	}
 
+	// Latest counts from Firebase, held so rows can be rebuilt when the hero
+	// list finishes loading.
+	let storedCounts = {};
+
 	onMount(() => {
+		loadHeroes();
 		const r = ref(db, PATH);
 		const unsub = onValue(r, (snap) => {
-			const val = snap.val() || {};
-			seedFromHeroes(val);
+			storedCounts = snap.val() || {};
 		});
 		quickInputEl?.focus();
 		return () => unsub?.();
 	});
+
+	// Rebuild rows once heroes are available, and again whenever counts change.
+	$: if ($heroes.length) seedFromHeroes(storedCounts);
 
 	// --- Compact editing helpers ---
 	const timers = new Map(); // per-hero debounce
@@ -122,10 +129,6 @@
 		const payload = {};
 		for (const r of rows) payload[r.id] = { name: r.name, count: 0 };
 		await set(ref(db, PATH), payload);
-	}
-
-	function imgSrc(name) {
-		return `/heroImages/${slugify(name)}.jpg`;
 	}
 
 	// Keyboard niceties for quick entry
@@ -238,7 +241,13 @@
 							}
 						}}
 					>
-						<img src={imgSrc(m.name)} alt="" class="h-6 w-6 flex-none rounded object-cover" loading="lazy" />
+						{#if m.image}
+							<img src={m.image} alt="" class="h-6 w-6 flex-none rounded object-cover" loading="lazy" />
+						{:else}
+							<span class="flex h-6 w-6 flex-none items-center justify-center rounded bg-gray-700 text-[10px] font-bold text-gray-400">
+								{m.name.charAt(0)}
+							</span>
+						{/if}
 						<span class="flex-1 truncate text-xs text-white">{m.name}</span>
 						<span class="font-mono text-xs tabular-nums text-gray-400">{m.count}</span>
 					</li>
@@ -297,12 +306,22 @@
 		<div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			{#each list as r, i (r.id)}
 				<div class="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors hover:border-gray-700 hover:bg-gray-800 {r.count > 0 ? 'border-l-2 border-l-blue-500' : ''}">
-					<img
-						src={imgSrc(r.name)}
-						alt={r.name}
-						class="h-8 w-8 flex-none rounded object-cover"
-						loading="lazy"
-					/>
+					{#if r.image}
+						<img
+							src={r.image}
+							alt={r.name}
+							class="h-8 w-8 flex-none rounded object-cover"
+							loading="lazy"
+						/>
+					{:else}
+						<!-- No art on disk for this hero; a placeholder avoids a request that 404s. -->
+						<span
+							class="flex h-8 w-8 flex-none items-center justify-center rounded bg-gray-700 text-xs font-bold text-gray-400"
+							title={r.name}
+						>
+							{r.name.charAt(0)}
+						</span>
+					{/if}
 					<div class="min-w-0 flex-1">
 						<div class="truncate text-xs font-medium text-white" title={r.name}>{r.name}</div>
 					</div>
