@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import { startSignalRemainingMs } from '$lib/startSignal';
 
 	let playerOneName = '';
 	let playerTwoName = '';
@@ -28,6 +29,7 @@
 
 	// Start signal overlay
 	let showStartSignal = false;
+	let startSignalTimer = null;
 
 	// Custom signal overlay (red, stays until dismissed)
 	let showCustomSignal = false;
@@ -39,7 +41,9 @@
 
 	// Timer calculation (runs independently of production booth)
 	function formatTime(seconds) {
-		const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(2, '0');
 		const s = (seconds % 60).toString().padStart(2, '0');
 		return `${m}:${s}`;
 	}
@@ -172,9 +176,15 @@
 			calculateDisplayTime();
 		});
 
-		// Subscribe to start signal
+		// Subscribe to start signal. The signal expires from its own timestamp,
+		// so a booth that closed mid-signal cannot pin it on air.
 		onValue(ref(db, 'timers/Round/startSignal'), (snap) => {
-			showStartSignal = snap.val() ?? false;
+			clearTimeout(startSignalTimer);
+			const remaining = startSignalRemainingMs(snap.val());
+			showStartSignal = remaining > 0;
+			if (remaining > 0) {
+				startSignalTimer = setTimeout(() => (showStartSignal = false), remaining);
+			}
 		});
 
 		// Subscribe to custom signal
@@ -201,12 +211,9 @@
 	$: rotationClass = orientation === 'right' ? 'rotate-90' : '-rotate-90';
 </script>
 
-<svelte:window on:resize={() => viewportHeight = window.innerHeight} />
+<svelte:window on:resize={() => (viewportHeight = window.innerHeight)} />
 
-<div
-	class="scorekeeper-container"
-	style="height: {viewportHeight}px;"
->
+<div class="scorekeeper-container" style="height: {viewportHeight}px;">
 	<!-- Player 1 Panel (top) -->
 	<div class="player-panel p1-panel">
 		<div class="player-content {rotationClass}">
@@ -551,7 +558,7 @@
 		-webkit-appearance: none;
 		margin: 0;
 	}
-	.life-input[type=number] {
+	.life-input[type='number'] {
 		-moz-appearance: textfield;
 	}
 
@@ -585,7 +592,9 @@
 		border-radius: 8px;
 		border: 1px solid rgba(255, 255, 255, 0.15);
 		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.3);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.1),
+			0 2px 4px rgba(0, 0, 0, 0.3);
 		transition: transform 0.3s ease;
 	}
 
@@ -669,7 +678,9 @@
 		color: white;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 255, 255, 0.3);
+		text-shadow:
+			0 4px 20px rgba(0, 0, 0, 0.4),
+			0 0 40px rgba(255, 255, 255, 0.3);
 		text-align: center;
 		animation: bounceText 0.5s ease-in-out infinite alternate;
 	}
@@ -721,7 +732,9 @@
 		color: white;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 255, 255, 0.3);
+		text-shadow:
+			0 4px 20px rgba(0, 0, 0, 0.4),
+			0 0 40px rgba(255, 255, 255, 0.3);
 		text-align: center;
 		max-width: 80vh;
 		word-wrap: break-word;

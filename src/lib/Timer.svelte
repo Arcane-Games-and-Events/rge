@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, set, onValue, get } from 'firebase/database';
 	import { db } from '../firebaseClient';
+	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 
 	// Props
 	export let typeOfCounter; // e.g. "Round" or "Break"
@@ -19,6 +20,9 @@
 	// Compute base path & helper
 	$: timerPath = `timers/${typeOfCounter}`;
 	const getRef = (field) => ref(db, `${timerPath}/${field}`);
+
+	// This timer flashes its start signal for a shorter beat than the booth.
+	const START_SIGNAL_MS = 3000;
 
 	// Helpers
 	function formatTime(seconds) {
@@ -154,23 +158,26 @@
 		set(getRef('isCountingUp'), isCountingUp);
 	}
 
-	// Start signal for players
+	// Start signal for players. The stored value carries the time it fired so
+	// every reader expires it locally; a browser that closes mid-signal cannot
+	// leave it pinned on.
 	let startSignalActive = false;
+	let startSignalTimer = null;
 
 	async function triggerStartSignal() {
-		startSignalActive = true;
-		await set(getRef('startSignal'), true);
-		// Auto-dismiss after 3 seconds
-		setTimeout(async () => {
-			startSignalActive = false;
-			await set(getRef('startSignal'), false);
-		}, 3000);
+		await set(getRef('startSignal'), startSignalPayload());
 	}
 
-	// Listen for start signal state
 	onValue(getRef('startSignal'), (snap) => {
-		startSignalActive = snap.val() ?? false;
+		clearTimeout(startSignalTimer);
+		const remaining = startSignalRemainingMs(snap.val(), START_SIGNAL_MS);
+		startSignalActive = remaining > 0;
+		if (remaining > 0) {
+			startSignalTimer = setTimeout(() => (startSignalActive = false), remaining);
+		}
 	});
+
+	onDestroy(() => clearTimeout(startSignalTimer));
 </script>
 
 <div class="space-y-4 text-white">
@@ -184,11 +191,16 @@
 	<div class="flex gap-3">
 		<button
 			on:click={isPaused ? startTimer : pauseTimer}
-			class="flex-1 py-2.5 rounded-lg font-medium transition-all {isPaused ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500' : 'bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500'}"
+			class="flex-1 py-2.5 rounded-lg font-medium transition-all {isPaused
+				? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500'
+				: 'bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500'}"
 		>
 			{isPaused ? 'Start' : 'Pause'}
 		</button>
-		<button on:click={resetTimer} class="flex-1 py-2.5 rounded-lg border border-gray-700 bg-gray-800 font-medium text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-700">
+		<button
+			on:click={resetTimer}
+			class="flex-1 py-2.5 rounded-lg border border-gray-700 bg-gray-800 font-medium text-gray-300 transition-all hover:border-gray-600 hover:bg-gray-700"
+		>
 			Reset
 		</button>
 	</div>
@@ -211,7 +223,12 @@
 
 	<div class="flex items-center justify-center">
 		<label class="flex items-center gap-2 cursor-pointer">
-			<input type="checkbox" bind:checked={isCountingUp} on:change={handleCheckboxChange} class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900" />
+			<input
+				type="checkbox"
+				bind:checked={isCountingUp}
+				on:change={handleCheckboxChange}
+				class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+			/>
 			<span class="text-sm text-gray-300">Count Up</span>
 		</label>
 	</div>

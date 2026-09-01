@@ -5,6 +5,7 @@
 	import CardReader from '../../lib/CardReader.svelte';
 	import PlayerInput from '../../lib/PlayerInput.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
+	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 
 	// Timer state with internal tracking
 	let timers = {
@@ -28,6 +29,7 @@
 		{
 			label: 'Table 1',
 			lifePath: 'lifecounter',
+			startSignalPath: 'timers/Round/startSignal',
 			customSignalPath: 'timers/Round/customSignal',
 			inputFocus: 'focus:border-red-500',
 			sendClass: 'bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600',
@@ -40,6 +42,7 @@
 		{
 			label: 'Table 2',
 			lifePath: 'lifecounter2',
+			startSignalPath: 'signals/table2/startSignal',
 			customSignalPath: 'signals/table2/customSignal',
 			inputFocus: 'focus:border-orange-500',
 			sendClass:
@@ -58,6 +61,9 @@
 
 	// Timer intervals
 	let timerIntervals = { Round: null, Break: null };
+
+	// Pending start-signal expiries, one per table
+	let startSignalTimers = [null, null];
 
 	function formatTime(seconds) {
 		const m = Math.floor(Math.abs(seconds) / 60)
@@ -177,22 +183,11 @@
 		await resetTimer('Round');
 	}
 
-	// Table 1's start signal is a bare boolean that this page clears after 10s;
-	// Table 2 publishes a timestamp and lets each client expire it locally.
+	// Both tables publish the time the signal fired and let every reader expire
+	// it, so closing this page mid-signal cannot leave one stuck on air. The
+	// local flag is driven by the listener below rather than set here.
 	async function triggerStartSignal(i) {
-		tables[i].startActive = true;
-		if (i === 0) {
-			await set(ref(db, 'timers/Round/startSignal'), true);
-			setTimeout(async () => {
-				tables[0].startActive = false;
-				await set(ref(db, 'timers/Round/startSignal'), false);
-			}, 10000);
-		} else {
-			await set(ref(db, 'signals/table2/startSignal'), {
-				active: true,
-				triggeredAt: Date.now()
-			});
-		}
+		await set(ref(db, tables[i].startSignalPath), startSignalPayload());
 	}
 
 	// Custom signal: a coloured overlay that stays up until dismissed.
@@ -287,28 +282,15 @@
 			if (snap.val() !== null) timers.Round.isCountingUp = snap.val();
 		});
 
-		onValue(ref(db, 'timers/Round/startSignal'), (snap) => {
-			tables[0].startActive = snap.val() ?? false;
-		});
-
-		// Table 2's start signal carries the time it fired so a client joining
-		// mid-signal shows only the remainder of the 10s window.
-		onValue(ref(db, 'signals/table2/startSignal'), (snap) => {
-			const data = snap.val();
-			if (data?.active && data.triggeredAt) {
-				const elapsed = Date.now() - data.triggeredAt;
-				if (elapsed < 10000) {
-					tables[1].startActive = true;
-					setTimeout(() => (tables[1].startActive = false), 10000 - elapsed);
-				} else {
-					tables[1].startActive = false;
-				}
-			} else {
-				tables[1].startActive = false;
-			}
-		});
-
 		tables.forEach((table, i) => {
+			onValue(ref(db, table.startSignalPath), (snap) => {
+				clearTimeout(startSignalTimers[i]);
+				const remaining = startSignalRemainingMs(snap.val());
+				tables[i].startActive = remaining > 0;
+				if (remaining > 0) {
+					startSignalTimers[i] = setTimeout(() => (tables[i].startActive = false), remaining);
+				}
+			});
 			onValue(ref(db, `${table.lifePath}/p1`), (snap) => {
 				if (snap.val() !== null) tables[i].life.p1 = snap.val();
 			});
@@ -326,6 +308,7 @@
 	onDestroy(() => {
 		clearInterval(timerIntervals.Round);
 		clearInterval(timerIntervals.Break);
+		startSignalTimers.forEach(clearTimeout);
 	});
 </script>
 
