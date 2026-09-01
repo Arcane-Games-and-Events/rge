@@ -3,20 +3,22 @@
 	import { ref, set } from 'firebase/database';
 	import { db } from '../firebaseClient';
 	import debounce from 'lodash.debounce';
+	import { buildImageUrl, getImageUrlCandidates } from '$lib/fabCardImage';
 
 	// Card data comes from `@flesh-and-blood/cards` via /api/cards/search, which
 	// runs the `@flesh-and-blood/search` engine server-side. The dataset is far
 	// too large to ship to the browser, so the endpoint returns trimmed results.
 	let query = '';
 	let results = [];
-	let highlight = 0;
+	let groupIndex = 0;
+	let variantIndex = 0;
 	let listOpen = false;
 	let isSearching = false;
 	let error = null;
 	let inputEl;
 
 	// The card currently pushed to the broadcast, tracked separately from the
-	// highlighted result so arrowing through the list previews without airing.
+	// highlighted result so moving through the list previews without airing.
 	let liveCard = null;
 	let previewUrl = '';
 	let previewFallbacks = [];
@@ -30,26 +32,49 @@
 	const cache = new Map();
 	let latestSearchId = 0;
 
-	// Arrowing the list previews that card; only the live card is on air.
-	$: previewCard = listOpen && results.length > 0 ? results[highlight] : liveCard;
+	const MAX_GROUPS = 12;
+
+	// One row per card name: the pitch variants of a name sit side by side on
+	// that row rather than taking a row each. Up/down walks names, left/right
+	// walks the pitches of the current name.
+	$: groups = (() => {
+		const byName = new Map();
+		for (const card of results) {
+			if (!byName.has(card.name)) byName.set(card.name, []);
+			byName.get(card.name).push(card);
+		}
+		return [...byName.entries()].slice(0, MAX_GROUPS).map(([name, variants]) => ({
+			name,
+			// Pitchless printings (tokens) sort after the pitched ones.
+			variants: [...variants].sort((a, b) => (a.pitch ?? 99) - (b.pitch ?? 99))
+		}));
+	})();
+
+	$: if (groupIndex >= groups.length) groupIndex = 0;
+	$: if (variantIndex >= (groups[groupIndex]?.variants.length ?? 1)) variantIndex = 0;
+
+	$: selectedCard = groups[groupIndex]?.variants[variantIndex] ?? null;
+
+	// Moving through the list previews that card; only the live card is on air.
+	$: previewCard = listOpen && selectedCard ? selectedCard : liveCard;
 	$: if ((previewCard?.cardIdentifier ?? null) !== previewedId) {
 		previewedId = previewCard?.cardIdentifier ?? null;
-		previewUrl = previewCard?.imageUrl || '';
-		previewFallbacks = (previewCard?.imageUrlCandidates || []).filter((u) => u !== previewUrl);
+		const candidates = previewCard
+			? getImageUrlCandidates(previewCard.image, previewCard.images)
+			: [];
+		previewUrl = candidates[0] || '';
+		previewFallbacks = candidates.slice(1);
 	}
 	$: isLive = !!liveCard && previewCard?.cardIdentifier === liveCard.cardIdentifier;
 
-	const pitchColor = (pitch) => {
-		switch (pitch) {
-			case 1:
-				return 'bg-red-500/20 text-red-300 border-red-500/40';
-			case 2:
-				return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40';
-			case 3:
-				return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
-			default:
-				return 'bg-gray-600/20 text-gray-400 border-gray-600/40';
-		}
+	const pitchColor = (pitch, active) => {
+		const base = {
+			1: 'bg-red-500/20 text-red-300 border-red-500/50',
+			2: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50',
+			3: 'bg-blue-500/20 text-blue-300 border-blue-500/50'
+		};
+		const chip = base[pitch] || 'bg-gray-600/20 text-gray-400 border-gray-600/50';
+		return active ? `${chip} ring-1 ring-white/70` : chip;
 	};
 
 	const runSearch = async (text) => {
@@ -58,14 +83,16 @@
 
 		if (term === '') {
 			results = [];
-			highlight = 0;
+			groupIndex = 0;
+			variantIndex = 0;
 			isSearching = false;
 			return;
 		}
 
 		if (cache.has(term)) {
 			results = cache.get(term);
-			highlight = 0;
+			groupIndex = 0;
+			variantIndex = 0;
 			isSearching = false;
 			return;
 		}
@@ -78,7 +105,8 @@
 			if (!response.ok) throw new Error(data.error || 'Search failed');
 			cache.set(term, data.results || []);
 			results = data.results || [];
-			highlight = 0;
+			groupIndex = 0;
+			variantIndex = 0;
 			error = null;
 		} catch (err) {
 			if (searchId !== latestSearchId) return;
@@ -95,7 +123,8 @@
 	const onInput = (event) => {
 		const value = event.target.value;
 		listOpen = true;
-		highlight = 0;
+		groupIndex = 0;
+		variantIndex = 0;
 		const term = value.trim();
 		// Cached terms resolve without waiting on the debounce so fast typing
 		// over familiar names stays instant.
@@ -128,8 +157,13 @@
 
 	const airCard = async (card) => {
 		if (!card) return;
-		const url = card.imageUrl || (card.imageUrlCandidates || [])[0];
+		const url = buildImageUrl(card.image) || getImageUrlCandidates(card.image, card.images)[0];
 		if (!url) return;
+
+		// Air whatever is on screen for this card, so a fallback walked to during
+		// preview is what goes out rather than the broken primary.
+		const airUrl =
+			previewCard?.cardIdentifier === card.cardIdentifier && previewUrl ? previewUrl : url;
 
 		liveCard = card;
 		listOpen = false;
@@ -138,13 +172,17 @@
 		query = card.name;
 		await tick();
 		inputEl?.select();
-		flashAired(card.name);
-		await publish(previewUrl || url);
+		flashAired(card.pitch ? `${card.name} (${card.pitch})` : card.name);
+		await publish(airUrl);
 	};
 
-	const airHighlighted = () => {
-		const card = listOpen && results.length > 0 ? results[highlight] : liveCard;
-		if (card) airCard(card);
+	const airSelected = () => airCard(listOpen && selectedCard ? selectedCard : liveCard);
+
+	// Clicking a pitch chip both moves the selection there and airs it.
+	const pickVariant = (gIndex, vIndex) => {
+		groupIndex = gIndex;
+		variantIndex = vIndex;
+		airCard(groups[gIndex]?.variants[vIndex]);
 	};
 
 	const handlePreviewImageError = () => {
@@ -162,7 +200,8 @@
 		latestSearchId++;
 		query = '';
 		results = [];
-		highlight = 0;
+		groupIndex = 0;
+		variantIndex = 0;
 		listOpen = false;
 		isSearching = false;
 		liveCard = null;
@@ -178,40 +217,56 @@
 	};
 
 	const handleKeyDown = (event) => {
-		const lastIndex = results.length - 1;
+		const variantCount = groups[groupIndex]?.variants.length ?? 0;
 
 		switch (event.key) {
 			case 'ArrowDown':
 				event.preventDefault();
 				listOpen = true;
 				// Wrap so holding one direction can reach every result.
-				highlight = results.length ? (highlight + 1) % results.length : 0;
+				groupIndex = groups.length ? (groupIndex + 1) % groups.length : 0;
+				variantIndex = 0;
 				break;
 			case 'ArrowUp':
 				event.preventDefault();
 				listOpen = true;
-				highlight = results.length ? (highlight - 1 + results.length) % results.length : 0;
+				groupIndex = groups.length ? (groupIndex - 1 + groups.length) % groups.length : 0;
+				variantIndex = 0;
+				break;
+			case 'ArrowRight':
+				// Only claim the key when there is another pitch to move to,
+				// otherwise leave the caret alone.
+				if (!listOpen || variantCount < 2) return;
+				event.preventDefault();
+				variantIndex = (variantIndex + 1) % variantCount;
+				break;
+			case 'ArrowLeft':
+				if (!listOpen || variantCount < 2) return;
+				event.preventDefault();
+				variantIndex = (variantIndex - 1 + variantCount) % variantCount;
 				break;
 			case 'Home':
 				if (!listOpen) return;
 				event.preventDefault();
-				highlight = 0;
+				groupIndex = 0;
+				variantIndex = 0;
 				break;
 			case 'End':
 				if (!listOpen) return;
 				event.preventDefault();
-				highlight = Math.max(0, lastIndex);
+				groupIndex = Math.max(0, groups.length - 1);
+				variantIndex = 0;
 				break;
 			case 'Tab':
 				// Tab accepts the highlighted result without leaving the input.
-				if (listOpen && results.length > 0) {
+				if (listOpen && selectedCard) {
 					event.preventDefault();
-					airHighlighted();
+					airSelected();
 				}
 				break;
 			case 'Enter':
 				event.preventDefault();
-				airHighlighted();
+				airSelected();
 				break;
 			case 'Escape':
 				event.preventDefault();
@@ -220,16 +275,16 @@
 				} else {
 					query = '';
 					results = [];
-					highlight = 0;
+					groupIndex = 0;
+					variantIndex = 0;
 				}
 				break;
 			default:
 				return;
 		}
 
-		if (listOpen && results.length > 0) {
-			const option = document.getElementById(`card-option-${highlight}`);
-			option?.scrollIntoView({ block: 'nearest' });
+		if (listOpen && groups.length > 0) {
+			document.getElementById(`card-option-${groupIndex}`)?.scrollIntoView({ block: 'nearest' });
 		}
 	};
 
@@ -257,10 +312,13 @@
 	<!-- Keyboard hints -->
 	<div class="flex items-center justify-between gap-2">
 		<div class="text-[10px] text-gray-500 hidden sm:flex flex-wrap items-center gap-1">
-			<kbd class="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Enter</kbd>
+			<kbd class="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">↑↓</kbd> card
+			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">←→</kbd>
+			pitch
+			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
+				>Enter</kbd
+			>
 			air
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">↑↓</kbd>
-			pick
 			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Esc</kbd> clear
 		</div>
 		{#if flash}
@@ -279,7 +337,7 @@
 				role="combobox"
 				aria-controls="card-options"
 				aria-expanded={listOpen}
-				aria-activedescendant={listOpen && results.length ? `card-option-${highlight}` : undefined}
+				aria-activedescendant={listOpen && groups.length ? `card-option-${groupIndex}` : undefined}
 				autocomplete="off"
 				spellcheck="false"
 				on:input={onInput}
@@ -304,40 +362,56 @@
 		</button>
 	</div>
 
-	<!-- Results -->
-	{#if listOpen && results.length > 0}
+	<!-- Results: one row per card name, pitches inline -->
+	{#if listOpen && groups.length > 0}
 		<ul
 			class="max-h-64 overflow-auto rounded border border-gray-700 bg-gray-800/50 py-1"
 			id="card-options"
 			role="listbox"
 		>
-			{#each results as card, index (card.cardIdentifier)}
+			{#each groups as group, gIndex (group.name)}
 				<li
-					id={'card-option-' + index}
+					id={'card-option-' + gIndex}
 					role="option"
-					aria-selected={highlight === index}
-					class="cursor-pointer select-none {highlight === index
+					aria-selected={groupIndex === gIndex}
+					aria-label={group.name}
+					class="flex items-center gap-2 px-2 py-1.5 {groupIndex === gIndex
 						? 'bg-blue-600/40 ring-1 ring-inset ring-blue-500'
 						: 'hover:bg-gray-700/60'}"
-					on:mouseenter={() => (highlight = index)}
+					on:mouseenter={() => (groupIndex = gIndex)}
 				>
 					<button
 						type="button"
-						class="flex w-full items-center gap-2 px-2 py-1.5 text-left"
-						on:click={() => airCard(card)}
+						class="flex-1 truncate text-left text-sm"
+						on:click={() => pickVariant(gIndex, 0)}
 					>
-						<span
-							class="flex-none w-5 text-center rounded border text-[10px] font-mono leading-4 {pitchColor(
-								card.pitch
-							)}"
-						>
-							{card.pitch ?? '–'}
-						</span>
-						<span class="flex-1 truncate text-sm">{card.name}</span>
-						{#if liveCard?.cardIdentifier === card.cardIdentifier}
-							<span class="flex-none text-[9px] font-bold text-green-400">LIVE</span>
-						{/if}
+						{group.name}
 					</button>
+
+					<span class="flex flex-none items-center gap-1">
+						{#each group.variants as variant, vIndex (variant.cardIdentifier)}
+							<button
+								type="button"
+								title={variant.pitch ? `Pitch ${variant.pitch}` : variant.typeText}
+								aria-label={variant.pitch ? `${group.name} pitch ${variant.pitch}` : group.name}
+								class="w-6 rounded border text-center text-[11px] font-mono leading-5 transition-colors {pitchColor(
+									variant.pitch,
+									groupIndex === gIndex && variantIndex === vIndex
+								)}"
+								on:mouseenter={() => {
+									groupIndex = gIndex;
+									variantIndex = vIndex;
+								}}
+								on:click|stopPropagation={() => pickVariant(gIndex, vIndex)}
+							>
+								{variant.pitch ?? '–'}
+							</button>
+						{/each}
+					</span>
+
+					{#if group.variants.some((v) => v.cardIdentifier === liveCard?.cardIdentifier)}
+						<span class="flex-none text-[9px] font-bold text-green-400">LIVE</span>
+					{/if}
 				</li>
 			{/each}
 		</ul>
@@ -368,7 +442,9 @@
 						PREVIEW · Enter to air
 					</span>
 				{/if}
-				<span class="text-gray-400 truncate">{previewCard.name}</span>
+				<span class="truncate text-gray-400">
+					{previewCard.name}{previewCard.pitch ? ` (${previewCard.pitch})` : ''}
+				</span>
 			</div>
 			<img
 				src={previewUrl}

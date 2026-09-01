@@ -2,23 +2,28 @@
 import { json } from '@sveltejs/kit';
 import Searcher from '@flesh-and-blood/search';
 import { cards } from '@flesh-and-blood/cards';
-import { getCardImageUrl, getImageUrlCandidates } from '$lib/fabCardImage';
+import { getCardImageIds } from '$lib/fabCardImage';
 
 // The card dataset is ~8MB, so it stays on the server and the browser only ever
 // receives the trimmed results below. The Searcher builds its index lazily on
 // first search and is reused across requests in a warm serverless instance.
 const searcher = new Searcher(cards);
 
-const MAX_RESULTS = 15;
+// Results are grouped by name in the UI, so this is a budget of cards rather
+// than of rows: a name with three pitches collapses to a single row.
+const MAX_RESULTS = 60;
 
-const toResult = (card) => ({
-	cardIdentifier: card.cardIdentifier,
-	name: card.name,
-	pitch: card.pitch ?? null,
-	typeText: card.typeText,
-	imageUrl: getCardImageUrl(card),
-	imageUrlCandidates: getImageUrlCandidates(card)
-});
+const toResult = (card) => {
+	const { image, images } = getCardImageIds(card);
+	return {
+		cardIdentifier: card.cardIdentifier,
+		name: card.name,
+		pitch: card.pitch ?? null,
+		typeText: card.typeText,
+		image,
+		images
+	};
+};
 
 export async function GET({ url }) {
 	const query = (url.searchParams.get('q') || '').trim();
