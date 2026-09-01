@@ -2,10 +2,11 @@
 	import { onMount } from 'svelte';
 	import { ref, set } from 'firebase/database';
 	import { db } from '../firebaseClient';
-	import cardsData from '$lib/data/cards.json';
-	import { getCardImageUrl, getFallbackImageUrl } from '$lib/cardImageUtils';
+	import debounce from 'lodash.debounce';
 
-	let cards = cardsData;
+	// Card data comes from `@flesh-and-blood/cards` via /api/cards/search, which
+	// runs the `@flesh-and-blood/search` engine server-side. The dataset is far
+	// too large to ship to the browser, so the endpoint returns trimmed results.
 	let selectedCard = null;
 	let query = '';
 	let error = null;
@@ -13,66 +14,95 @@
 	let filteredCards = [];
 	let highlightedIndex = -1;
 	let previewImageUrl = '';
+	let isSearching = false;
 
-	const isAllowedPrinting = (p) =>
-		p.rarity !== 'P' && !(p.art_variations || []).includes('FA');
-
-	const withAllowedPrintings = (card) =>
-		card ? { ...card, printings: (card.printings || []).filter(isAllowedPrinting) } : card;
+	// Remaining image URLs to try for the selected card, walked on load failure
+	let imageFallbacks = [];
+	let latestSearchId = 0;
 
 	const pitchBorderColor = (pitch) => {
 		switch (pitch) {
-			case '1':
+			case 1:
 				return 'border-l-red-500';
-			case '2':
+			case 2:
 				return 'border-l-yellow-500';
-			case '3':
+			case 3:
 				return 'border-l-blue-500';
 			default:
 				return 'border-l-gray-500';
 		}
 	};
 
+	const runSearch = async (text) => {
+		const searchId = ++latestSearchId;
+		if (text.trim() === '') {
+			filteredCards = [];
+			isSearching = false;
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/cards/search?q=${encodeURIComponent(text)}`);
+			const data = await response.json();
+			// Ignore responses that arrived out of order
+			if (searchId !== latestSearchId) return;
+			if (!response.ok) throw new Error(data.error || 'Search failed');
+			filteredCards = data.results || [];
+			highlightedIndex = -1;
+			error = null;
+		} catch (err) {
+			if (searchId !== latestSearchId) return;
+			console.error('Error searching cards:', err);
+			error = err.message;
+			filteredCards = [];
+		} finally {
+			if (searchId === latestSearchId) isSearching = false;
+		}
+	};
+
+	const debouncedSearch = debounce(runSearch, 200);
+
 	const updateFilteredCards = () => {
-		filteredCards =
-			query.trim() === ''
-				? []
-				: cards.filter((card) => card.name.toLowerCase().includes(query.toLowerCase()));
 		highlightedIndex = -1;
+		isSearching = query.trim() !== '';
+		debouncedSearch(query);
+	};
+
+	const publishImageUrl = async (cardUrl) => {
+		// Add timestamp to force browser to reload image
+		const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
+		try {
+			await set(ref(db, 'cardReaderURL'), urlWithTimestamp);
+			error = null;
+		} catch (err) {
+			console.error('Error saving image URL to Firebase:', err);
+			error = err.message;
+		}
 	};
 
 	const handleCardChange = async (card) => {
 		selectedCard = card;
 		query = card.name;
 		isDropdownOpen = false;
-		if (card) {
-			const cardUrl = getCardImageUrl(withAllowedPrintings(card));
-			previewImageUrl = cardUrl || '';
-			if (cardUrl) {
-				// Add timestamp to force browser to reload image
-				const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-				try {
-					await set(ref(db, 'cardReaderURL'), urlWithTimestamp);
-				} catch (err) {
-					console.error('Error saving image URL to Firebase:', err);
-					error = err.message;
-				}
-			}
+		if (!card) return;
+
+		const candidates = card.imageUrlCandidates || [];
+		previewImageUrl = card.imageUrl || candidates[0] || '';
+		imageFallbacks = candidates.filter((url) => url !== previewImageUrl);
+
+		if (previewImageUrl) {
+			await publishImageUrl(previewImageUrl);
 		}
 	};
 
 	const handlePreviewImageError = () => {
-		if (selectedCard) {
-			const fallbackUrl = getFallbackImageUrl(withAllowedPrintings(selectedCard));
-			if (fallbackUrl && fallbackUrl !== previewImageUrl) {
-				previewImageUrl = fallbackUrl;
-				// Also update Firebase with the fallback URL
-				const urlWithTimestamp = `${fallbackUrl}${fallbackUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-				set(ref(db, 'cardReaderURL'), urlWithTimestamp).catch((err) => {
-					console.error('Error updating to fallback URL:', err);
-				});
-			}
+		const nextUrl = imageFallbacks.shift();
+		if (!nextUrl) {
+			error = `No working image found for ${selectedCard?.name ?? 'card'}`;
+			return;
 		}
+		previewImageUrl = nextUrl;
+		publishImageUrl(nextUrl);
 	};
 
 	const handleClear = async () => {
@@ -80,7 +110,9 @@
 		filteredCards = [];
 		selectedCard = null;
 		previewImageUrl = '';
+		imageFallbacks = [];
 		isDropdownOpen = false;
+		error = null;
 		try {
 			await set(ref(db, 'cardReaderURL'), '');
 		} catch (err) {
@@ -90,17 +122,12 @@
 
 	const showCard = async () => {
 		if (!selectedCard) return;
-		const cardUrl = getCardImageUrl(withAllowedPrintings(selectedCard));
+		const candidates = selectedCard.imageUrlCandidates || [];
+		const cardUrl = selectedCard.imageUrl || candidates[0];
 		if (!cardUrl) return;
 		previewImageUrl = cardUrl;
-		// Add timestamp to force browser to reload image
-		const urlWithTimestamp = `${cardUrl}${cardUrl.includes('?') ? '&' : '?'}t=${Date.now()}`;
-		try {
-			await set(ref(db, 'cardReaderURL'), urlWithTimestamp);
-		} catch (err) {
-			console.error('Error showing card:', err);
-			error = err.message;
-		}
+		imageFallbacks = candidates.filter((url) => url !== cardUrl);
+		await publishImageUrl(cardUrl);
 	};
 
 	const handleKeyDown = (event) => {
@@ -142,6 +169,7 @@
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
 		return () => {
+			debouncedSearch.cancel();
 			document.removeEventListener('click', handleClickOutside);
 		};
 	});
@@ -174,9 +202,11 @@
 					id="options"
 					role="listbox"
 				>
-					{#each filteredCards.slice(0, 15) as card, index}
+					{#each filteredCards as card, index (card.cardIdentifier)}
 						<li
-							class="cursor-pointer select-none py-2 px-2 text-sm border-l-2 {pitchBorderColor(card.pitch)} {highlightedIndex === index ? 'bg-blue-600/50' : 'hover:bg-gray-700'}"
+							class="cursor-pointer select-none py-2 px-2 text-sm border-l-2 {pitchBorderColor(
+								card.pitch
+							)} {highlightedIndex === index ? 'bg-blue-600/50' : 'hover:bg-gray-700'}"
 							id={'option-' + index}
 							role="option"
 							aria-selected={highlightedIndex === index}
@@ -192,6 +222,12 @@
 						</li>
 					{/each}
 				</ul>
+			{:else if isDropdownOpen && isSearching}
+				<div
+					class="absolute z-10 mt-1 w-full rounded border border-gray-700 bg-gray-800 py-2 px-2 text-xs text-gray-400 shadow-xl"
+				>
+					Searching...
+				</div>
 			{/if}
 		</div>
 		{#if selectedCard}
