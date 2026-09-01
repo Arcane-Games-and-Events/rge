@@ -3,9 +3,9 @@
 	import { ref, set, onValue, get } from 'firebase/database';
 	import { db } from '../../firebaseClient';
 	import CardReader from '../../lib/CardReader.svelte';
-	import PlayerInput from '../../lib/PlayerInput.svelte';
+	import MatchInfo from '../../lib/MatchInfo.svelte';
+	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
-	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 
 	// Timer state with internal tracking
 	let timers = {
@@ -22,48 +22,12 @@
 	// Custom time inputs
 	let customTime = { Round: null, Break: null };
 
-	// Table 1 and Table 2 differ only in the Firebase paths they write to and
-	// in how their start signal expires, so they share one config and one block
-	// of markup. Accent classes are spelled out in full for the CSS purge pass.
-	let tables = [
-		{
-			label: 'Table 1',
-			lifePath: 'lifecounter',
-			startSignalPath: 'timers/Round/startSignal',
-			customSignalPath: 'timers/Round/customSignal',
-			inputFocus: 'focus:border-red-500',
-			sendClass: 'bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600',
-			dismissClass: 'bg-red-500 hover:bg-red-400',
-			life: { p1: 20, p2: 20 },
-			startActive: false,
-			customActive: false,
-			customText: ''
-		},
-		{
-			label: 'Table 2',
-			lifePath: 'lifecounter2',
-			startSignalPath: 'signals/table2/startSignal',
-			customSignalPath: 'signals/table2/customSignal',
-			inputFocus: 'focus:border-orange-500',
-			sendClass:
-				'bg-gradient-to-r from-orange-600 to-amber-700 hover:from-orange-500 hover:to-amber-600',
-			dismissClass: 'bg-orange-500 hover:bg-orange-400',
-			life: { p1: 20, p2: 20 },
-			startActive: false,
-			customActive: false,
-			customText: ''
-		}
-	];
-
 	// Presets
 	const roundPresets = [55, 35];
 	const breakPresets = [10, 5];
 
 	// Timer intervals
 	let timerIntervals = { Round: null, Break: null };
-
-	// Pending start-signal expiries, one per table
-	let startSignalTimers = [null, null];
 
 	function formatTime(seconds) {
 		const m = Math.floor(Math.abs(seconds) / 60)
@@ -183,39 +147,6 @@
 		await resetTimer('Round');
 	}
 
-	// Both tables publish the time the signal fired and let every reader expire
-	// it, so closing this page mid-signal cannot leave one stuck on air. The
-	// local flag is driven by the listener below rather than set here.
-	async function triggerStartSignal(i) {
-		await set(ref(db, tables[i].startSignalPath), startSignalPayload());
-	}
-
-	// Custom signal: a coloured overlay that stays up until dismissed.
-	async function triggerCustomSignal(i) {
-		const text = tables[i].customText.trim();
-		if (!text) return;
-		tables[i].customActive = true;
-		await set(ref(db, tables[i].customSignalPath), { active: true, text });
-	}
-
-	async function dismissCustomSignal(i) {
-		tables[i].customActive = false;
-		await set(ref(db, tables[i].customSignalPath), { active: false, text: '' });
-	}
-
-	// Life functions
-	async function adjustLife(i, player, delta) {
-		tables[i].life[player] += delta;
-		await set(ref(db, `${tables[i].lifePath}/${player}`), tables[i].life[player]);
-	}
-
-	async function resetLife(i, total) {
-		tables[i].life.p1 = total;
-		tables[i].life.p2 = total;
-		await set(ref(db, `${tables[i].lifePath}/p1`), total);
-		await set(ref(db, `${tables[i].lifePath}/p2`), total);
-	}
-
 	// Sync from Firebase
 	onMount(async () => {
 		if (!db) return;
@@ -281,278 +212,179 @@
 		onValue(ref(db, 'timers/Round/isCountingUp'), (snap) => {
 			if (snap.val() !== null) timers.Round.isCountingUp = snap.val();
 		});
-
-		tables.forEach((table, i) => {
-			onValue(ref(db, table.startSignalPath), (snap) => {
-				clearTimeout(startSignalTimers[i]);
-				const remaining = startSignalRemainingMs(snap.val());
-				tables[i].startActive = remaining > 0;
-				if (remaining > 0) {
-					startSignalTimers[i] = setTimeout(() => (tables[i].startActive = false), remaining);
-				}
-			});
-			onValue(ref(db, `${table.lifePath}/p1`), (snap) => {
-				if (snap.val() !== null) tables[i].life.p1 = snap.val();
-			});
-			onValue(ref(db, `${table.lifePath}/p2`), (snap) => {
-				if (snap.val() !== null) tables[i].life.p2 = snap.val();
-			});
-			onValue(ref(db, table.customSignalPath), (snap) => {
-				const data = snap.val();
-				tables[i].customActive = data?.active ?? false;
-				if (data?.text !== undefined) tables[i].customText = data.text ?? '';
-			});
-		});
 	});
 
 	onDestroy(() => {
 		clearInterval(timerIntervals.Round);
 		clearInterval(timerIntervals.Break);
-		startSignalTimers.forEach(clearTimeout);
 	});
+
+	// Below lg the page shows one section at a time so a phone is not a long
+	// scroll; from lg up every section is visible and this is ignored.
+	const sections = [
+		{ id: 'cards', label: 'Cards' },
+		{ id: 'tables', label: 'Tables' },
+		{ id: 'timers', label: 'Timers' },
+		{ id: 'booth', label: 'Booth' }
+	];
+	let activeSection = 'cards';
 </script>
 
-<div class="mx-auto max-w-[110rem] p-2 sm:p-3">
-	<!-- Card reader holds the left column on its own; every other control
-	     stacks in the right column so the card preview never moves. -->
-	<div
-		class="grid gap-2 sm:gap-3 lg:grid-cols-[22rem_minmax(0,1fr)] xl:grid-cols-[26rem_minmax(0,1fr)]"
-	>
-		<!-- LEFT: Card Reader -->
-		<aside class="lg:sticky lg:top-3 lg:self-start">
-			<div class="rounded-lg border border-gray-800 bg-gray-900 p-3">
-				<div class="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">
-					Card Reader
-				</div>
-				<CardReader />
-			</div>
-		</aside>
-
-		<!-- RIGHT: everything else -->
-		<div class="min-w-0 space-y-2 sm:space-y-3">
-			<div class="grid gap-2 sm:gap-3 md:grid-cols-2 2xl:grid-cols-3">
-				<!-- Timers -->
-				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2.5">
-					<div class="mb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">
-						Timers
-					</div>
-
-					<!-- Round -->
-					<div class="space-y-1.5">
-						<div class="flex items-center justify-between">
-							<span class="text-[10px] font-medium uppercase text-blue-400">Round</span>
-							<button
-								on:click={toggleCountUp}
-								class="rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors {timers.Round
-									.isCountingUp
-									? 'bg-blue-600 text-white'
-									: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
-							>
-								{timers.Round.isCountingUp ? 'Up' : 'Down'}
-							</button>
-						</div>
-						<div class="flex items-center gap-2">
+<div class="min-h-screen bg-gray-950 text-white">
+	<!-- Clocks stay pinned: an operator needs them regardless of what else is open -->
+	<header class="sticky top-0 z-30 border-b border-gray-800 bg-gray-950/95 backdrop-blur">
+		<div class="mx-auto max-w-[110rem] px-2 py-2 sm:px-3">
+			<div class="flex items-center gap-2">
+				{#each [{ type: 'Round', accent: 'text-blue-400' }, { type: 'Break', accent: 'text-purple-400' }] as clock (clock.type)}
+					<div class="flex flex-1 items-center gap-2 rounded-lg bg-gray-900 px-2 py-1.5">
+						<div class="min-w-0">
+							<div class="text-[9px] font-medium uppercase leading-none {clock.accent}">
+								{clock.type}
+							</div>
 							<div
-								class="flex-shrink-0 font-mono text-3xl font-bold tabular-nums tracking-tight {timers
-									.Round.isPaused
+								class="font-mono text-xl font-bold tabular-nums leading-tight sm:text-2xl {timers[
+									clock.type
+								].isPaused
 									? 'text-gray-400'
 									: 'text-white'}"
 							>
-								{timers.Round.display}
-							</div>
-							<button
-								on:click={() => toggleTimer('Round')}
-								class="ml-auto h-9 w-9 rounded-lg text-lg font-medium transition-colors {timers
-									.Round.isPaused
-									? 'bg-green-600 hover:bg-green-500'
-									: 'bg-yellow-600 hover:bg-yellow-500'}"
-							>
-								{timers.Round.isPaused ? '▶' : '⏸'}
-							</button>
-							<button
-								on:click={() => resetTimer('Round')}
-								title="Reset round timer"
-								class="h-9 w-9 rounded-lg bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
-							>
-								↺
-							</button>
-						</div>
-						<div class="flex items-center gap-1">
-							{#if !timers.Round.isCountingUp}
-								{#each roundPresets as m}
-									<button
-										on:click={() => setTimer('Round', m)}
-										class="flex-1 rounded bg-gray-800 py-1 text-xs font-medium transition-colors hover:bg-blue-600"
-										>{m}m</button
-									>
-								{/each}
-							{:else}
-								<button
-									on:click={() => setTimer('Round', 0)}
-									class="flex-1 rounded bg-gray-800 py-1 text-xs font-medium transition-colors hover:bg-blue-600"
-									>Start</button
-								>
-							{/if}
-							<input
-								type="number"
-								bind:value={customTime.Round}
-								on:keydown={(e) => e.key === 'Enter' && setCustomTimer('Round')}
-								placeholder="min"
-								class="w-12 rounded border border-gray-700 bg-gray-800 px-1.5 py-1 text-center text-xs [appearance:textfield] focus:border-blue-500 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							/>
-						</div>
-					</div>
-
-					<div class="my-2 border-t border-gray-800"></div>
-
-					<!-- Break -->
-					<div class="space-y-1.5">
-						<span class="text-[10px] font-medium uppercase text-purple-400">Break</span>
-						<div class="flex items-center gap-2">
-							<div
-								class="flex-shrink-0 font-mono text-3xl font-bold tabular-nums tracking-tight {timers
-									.Break.isPaused
-									? 'text-gray-400'
-									: 'text-white'}"
-							>
-								{timers.Break.display}
-							</div>
-							<button
-								on:click={() => toggleTimer('Break')}
-								class="ml-auto h-9 w-9 rounded-lg text-lg font-medium transition-colors {timers
-									.Break.isPaused
-									? 'bg-green-600 hover:bg-green-500'
-									: 'bg-yellow-600 hover:bg-yellow-500'}"
-							>
-								{timers.Break.isPaused ? '▶' : '⏸'}
-							</button>
-							<button
-								on:click={() => resetTimer('Break')}
-								title="Reset break timer"
-								class="h-9 w-9 rounded-lg bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
-							>
-								↺
-							</button>
-						</div>
-						<div class="flex items-center gap-1">
-							{#each breakPresets as m}
-								<button
-									on:click={() => setTimer('Break', m)}
-									class="flex-1 rounded bg-gray-800 py-1 text-xs font-medium transition-colors hover:bg-purple-600"
-									>{m}m</button
-								>
-							{/each}
-							<input
-								type="number"
-								bind:value={customTime.Break}
-								on:keydown={(e) => e.key === 'Enter' && setCustomTimer('Break')}
-								placeholder="min"
-								class="w-12 rounded border border-gray-700 bg-gray-800 px-1.5 py-1 text-center text-xs [appearance:textfield] focus:border-purple-500 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							/>
-						</div>
-					</div>
-				</div>
-
-				<!-- Tables: life counters and signals -->
-				{#each tables as table, i (table.label)}
-					<div class="overflow-hidden rounded-lg border border-gray-800 bg-gray-900 p-2.5">
-						<div class="mb-2 flex flex-wrap items-center justify-between gap-1">
-							<span class="text-[10px] font-medium uppercase tracking-wider text-gray-500">
-								{table.label}
-							</span>
-							<div class="flex gap-1">
-								<button
-									on:click={() => resetLife(i, 20)}
-									class="rounded bg-gray-800 px-1.5 py-0.5 text-[10px] transition-colors hover:bg-gray-700"
-									>20</button
-								>
-								<button
-									on:click={() => resetLife(i, 40)}
-									class="rounded bg-gray-800 px-1.5 py-0.5 text-[10px] transition-colors hover:bg-gray-700"
-									>40</button
-								>
+								{timers[clock.type].display}
 							</div>
 						</div>
-
-						<div class="flex items-center justify-center gap-1 sm:gap-2">
-							{#each [{ key: 'p1', label: 'P1', accent: 'text-red-400' }, { key: 'p2', label: 'P2', accent: 'text-blue-400' }] as seat, seatIndex}
-								{#if seatIndex === 1}
-									<div class="flex-shrink-0 text-lg font-light text-gray-700">vs</div>
-								{/if}
-								<div class="flex items-center gap-1">
-									<button
-										on:click={() => adjustLife(i, seat.key, -1)}
-										class="h-8 w-8 flex-shrink-0 rounded-lg bg-red-600/20 text-base font-bold text-red-400 transition-colors hover:bg-red-600 hover:text-white"
-										>-</button
-									>
-									<div class="min-w-[2.5rem] text-center">
-										<div class="font-mono text-2xl font-bold tabular-nums">
-											{table.life[seat.key]}
-										</div>
-										<div class="text-[10px] font-medium uppercase {seat.accent}">{seat.label}</div>
-									</div>
-									<button
-										on:click={() => adjustLife(i, seat.key, 1)}
-										class="h-8 w-8 flex-shrink-0 rounded-lg bg-green-600/20 text-base font-bold text-green-400 transition-colors hover:bg-green-600 hover:text-white"
-										>+</button
-									>
-								</div>
-							{/each}
-						</div>
-
 						<button
-							on:click={() => triggerStartSignal(i)}
-							disabled={table.startActive}
-							class="mt-2 w-full rounded-lg py-1.5 text-sm font-bold transition-all {table.startActive
-								? 'animate-pulse cursor-not-allowed bg-green-500 text-white'
-								: 'bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-500 hover:to-emerald-600'}"
+							type="button"
+							on:click={() => toggleTimer(clock.type)}
+							aria-label="{timers[clock.type].isPaused ? 'Start' : 'Pause'} {clock.type} timer"
+							class="ml-auto h-10 w-10 flex-none rounded-lg text-base font-medium transition-colors {timers[
+								clock.type
+							].isPaused
+								? 'bg-green-600 hover:bg-green-500'
+								: 'bg-yellow-600 hover:bg-yellow-500'}"
 						>
-							{table.startActive ? 'Signal Active...' : 'Signal Start'}
+							{timers[clock.type].isPaused ? '▶' : '⏸'}
 						</button>
-
-						<div class="mt-2 border-t border-gray-800 pt-2">
-							<div class="flex items-center gap-1">
-								<input
-									type="text"
-									bind:value={table.customText}
-									on:keydown={(e) => e.key === 'Enter' && triggerCustomSignal(i)}
-									placeholder="Custom message..."
-									disabled={table.customActive}
-									class="min-w-0 flex-1 rounded border border-gray-700 bg-gray-800 px-2 py-1 text-xs focus:outline-none disabled:opacity-50 {table.inputFocus}"
-								/>
-								{#if table.customActive}
-									<button
-										on:click={() => dismissCustomSignal(i)}
-										class="flex-shrink-0 animate-pulse rounded px-2 py-1 text-xs font-bold text-white transition-colors {table.dismissClass}"
-									>
-										Dismiss
-									</button>
-								{:else}
-									<button
-										on:click={() => triggerCustomSignal(i)}
-										disabled={!table.customText.trim()}
-										class="flex-shrink-0 rounded px-2 py-1 text-xs font-bold transition-colors {table.customText.trim()
-											? `${table.sendClass} text-white`
-											: 'cursor-not-allowed bg-gray-800 text-gray-500'}"
-									>
-										Send
-									</button>
-								{/if}
-							</div>
-						</div>
 					</div>
 				{/each}
 			</div>
 
-			<!-- Players & Commentators -->
-			<div class="grid gap-2 sm:gap-3 xl:grid-cols-2">
-				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2.5">
-					<PlayerInput />
+			<!-- Section switcher, small screens only -->
+			<nav class="mt-2 grid grid-cols-4 gap-1 lg:hidden" aria-label="Sections">
+				{#each sections as section (section.id)}
+					<button
+						type="button"
+						aria-current={activeSection === section.id}
+						on:click={() => (activeSection = section.id)}
+						class="min-h-10 rounded-lg text-xs font-medium transition-colors {activeSection ===
+						section.id
+							? 'bg-blue-600 text-white'
+							: 'bg-gray-900 text-gray-400 hover:bg-gray-800'}"
+					>
+						{section.label}
+					</button>
+				{/each}
+			</nav>
+		</div>
+	</header>
+
+	<main class="mx-auto max-w-[110rem] p-2 sm:p-3">
+		<div class="grid gap-3 xl:grid-cols-[24rem_minmax(0,1fr)]">
+			<!-- Card reader: its own column once there is room, pinned while the rest scrolls -->
+			<aside
+				class="{activeSection === 'cards'
+					? 'block'
+					: 'hidden'} lg:block xl:sticky xl:top-[5.5rem] xl:self-start"
+			>
+				<div class="rounded-xl border border-gray-800 bg-gray-900 p-3">
+					<h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+						Card Reader
+					</h2>
+					<CardReader />
 				</div>
-				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2.5">
-					<CommentatorBooth />
+			</aside>
+
+			<div class="min-w-0 space-y-3">
+				<!-- Tables: each card holds its own players, life and signals -->
+				<div class="{activeSection === 'tables' ? 'block' : 'hidden'} space-y-3 lg:block">
+					<div class="rounded-xl border border-gray-800 bg-gray-900 p-3">
+						<h2 class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+							Match Info
+						</h2>
+						<MatchInfo />
+					</div>
+					<div class="grid gap-3 2xl:grid-cols-2">
+						<TableCard index={1} />
+						<TableCard index={2} />
+					</div>
+				</div>
+
+				<!-- Timer presets and mode; the clocks themselves live in the header -->
+				<div class="{activeSection === 'timers' ? 'block' : 'hidden'} lg:block">
+					<div class="rounded-xl border border-gray-800 bg-gray-900 p-3">
+						<div class="mb-3 flex items-center justify-between">
+							<h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Timers</h2>
+							<button
+								type="button"
+								on:click={toggleCountUp}
+								class="min-h-10 rounded-lg px-2.5 text-[11px] font-medium transition-colors {timers
+									.Round.isCountingUp
+									? 'bg-blue-600 text-white'
+									: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
+							>
+								Round: {timers.Round.isCountingUp ? 'Counting up' : 'Counting down'}
+							</button>
+						</div>
+
+						<div class="grid gap-3 sm:grid-cols-2">
+							{#each [{ type: 'Round', presets: roundPresets, hover: 'hover:bg-blue-600', accent: 'text-blue-400' }, { type: 'Break', presets: breakPresets, hover: 'hover:bg-purple-600', accent: 'text-purple-400' }] as t (t.type)}
+								<div class="space-y-1.5 rounded-lg bg-gray-800/40 p-2">
+									<div class="text-[10px] font-semibold uppercase {t.accent}">{t.type}</div>
+									<div class="flex flex-wrap items-center gap-1.5">
+										{#if t.type === 'Round' && timers.Round.isCountingUp}
+											<button
+												type="button"
+												on:click={() => setTimer('Round', 0)}
+												class="min-h-11 flex-1 rounded-lg bg-gray-800 text-sm font-medium transition-colors {t.hover}"
+												>Start</button
+											>
+										{:else}
+											{#each t.presets as m (m)}
+												<button
+													type="button"
+													on:click={() => setTimer(t.type, m)}
+													class="min-h-11 flex-1 rounded-lg bg-gray-800 text-sm font-medium transition-colors {t.hover}"
+													>{m}m</button
+												>
+											{/each}
+										{/if}
+										<input
+											type="number"
+											bind:value={customTime[t.type]}
+											on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
+											placeholder="min"
+											aria-label="Custom {t.type} minutes"
+											class="min-h-11 w-16 rounded-lg border border-gray-700 bg-gray-800 px-1.5 text-center text-sm [appearance:textfield] focus:border-blue-500 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+										/>
+										<button
+											type="button"
+											on:click={() => resetTimer(t.type)}
+											aria-label="Reset {t.type} timer"
+											class="min-h-11 w-11 flex-none rounded-lg bg-gray-800 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+											>↺</button
+										>
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
+
+				<!-- Commentators -->
+				<div class="{activeSection === 'booth' ? 'block' : 'hidden'} lg:block">
+					<div class="rounded-xl border border-gray-800 bg-gray-900 p-3">
+						<CommentatorBooth />
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</main>
 </div>

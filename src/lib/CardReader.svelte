@@ -355,7 +355,7 @@
 		</div>
 		<button
 			type="button"
-			class="px-3 py-2.5 rounded text-xs bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white transition-colors flex-shrink-0"
+			class="min-h-11 flex-shrink-0 rounded px-3 text-xs text-gray-400 transition-colors bg-gray-800 hover:bg-red-600 hover:text-white"
 			on:click={handleClear}
 		>
 			Clear
