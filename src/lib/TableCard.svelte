@@ -228,51 +228,51 @@
 	onDestroy(() => clearTimeout(startSignalTimer));
 </script>
 
-<section class="rounded-xl border {accent.border} bg-gray-900 p-3">
-	<header class="mb-3 flex items-center justify-between gap-2">
-		<h2 class="text-xs font-semibold uppercase tracking-wider {accent.label}">Table {index}</h2>
+<section class="rounded-lg border {accent.border} bg-gray-900 p-2">
+	<header class="mb-1.5 flex items-center justify-between gap-2">
+		<h2 class="text-[10px] font-semibold uppercase tracking-wider {accent.label}">Table {index}</h2>
 		<div class="flex items-center gap-1">
 			<button
 				type="button"
 				on:click={switchPlayers}
 				aria-label="Swap Table {index} players"
-				class="min-h-10 rounded-lg border px-2.5 text-[11px] font-medium transition-colors {accent.chip}"
+				class="h-7 rounded border px-2 text-[10px] font-medium transition-colors {accent.chip}"
 			>
 				Swap
 			</button>
 			<button
 				type="button"
 				on:click={() => resetLife(20)}
-				class="min-h-10 rounded-lg bg-gray-800 px-2.5 text-[11px] text-gray-300 transition-colors hover:bg-gray-700"
+				class="h-7 rounded bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
 				>20</button
 			>
 			<button
 				type="button"
 				on:click={() => resetLife(40)}
-				class="min-h-10 rounded-lg bg-gray-800 px-2.5 text-[11px] text-gray-300 transition-colors hover:bg-gray-700"
+				class="h-7 rounded bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
 				>40</button
 			>
 		</div>
 	</header>
 
-	<!-- Seats: name, record, hero and life together per player -->
-	<div class="grid gap-2 sm:grid-cols-2">
+	<div class="grid gap-1.5 sm:grid-cols-2">
 		{#each seats as seat (seat.id)}
-			<div class="space-y-1.5 rounded-lg bg-gray-800/40 p-2">
-				<div class="text-[10px] font-semibold uppercase {seat.accent}">{seat.label}</div>
-
-				<!-- Life sits between its own buttons so it is never unclear which
-				     total a press changes. -->
-				<div class="flex items-center gap-2 rounded-lg bg-gray-900/70 p-1.5">
+			<div class="space-y-1 rounded bg-gray-800/40 p-1.5">
+				<!-- Seat label, life and its buttons on one line: the total is never
+				     far from the control that changes it. -->
+				<div class="flex items-center gap-1.5 rounded bg-gray-900/70 px-1.5 py-1">
+					<span class="w-4 flex-none text-[10px] font-semibold uppercase {seat.accent}">
+						{seat.label}
+					</span>
 					<button
 						type="button"
 						aria-label="{seat.label} life down"
 						on:click={() => adjustLife(seat.id, -1)}
-						class="h-12 w-12 flex-none rounded-lg bg-red-600/20 text-2xl font-bold leading-none text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
+						class="h-9 w-9 flex-none rounded bg-red-600/20 text-xl font-bold leading-none text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
 						>−</button
 					>
 					<span
-						class="flex-1 text-center font-mono text-4xl font-bold tabular-nums leading-none"
+						class="flex-1 text-center font-mono text-3xl font-bold tabular-nums leading-none"
 						aria-live="polite"
 						aria-label="{seat.label} life total"
 					>
@@ -282,16 +282,16 @@
 						type="button"
 						aria-label="{seat.label} life up"
 						on:click={() => adjustLife(seat.id, 1)}
-						class="h-12 w-12 flex-none rounded-lg bg-green-600/20 text-2xl font-bold leading-none text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
+						class="h-9 w-9 flex-none rounded bg-green-600/20 text-xl font-bold leading-none text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
 						>+</button
 					>
 				</div>
 
-				<div class="flex items-center gap-1.5">
+				<div class="flex items-center gap-1">
 					<input
 						type="text"
 						placeholder="Name"
-						class="min-h-10 min-w-0 flex-1 rounded-lg border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
+						class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
 						bind:value={players[seat.id].name}
 						on:input={(e) => handleInputChange(seat.id, 'name', e.target.value)}
 					/>
@@ -299,7 +299,7 @@
 						type="text"
 						placeholder="0-0"
 						aria-label="{seat.label} record"
-						class="min-h-10 w-14 rounded-lg border border-gray-700 bg-gray-900 px-1 text-center font-mono text-sm text-white transition-colors focus:outline-none {accent.focus}"
+						class="h-9 w-12 flex-none rounded border border-gray-700 bg-gray-900 px-1 text-center font-mono text-xs text-white transition-colors focus:outline-none {accent.focus}"
 						bind:value={players[seat.id].record}
 						on:input={(e) => handleInputChange(seat.id, 'record', e.target.value)}
 					/>
@@ -309,7 +309,7 @@
 					<input
 						type="text"
 						placeholder="Hero..."
-						class="min-h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
+						class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
 						role="combobox"
 						aria-controls="t{index}-{seat.id}-hero-list"
 						aria-expanded={players[seat.id].isDropdownOpen}
@@ -326,7 +326,7 @@
 						<ul
 							id="t{index}-{seat.id}-hero-list"
 							role="listbox"
-							class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded-lg border border-gray-700 bg-gray-900 py-1 shadow-xl"
+							class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded border border-gray-700 bg-gray-900 py-0.5 shadow-xl"
 						>
 							{#each players[seat.id].filteredHeroes.slice(0, 8) as hero, idx (hero.name)}
 								<li
@@ -340,19 +340,19 @@
 								>
 									<button
 										type="button"
-										class="flex min-h-10 w-full items-center gap-2 px-2 text-left text-sm text-gray-200"
+										class="flex h-9 w-full items-center gap-1.5 px-1.5 text-left text-xs text-gray-200"
 										on:click={() => handleHeroChange(seat.id, hero)}
 									>
 										{#if hero.image}
 											<img
 												src={hero.image}
 												alt=""
-												class="h-6 w-6 flex-none rounded object-cover"
+												class="h-5 w-5 flex-none rounded object-cover"
 												loading="lazy"
 											/>
 										{:else}
 											<span
-												class="flex h-6 w-6 flex-none items-center justify-center rounded bg-gray-700 text-[10px] font-bold text-gray-400"
+												class="flex h-5 w-5 flex-none items-center justify-center rounded bg-gray-700 text-[9px] font-bold text-gray-400"
 											>
 												{hero.name.charAt(0)}
 											</span>
@@ -368,48 +368,45 @@
 		{/each}
 	</div>
 
-	<!-- Signals to this table's screen -->
-	<div class="mt-3 space-y-2 border-t border-gray-800 pt-3">
+	<!-- Signals share one row so they cost a single line -->
+	<div class="mt-1.5 flex flex-wrap items-center gap-1 border-t border-gray-800 pt-1.5">
 		<button
 			type="button"
 			on:click={triggerStartSignal}
 			disabled={startActive}
-			class="min-h-11 w-full rounded-lg text-sm font-bold transition-all {startActive
+			class="h-9 flex-none rounded px-2.5 text-xs font-bold transition-all {startActive
 				? 'animate-pulse cursor-not-allowed bg-green-500 text-white'
 				: 'bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-500 hover:to-emerald-600'}"
 		>
-			{startActive ? 'Signal Active…' : 'Signal Start'}
+			{startActive ? 'Active…' : 'Start'}
 		</button>
-
-		<div class="flex items-center gap-1.5">
-			<input
-				type="text"
-				bind:value={customText}
-				on:keydown={(e) => e.key === 'Enter' && triggerCustomSignal()}
-				placeholder="Custom message…"
-				disabled={customActive}
-				class="min-h-11 min-w-0 flex-1 rounded-lg border border-gray-700 bg-gray-800 px-2 text-sm transition-colors focus:outline-none disabled:opacity-50 {accent.focus}"
-			/>
-			{#if customActive}
-				<button
-					type="button"
-					on:click={dismissCustomSignal}
-					class="min-h-11 flex-none animate-pulse rounded-lg px-3 text-sm font-bold text-white transition-colors {accent.dismiss}"
-				>
-					Dismiss
-				</button>
-			{:else}
-				<button
-					type="button"
-					on:click={triggerCustomSignal}
-					disabled={!customText.trim()}
-					class="min-h-11 flex-none rounded-lg px-3 text-sm font-bold transition-colors {customText.trim()
-						? `${accent.send} text-white`
-						: 'cursor-not-allowed bg-gray-800 text-gray-500'}"
-				>
-					Send
-				</button>
-			{/if}
-		</div>
+		<input
+			type="text"
+			bind:value={customText}
+			on:keydown={(e) => e.key === 'Enter' && triggerCustomSignal()}
+			placeholder="Custom message…"
+			disabled={customActive}
+			class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-800 px-1.5 text-xs transition-colors focus:outline-none disabled:opacity-50 {accent.focus}"
+		/>
+		{#if customActive}
+			<button
+				type="button"
+				on:click={dismissCustomSignal}
+				class="h-9 flex-none animate-pulse rounded px-2.5 text-xs font-bold text-white transition-colors {accent.dismiss}"
+			>
+				Dismiss
+			</button>
+		{:else}
+			<button
+				type="button"
+				on:click={triggerCustomSignal}
+				disabled={!customText.trim()}
+				class="h-9 flex-none rounded px-2.5 text-xs font-bold transition-colors {customText.trim()
+					? `${accent.send} text-white`
+					: 'cursor-not-allowed bg-gray-800 text-gray-500'}"
+			>
+				Send
+			</button>
+		{/if}
 	</div>
 </section>

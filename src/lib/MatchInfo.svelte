@@ -22,12 +22,12 @@
 	});
 </script>
 
-<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+<div class="flex items-center gap-1.5">
 	<input
 		type="text"
 		placeholder="Round"
 		aria-label="Round"
-		class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+		class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
 		bind:value={roundInfo}
 		on:input={(e) => save('roundInfo', e.target.value)}
 	/>
@@ -35,7 +35,7 @@
 		type="text"
 		placeholder="Status"
 		aria-label="Tournament status"
-		class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+		class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
 		bind:value={tournamentStatus}
 		on:input={(e) => save('tournamentStatus', e.target.value)}
 	/>

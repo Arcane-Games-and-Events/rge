@@ -73,27 +73,27 @@
 	});
 </script>
 
-<div class="space-y-3 text-white">
+<div class="space-y-2 text-white">
 	<!-- Commentators Section -->
-	<div class="rounded-lg border border-teal-500/30 bg-gray-800/30 p-2.5">
+	<div class="rounded border border-teal-500/30 bg-gray-800/30 p-2">
 		<div class="text-[10px] text-teal-400 uppercase tracking-wider font-medium mb-2">
 			Commentators
 		</div>
 		<div class="grid grid-cols-2 gap-2">
 			<!-- Left Commentator -->
-			<div class="space-y-1.5">
+			<div class="space-y-1">
 				<div class="text-[9px] text-red-400 uppercase font-medium">Left</div>
 				<input
 					type="text"
 					placeholder="Name"
-					class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
+					class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
 					bind:value={leftCommentator}
 					on:input={(e) => set(ref(db, 'castingBooth/LeftCommentator/name'), e.target.value)}
 				/>
 				<input
 					type="text"
 					placeholder="Subtitle"
-					class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
+					class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
 					bind:value={leftSubtitle}
 					on:input={(e) => set(ref(db, 'castingBooth/LeftCommentator/subtitle'), e.target.value)}
 				/>
@@ -101,7 +101,7 @@
 					<div class="flex flex-wrap gap-1 pt-1">
 						{#each commentators as commentator (commentator.id)}
 							<button
-								class="min-h-10 rounded-lg bg-gray-800 px-2.5 text-xs text-gray-400 transition-colors hover:bg-red-600 hover:text-white"
+								class="h-8 rounded bg-gray-800 px-2 text-[11px] text-gray-400 transition-colors hover:bg-red-600 hover:text-white"
 								on:click={() => prefillCommentator(commentator, 'LeftCommentator')}
 								title="Set as Left"
 							>
@@ -112,19 +112,19 @@
 				{/if}
 			</div>
 			<!-- Right Commentator -->
-			<div class="space-y-1.5">
+			<div class="space-y-1">
 				<div class="text-[9px] text-blue-400 uppercase font-medium">Right</div>
 				<input
 					type="text"
 					placeholder="Name"
-					class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
+					class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
 					bind:value={rightCommentator}
 					on:input={(e) => set(ref(db, 'castingBooth/RightCommentator/name'), e.target.value)}
 				/>
 				<input
 					type="text"
 					placeholder="Subtitle"
-					class="min-h-11 w-full rounded-lg border border-gray-700 bg-gray-900 px-2.5 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
+					class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-teal-500 focus:outline-none"
 					bind:value={rightSubtitle}
 					on:input={(e) => set(ref(db, 'castingBooth/RightCommentator/subtitle'), e.target.value)}
 				/>
@@ -132,7 +132,7 @@
 					<div class="flex flex-wrap gap-1 pt-1">
 						{#each commentators as commentator (commentator.id)}
 							<button
-								class="min-h-10 rounded-lg bg-gray-800 px-2.5 text-xs text-gray-400 transition-colors hover:bg-blue-600 hover:text-white"
+								class="h-8 rounded bg-gray-800 px-2 text-[11px] text-gray-400 transition-colors hover:bg-blue-600 hover:text-white"
 								on:click={() => prefillCommentator(commentator, 'RightCommentator')}
 								title="Set as Right"
 							>

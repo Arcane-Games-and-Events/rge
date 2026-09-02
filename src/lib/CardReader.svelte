@@ -308,7 +308,7 @@
 	});
 </script>
 
-<div class="space-y-2 text-white">
+<div class="space-y-1.5 text-white">
 	<!-- Keyboard hints -->
 	<div class="flex items-center justify-between gap-2">
 		<div class="text-[10px] text-gray-500 hidden sm:flex flex-wrap items-center gap-1">
@@ -333,7 +333,7 @@
 				bind:this={inputEl}
 				type="text"
 				placeholder="Search card... (try pitch:1 or class:brute)"
-				class="w-full px-2 py-2.5 rounded text-sm bg-gray-800 border border-gray-700 focus:border-blue-500 focus:outline-none transition-colors"
+				class="h-9 w-full rounded border border-gray-700 bg-gray-800 px-2 text-sm transition-colors focus:border-blue-500 focus:outline-none"
 				role="combobox"
 				aria-controls="card-options"
 				aria-expanded={listOpen}
@@ -355,7 +355,7 @@
 		</div>
 		<button
 			type="button"
-			class="min-h-11 flex-shrink-0 rounded px-3 text-xs text-gray-400 transition-colors bg-gray-800 hover:bg-red-600 hover:text-white"
+			class="h-9 flex-shrink-0 rounded px-2.5 text-xs text-gray-400 transition-colors bg-gray-800 hover:bg-red-600 hover:text-white"
 			on:click={handleClear}
 		>
 			Clear
@@ -365,7 +365,7 @@
 	<!-- Results: one row per card name, pitches inline -->
 	{#if listOpen && groups.length > 0}
 		<ul
-			class="max-h-64 overflow-auto rounded border border-gray-700 bg-gray-800/50 py-1"
+			class="max-h-56 overflow-auto rounded border border-gray-700 bg-gray-800/50 py-0.5"
 			id="card-options"
 			role="listbox"
 		>
