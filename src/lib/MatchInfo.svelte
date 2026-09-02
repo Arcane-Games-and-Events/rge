@@ -22,21 +22,27 @@
 	});
 </script>
 
-<div class="flex items-center gap-1.5">
-	<input
-		type="text"
-		placeholder="Round"
-		aria-label="Round"
-		class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
-		bind:value={roundInfo}
-		on:input={(e) => save('roundInfo', e.target.value)}
-	/>
-	<input
-		type="text"
-		placeholder="Status"
-		aria-label="Tournament status"
-		class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
-		bind:value={tournamentStatus}
-		on:input={(e) => save('tournamentStatus', e.target.value)}
-	/>
+<!-- `contents` so each labelled field lands in the parent grid as a sibling of
+     the clocks, with its label on the same line as theirs. -->
+<div class="contents">
+	<label class="flex flex-col justify-center gap-1 p-1.5">
+		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Round Info</span>
+		<input
+			type="text"
+			placeholder="Round"
+			class="h-9 min-w-0 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+			bind:value={roundInfo}
+			on:input={(e) => save('roundInfo', e.target.value)}
+		/>
+	</label>
+	<label class="flex flex-col justify-center gap-1 p-1.5">
+		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Status</span>
+		<input
+			type="text"
+			placeholder="Status"
+			class="h-9 min-w-0 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+			bind:value={tournamentStatus}
+			on:input={(e) => save('tournamentStatus', e.target.value)}
+		/>
+	</label>
 </div>

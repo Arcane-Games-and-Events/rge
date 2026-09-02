@@ -234,7 +234,7 @@
 	     reach them whatever section is open. -->
 	<header class="sticky top-0 z-30 border-b border-gray-800 bg-gray-950/95 backdrop-blur">
 		<div class="mx-auto max-w-[110rem] px-1.5 py-1.5">
-			<div class="grid grid-cols-2 gap-1.5">
+			<div class="grid grid-cols-2 gap-1.5 md:grid-cols-4">
 				{#each [{ type: 'Round', presets: roundPresets, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: breakPresets, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
 					<div class="flex flex-wrap items-center gap-1 rounded bg-gray-900 p-1.5">
 						<span class="text-[9px] font-semibold uppercase leading-none {t.accent}">
@@ -310,10 +310,12 @@
 						</div>
 					</div>
 				{/each}
+
+				<MatchInfo />
 			</div>
 
 			<!-- Section switcher, small screens only -->
-			<nav class="mt-1.5 grid grid-cols-3 gap-1 lg:hidden" aria-label="Sections">
+			<nav class="mt-1.5 grid grid-cols-3 gap-1 md:hidden" aria-label="Sections">
 				{#each sections as section (section.id)}
 					<button
 						type="button"
@@ -332,12 +334,14 @@
 	</header>
 
 	<main class="mx-auto max-w-[110rem] p-1.5">
-		<div class="grid gap-1.5 xl:grid-cols-[22rem_minmax(0,1fr)]">
+		<div
+			class="grid gap-1.5 md:grid-cols-[17rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]"
+		>
 			<!-- Card reader: its own column once there is room, pinned while the rest scrolls -->
 			<aside
 				class="{activeSection === 'cards'
 					? 'block'
-					: 'hidden'} lg:block xl:sticky xl:top-[5.5rem] xl:self-start"
+					: 'hidden'} md:sticky md:top-[6.5rem] md:block md:self-start"
 			>
 				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2">
 					<CardReader />
@@ -346,9 +350,7 @@
 
 			<div class="min-w-0 space-y-1.5">
 				<!-- Tables: each card holds its own players, life and signals -->
-				<div class="{activeSection === 'tables' ? 'block' : 'hidden'} space-y-1.5 lg:block">
-					<MatchInfo />
-
+				<div class="{activeSection === 'tables' ? 'block' : 'hidden'} space-y-1.5 md:block">
 					<div class="grid gap-1.5 2xl:grid-cols-2">
 						<TableCard index={1} />
 						<TableCard index={2} />
@@ -356,7 +358,7 @@
 				</div>
 
 				<!-- Commentators -->
-				<div class="{activeSection === 'booth' ? 'block' : 'hidden'} lg:block">
+				<div class="{activeSection === 'booth' ? 'block' : 'hidden'} md:block">
 					<div class="rounded-lg border border-gray-800 bg-gray-900 p-2">
 						<CommentatorBooth />
 					</div>
