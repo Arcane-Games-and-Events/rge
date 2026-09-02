@@ -224,51 +224,101 @@
 	const sections = [
 		{ id: 'cards', label: 'Cards' },
 		{ id: 'tables', label: 'Tables' },
-		{ id: 'timers', label: 'Timers' },
 		{ id: 'booth', label: 'Booth' }
 	];
 	let activeSection = 'cards';
 </script>
 
 <div class="min-h-screen bg-gray-950 text-white">
-	<!-- Clocks stay pinned: an operator needs them regardless of what else is open -->
+	<!-- Each clock keeps its own controls beside it, pinned so an operator can
+	     reach them whatever section is open. -->
 	<header class="sticky top-0 z-30 border-b border-gray-800 bg-gray-950/95 backdrop-blur">
 		<div class="mx-auto max-w-[110rem] px-2 py-2 sm:px-3">
-			<div class="flex items-center gap-2">
-				{#each [{ type: 'Round', accent: 'text-blue-400' }, { type: 'Break', accent: 'text-purple-400' }] as clock (clock.type)}
-					<div class="flex flex-1 items-center gap-2 rounded-lg bg-gray-900 px-2 py-1.5">
-						<div class="min-w-0">
-							<div class="text-[9px] font-medium uppercase leading-none {clock.accent}">
-								{clock.type}
-							</div>
-							<div
-								class="font-mono text-xl font-bold tabular-nums leading-tight sm:text-2xl {timers[
-									clock.type
+			<div class="grid grid-cols-2 gap-2">
+				{#each [{ type: 'Round', presets: roundPresets, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: breakPresets, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
+					<div class="rounded-lg bg-gray-900 p-2">
+						<div class="mb-1 text-[10px] font-semibold uppercase leading-none {t.accent}">
+							{t.type}
+						</div>
+
+						<div class="flex flex-wrap items-center gap-1.5">
+							<span
+								class="font-mono text-3xl font-bold tabular-nums leading-none sm:text-4xl {timers[
+									t.type
 								].isPaused
 									? 'text-gray-400'
 									: 'text-white'}"
 							>
-								{timers[clock.type].display}
+								{timers[t.type].display}
+							</span>
+							<button
+								type="button"
+								on:click={() => toggleTimer(t.type)}
+								aria-label="{timers[t.type].isPaused ? 'Start' : 'Pause'} {t.type} timer"
+								class="h-11 w-11 flex-none rounded-lg text-lg font-medium transition-colors {timers[
+									t.type
+								].isPaused
+									? 'bg-green-600 hover:bg-green-500'
+									: 'bg-yellow-600 hover:bg-yellow-500'}"
+							>
+								{timers[t.type].isPaused ? '▶' : '⏸'}
+							</button>
+							<button
+								type="button"
+								on:click={() => resetTimer(t.type)}
+								aria-label="Reset {t.type} timer"
+								class="h-11 w-11 flex-none rounded-lg bg-gray-800 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+								>↺</button
+							>
+
+							{#if t.type === 'Round'}
+								<button
+									type="button"
+									on:click={toggleCountUp}
+									aria-label="Round counts {timers.Round.isCountingUp ? 'up' : 'down'}"
+									class="h-11 flex-none rounded-lg px-2 text-[11px] font-medium transition-colors {timers
+										.Round.isCountingUp
+										? 'bg-blue-600 text-white'
+										: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
+								>
+									{timers.Round.isCountingUp ? 'Up' : 'Down'}
+								</button>
+							{/if}
+
+							<div class="flex flex-1 items-center gap-1">
+								{#if t.type === 'Round' && timers.Round.isCountingUp}
+									<button
+										type="button"
+										on:click={() => setTimer('Round', 0)}
+										class="min-h-10 flex-1 rounded-lg bg-gray-800 text-xs font-medium transition-colors {t.hover}"
+										>Start</button
+									>
+								{:else}
+									{#each t.presets as m (m)}
+										<button
+											type="button"
+											on:click={() => setTimer(t.type, m)}
+											class="min-h-10 flex-1 rounded-lg bg-gray-800 text-xs font-medium transition-colors {t.hover}"
+											>{m}m</button
+										>
+									{/each}
+								{/if}
+								<input
+									type="number"
+									bind:value={customTime[t.type]}
+									on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
+									placeholder="min"
+									aria-label="Custom {t.type} minutes"
+									class="min-h-10 w-14 flex-none rounded-lg border border-gray-700 bg-gray-800 px-1 text-center text-xs [appearance:textfield] focus:outline-none {t.focus} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								/>
 							</div>
 						</div>
-						<button
-							type="button"
-							on:click={() => toggleTimer(clock.type)}
-							aria-label="{timers[clock.type].isPaused ? 'Start' : 'Pause'} {clock.type} timer"
-							class="ml-auto h-10 w-10 flex-none rounded-lg text-base font-medium transition-colors {timers[
-								clock.type
-							].isPaused
-								? 'bg-green-600 hover:bg-green-500'
-								: 'bg-yellow-600 hover:bg-yellow-500'}"
-						>
-							{timers[clock.type].isPaused ? '▶' : '⏸'}
-						</button>
 					</div>
 				{/each}
 			</div>
 
 			<!-- Section switcher, small screens only -->
-			<nav class="mt-2 grid grid-cols-4 gap-1 lg:hidden" aria-label="Sections">
+			<nav class="mt-2 grid grid-cols-3 gap-1 lg:hidden" aria-label="Sections">
 				{#each sections as section (section.id)}
 					<button
 						type="button"
@@ -314,67 +364,6 @@
 					<div class="grid gap-3 2xl:grid-cols-2">
 						<TableCard index={1} />
 						<TableCard index={2} />
-					</div>
-				</div>
-
-				<!-- Timer presets and mode; the clocks themselves live in the header -->
-				<div class="{activeSection === 'timers' ? 'block' : 'hidden'} lg:block">
-					<div class="rounded-xl border border-gray-800 bg-gray-900 p-3">
-						<div class="mb-3 flex items-center justify-between">
-							<h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Timers</h2>
-							<button
-								type="button"
-								on:click={toggleCountUp}
-								class="min-h-10 rounded-lg px-2.5 text-[11px] font-medium transition-colors {timers
-									.Round.isCountingUp
-									? 'bg-blue-600 text-white'
-									: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
-							>
-								Round: {timers.Round.isCountingUp ? 'Counting up' : 'Counting down'}
-							</button>
-						</div>
-
-						<div class="grid gap-3 sm:grid-cols-2">
-							{#each [{ type: 'Round', presets: roundPresets, hover: 'hover:bg-blue-600', accent: 'text-blue-400' }, { type: 'Break', presets: breakPresets, hover: 'hover:bg-purple-600', accent: 'text-purple-400' }] as t (t.type)}
-								<div class="space-y-1.5 rounded-lg bg-gray-800/40 p-2">
-									<div class="text-[10px] font-semibold uppercase {t.accent}">{t.type}</div>
-									<div class="flex flex-wrap items-center gap-1.5">
-										{#if t.type === 'Round' && timers.Round.isCountingUp}
-											<button
-												type="button"
-												on:click={() => setTimer('Round', 0)}
-												class="min-h-11 flex-1 rounded-lg bg-gray-800 text-sm font-medium transition-colors {t.hover}"
-												>Start</button
-											>
-										{:else}
-											{#each t.presets as m (m)}
-												<button
-													type="button"
-													on:click={() => setTimer(t.type, m)}
-													class="min-h-11 flex-1 rounded-lg bg-gray-800 text-sm font-medium transition-colors {t.hover}"
-													>{m}m</button
-												>
-											{/each}
-										{/if}
-										<input
-											type="number"
-											bind:value={customTime[t.type]}
-											on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
-											placeholder="min"
-											aria-label="Custom {t.type} minutes"
-											class="min-h-11 w-16 rounded-lg border border-gray-700 bg-gray-800 px-1.5 text-center text-sm [appearance:textfield] focus:border-blue-500 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-										/>
-										<button
-											type="button"
-											on:click={() => resetTimer(t.type)}
-											aria-label="Reset {t.type} timer"
-											class="min-h-11 w-11 flex-none rounded-lg bg-gray-800 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
-											>↺</button
-										>
-									</div>
-								</div>
-							{/each}
-						</div>
 					</div>
 				</div>
 

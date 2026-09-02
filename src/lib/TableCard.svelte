@@ -259,9 +259,32 @@
 	<div class="grid gap-2 sm:grid-cols-2">
 		{#each seats as seat (seat.id)}
 			<div class="space-y-1.5 rounded-lg bg-gray-800/40 p-2">
-				<div class="flex items-center justify-between">
-					<span class="text-[10px] font-semibold uppercase {seat.accent}">{seat.label}</span>
-					<span class="font-mono text-lg font-bold tabular-nums leading-none">{life[seat.id]}</span>
+				<div class="text-[10px] font-semibold uppercase {seat.accent}">{seat.label}</div>
+
+				<!-- Life sits between its own buttons so it is never unclear which
+				     total a press changes. -->
+				<div class="flex items-center gap-2 rounded-lg bg-gray-900/70 p-1.5">
+					<button
+						type="button"
+						aria-label="{seat.label} life down"
+						on:click={() => adjustLife(seat.id, -1)}
+						class="h-12 w-12 flex-none rounded-lg bg-red-600/20 text-2xl font-bold leading-none text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
+						>−</button
+					>
+					<span
+						class="flex-1 text-center font-mono text-4xl font-bold tabular-nums leading-none"
+						aria-live="polite"
+						aria-label="{seat.label} life total"
+					>
+						{life[seat.id]}
+					</span>
+					<button
+						type="button"
+						aria-label="{seat.label} life up"
+						on:click={() => adjustLife(seat.id, 1)}
+						class="h-12 w-12 flex-none rounded-lg bg-green-600/20 text-2xl font-bold leading-none text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
+						>+</button
+					>
 				</div>
 
 				<div class="flex items-center gap-1.5">
@@ -340,23 +363,6 @@
 							{/each}
 						</ul>
 					{/if}
-				</div>
-
-				<div class="flex items-center gap-1.5">
-					<button
-						type="button"
-						aria-label="{seat.label} life down"
-						on:click={() => adjustLife(seat.id, -1)}
-						class="h-11 flex-1 rounded-lg bg-red-600/20 text-lg font-bold text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
-						>−</button
-					>
-					<button
-						type="button"
-						aria-label="{seat.label} life up"
-						on:click={() => adjustLife(seat.id, 1)}
-						class="h-11 flex-1 rounded-lg bg-green-600/20 text-lg font-bold text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
-						>+</button
-					>
 				</div>
 			</div>
 		{/each}
