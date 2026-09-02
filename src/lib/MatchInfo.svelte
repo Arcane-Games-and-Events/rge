@@ -22,10 +22,8 @@
 	});
 </script>
 
-<!-- `contents` so each labelled field lands in the parent grid as a sibling of
-     the clocks, with its label on the same line as theirs. -->
-<div class="contents">
-	<label class="flex flex-col justify-center gap-1 p-1.5">
+<div class="grid grid-cols-2 gap-1.5">
+	<label class="flex flex-col gap-1">
 		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Round Info</span>
 		<input
 			type="text"
@@ -35,7 +33,7 @@
 			on:input={(e) => save('roundInfo', e.target.value)}
 		/>
 	</label>
-	<label class="flex flex-col justify-center gap-1 p-1.5">
+	<label class="flex flex-col gap-1">
 		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Status</span>
 		<input
 			type="text"

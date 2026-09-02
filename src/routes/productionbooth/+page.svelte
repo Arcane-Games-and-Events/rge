@@ -230,131 +230,134 @@
 </script>
 
 <div class="min-h-screen bg-gray-950 text-white">
-	<!-- Each clock keeps its own controls beside it, pinned so an operator can
-	     reach them whatever section is open. -->
-	<header class="sticky top-0 z-30 border-b border-gray-800 bg-gray-950/95 backdrop-blur">
-		<div class="mx-auto max-w-[110rem] px-1.5 py-1.5">
-			<div class="grid grid-cols-2 gap-1.5 md:grid-cols-4">
-				{#each [{ type: 'Round', presets: roundPresets, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: breakPresets, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
-					<div class="flex flex-wrap items-center gap-1 rounded bg-gray-900 p-1.5">
-						<span class="text-[9px] font-semibold uppercase leading-none {t.accent}">
-							{t.type}
-						</span>
-						<span
-							class="font-mono text-2xl font-bold tabular-nums leading-none sm:text-3xl {timers[
-								t.type
-							].isPaused
-								? 'text-gray-400'
-								: 'text-white'}"
-						>
-							{timers[t.type].display}
-						</span>
-						<button
-							type="button"
-							on:click={() => toggleTimer(t.type)}
-							aria-label="{timers[t.type].isPaused ? 'Start' : 'Pause'} {t.type} timer"
-							class="h-8 w-8 flex-none rounded text-sm font-medium transition-colors {timers[t.type]
-								.isPaused
-								? 'bg-green-600 hover:bg-green-500'
-								: 'bg-yellow-600 hover:bg-yellow-500'}"
-						>
-							{timers[t.type].isPaused ? '▶' : '⏸'}
-						</button>
-						<button
-							type="button"
-							on:click={() => resetTimer(t.type)}
-							aria-label="Reset {t.type} timer"
-							class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
-							>↺</button
-						>
-
-						<div class="flex flex-1 items-center gap-1">
-							{#if t.type === 'Round'}
-								<button
-									type="button"
-									on:click={toggleCountUp}
-									aria-label="Round counts {timers.Round.isCountingUp ? 'up' : 'down'}"
-									class="h-8 flex-none rounded px-1.5 text-[10px] font-medium transition-colors {timers
-										.Round.isCountingUp
-										? 'bg-blue-600 text-white'
-										: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
-								>
-									{timers.Round.isCountingUp ? 'Up' : 'Dn'}
-								</button>
-							{/if}
-							{#if t.type === 'Round' && timers.Round.isCountingUp}
-								<button
-									type="button"
-									on:click={() => setTimer('Round', 0)}
-									class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
-									>Start</button
-								>
-							{:else}
-								{#each t.presets as m (m)}
-									<button
-										type="button"
-										on:click={() => setTimer(t.type, m)}
-										class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
-										>{m}m</button
-									>
-								{/each}
-							{/if}
-							<input
-								type="number"
-								bind:value={customTime[t.type]}
-								on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
-								placeholder="min"
-								aria-label="Custom {t.type} minutes"
-								class="h-8 w-11 flex-none rounded border border-gray-700 bg-gray-800 px-0.5 text-center text-[11px] [appearance:textfield] focus:outline-none {t.focus} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							/>
-						</div>
-					</div>
-				{/each}
-
-				<MatchInfo />
-			</div>
-
-			<!-- Section switcher, small screens only -->
-			<nav class="mt-1.5 grid grid-cols-3 gap-1 md:hidden" aria-label="Sections">
-				{#each sections as section (section.id)}
-					<button
-						type="button"
-						aria-current={activeSection === section.id}
-						on:click={() => (activeSection = section.id)}
-						class="h-8 rounded text-[11px] font-medium transition-colors {activeSection ===
-						section.id
-							? 'bg-blue-600 text-white'
-							: 'bg-gray-900 text-gray-400 hover:bg-gray-800'}"
-					>
-						{section.label}
-					</button>
-				{/each}
-			</nav>
-		</div>
-	</header>
-
 	<main class="mx-auto max-w-[110rem] p-1.5">
+		<!-- Two columns: the card search owns the left one, everything else
+		     stacks in the right. On a phone the grid collapses and the right
+		     column comes first, so the clocks are not below the card search. -->
 		<div
-			class="grid gap-1.5 md:grid-cols-[17rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]"
+			class="grid gap-1.5 md:grid-cols-[17rem_minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[24rem_minmax(0,1fr)]"
 		>
-			<!-- Card reader: its own column once there is room, pinned while the rest scrolls -->
+			<!-- LEFT: card search, nothing else -->
 			<aside
 				class="{activeSection === 'cards'
 					? 'block'
-					: 'hidden'} md:sticky md:top-[6.5rem] md:block md:self-start"
+					: 'hidden'} order-2 md:order-1 md:sticky md:top-1.5 md:block md:self-start"
 			>
 				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2">
 					<CardReader />
 				</div>
 			</aside>
 
-			<div class="min-w-0 space-y-1.5">
-				<!-- Tables: each card holds its own players, life and signals -->
+			<!-- RIGHT: timers, round info/status, tables, commentators -->
+			<div class="order-1 min-w-0 space-y-1.5 md:order-2">
+				<!-- Timer row -->
+				<div class="grid grid-cols-2 gap-1.5">
+					{#each [{ type: 'Round', presets: roundPresets, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: breakPresets, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
+						<div
+							class="flex flex-wrap items-center gap-1 rounded-lg border border-gray-800 bg-gray-900 p-1.5"
+						>
+							<span class="text-[9px] font-semibold uppercase leading-none {t.accent}">
+								{t.type}
+							</span>
+							<span
+								class="font-mono text-2xl font-bold tabular-nums leading-none sm:text-3xl {timers[
+									t.type
+								].isPaused
+									? 'text-gray-400'
+									: 'text-white'}"
+							>
+								{timers[t.type].display}
+							</span>
+							<button
+								type="button"
+								on:click={() => toggleTimer(t.type)}
+								aria-label="{timers[t.type].isPaused ? 'Start' : 'Pause'} {t.type} timer"
+								class="h-8 w-8 flex-none rounded text-sm font-medium transition-colors {timers[
+									t.type
+								].isPaused
+									? 'bg-green-600 hover:bg-green-500'
+									: 'bg-yellow-600 hover:bg-yellow-500'}"
+							>
+								{timers[t.type].isPaused ? '▶' : '⏸'}
+							</button>
+							<button
+								type="button"
+								on:click={() => resetTimer(t.type)}
+								aria-label="Reset {t.type} timer"
+								class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+								>↺</button
+							>
+
+							<div class="flex flex-1 items-center gap-1">
+								{#if t.type === 'Round'}
+									<button
+										type="button"
+										on:click={toggleCountUp}
+										aria-label="Round counts {timers.Round.isCountingUp ? 'up' : 'down'}"
+										class="h-8 flex-none rounded px-1.5 text-[10px] font-medium transition-colors {timers
+											.Round.isCountingUp
+											? 'bg-blue-600 text-white'
+											: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
+									>
+										{timers.Round.isCountingUp ? 'Up' : 'Dn'}
+									</button>
+								{/if}
+								{#if t.type === 'Round' && timers.Round.isCountingUp}
+									<button
+										type="button"
+										on:click={() => setTimer('Round', 0)}
+										class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
+										>Start</button
+									>
+								{:else}
+									{#each t.presets as m (m)}
+										<button
+											type="button"
+											on:click={() => setTimer(t.type, m)}
+											class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
+											>{m}m</button
+										>
+									{/each}
+								{/if}
+								<input
+									type="number"
+									bind:value={customTime[t.type]}
+									on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
+									placeholder="min"
+									aria-label="Custom {t.type} minutes"
+									class="h-8 w-11 flex-none rounded border border-gray-700 bg-gray-800 px-0.5 text-center text-[11px] [appearance:textfield] focus:outline-none {t.focus} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								/>
+							</div>
+						</div>
+					{/each}
+				</div>
+
+				<!-- Round info / status row -->
+				<div class="rounded-lg border border-gray-800 bg-gray-900 p-1.5">
+					<MatchInfo />
+				</div>
+
+				<!-- Section switcher, small screens only -->
+				<nav class="grid grid-cols-3 gap-1 md:hidden" aria-label="Sections">
+					{#each sections as section (section.id)}
+						<button
+							type="button"
+							aria-current={activeSection === section.id}
+							on:click={() => (activeSection = section.id)}
+							class="h-8 rounded text-[11px] font-medium transition-colors {activeSection ===
+							section.id
+								? 'bg-blue-600 text-white'
+								: 'bg-gray-900 text-gray-400 hover:bg-gray-800'}"
+						>
+							{section.label}
+						</button>
+					{/each}
+				</nav>
+
+				<!-- Tables -->
 				<div class="{activeSection === 'tables' ? 'block' : 'hidden'} space-y-1.5 md:block">
-					<div class="grid gap-1.5 2xl:grid-cols-2">
-						<TableCard index={1} />
-						<TableCard index={2} />
-					</div>
+					<TableCard index={1} />
+					<TableCard index={2} />
 				</div>
 
 				<!-- Commentators -->
