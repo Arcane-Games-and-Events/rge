@@ -124,14 +124,14 @@
 	async function resetTimer(type) {
 		timers[type].isPaused = true;
 		timers[type].remainingTime = 0;
-		timers[type].display = '00:00';
+		timers[type].display = formatTimerDisplay(type, 0);
 		timers[type].startTime = null;
 
 		clearInterval(timerIntervals[type]);
 
 		await set(ref(db, `timers/${type}/isPaused`), true);
 		await set(ref(db, `timers/${type}/remainingTime`), 0);
-		await set(ref(db, `timers/${type}/displayTime`), '00:00');
+		await set(ref(db, `timers/${type}/displayTime`), formatTimerDisplay(type, 0));
 	}
 
 	async function toggleCountUp() {

@@ -34,3 +34,17 @@ export function formatTimerDisplay(type, seconds) {
 	if (type === 'Break' && seconds <= 0) return BREAK_ENDED_LABEL;
 	return formatTime(seconds);
 }
+
+/**
+ * Clock text for a break, given whatever string is stored for it.
+ *
+ * Anything that means "no time left" reads as the label, so a break that was
+ * cleared with reset, or one whose stored value predates this label, still
+ * shows "Soon" rather than 00:00 on air.
+ * @param {unknown} stored - Value read from timers/Break/displayTime
+ * @returns {string}
+ */
+export function breakDisplayFromStored(stored) {
+	if (stored == null || stored === '' || stored === '00:00') return BREAK_ENDED_LABEL;
+	return String(stored);
+}

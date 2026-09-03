@@ -2,10 +2,10 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
-	import { formatTimerDisplay } from '$lib/timerDisplay';
+	import { BREAK_ENDED_LABEL, breakDisplayFromStored, formatTimerDisplay } from '$lib/timerDisplay';
 
 	let displayRound = '00:00';
-	let displayBreak = '00:00';
+	let displayBreak = BREAK_ENDED_LABEL;
 
 	// Timer state for fallback (when admin page isn't open)
 	let timers = {
@@ -52,7 +52,7 @@
 		);
 		unsubscribers.push(
 			onValue(ref(db, 'timers/Break/displayTime'), (snap) => {
-				displayBreak = snap.val() ?? '00:00';
+				displayBreak = breakDisplayFromStored(snap.val());
 				timers.Break.lastFbUpdate = Date.now();
 			})
 		);
@@ -116,9 +116,13 @@
 		</p>
 	</div>
 
-	<!-- Break timer -->
+	<!-- Break timer. The label is right aligned; the running clock is not. -->
 	<div>
-		<p class="text-8xl text-left text-white font-bold tabular-nums">
+		<p
+			class="text-8xl text-white font-bold tabular-nums {displayBreak === BREAK_ENDED_LABEL
+				? 'text-right'
+				: 'text-left'}"
+		>
 			{displayBreak}
 		</p>
 	</div>
