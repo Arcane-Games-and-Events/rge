@@ -95,12 +95,17 @@
 		updateFirebase(`${playerPath}/${seatId}/${field}`, value);
 	};
 
+	// Capped to what the list actually renders, so an index always points at a
+	// row the operator can see.
+	const MAX_HERO_MATCHES = 8;
+
 	const updateFilteredHeroes = (seatId) => {
 		const q = players[seatId].query.trim().toLowerCase();
 		players[seatId].filteredHeroes = q
-			? $heroes.filter((h) => h.name.toLowerCase().includes(q))
+			? $heroes.filter((h) => h.name.toLowerCase().includes(q)).slice(0, MAX_HERO_MATCHES)
 			: [];
-		players[seatId].highlightedIndex = -1;
+		// Highlight the first match so Enter picks it without arrowing first.
+		players[seatId].highlightedIndex = 0;
 	};
 
 	const handleHeroChange = (seatId, hero) => {
@@ -110,32 +115,56 @@
 		updateFirebase(`${playerPath}/${seatId}/hero`, hero.name);
 	};
 
+	// Every assignment goes through `players[...]` rather than a local alias:
+	// Svelte only invalidates when it can see the reactive variable being
+	// assigned, so aliasing the seat would update state without redrawing.
 	const handleKeyDown = (seatId, e) => {
-		const seat = players[seatId];
+		const count = players[seatId].filteredHeroes.length;
+		const open = players[seatId].isDropdownOpen;
+
 		switch (e.key) {
 			case 'ArrowDown':
 				e.preventDefault();
-				if (seat.highlightedIndex < seat.filteredHeroes.length - 1) seat.highlightedIndex += 1;
+				players[seatId].isDropdownOpen = true;
+				if (count)
+					players[seatId].highlightedIndex = (players[seatId].highlightedIndex + 1) % count;
 				break;
 			case 'ArrowUp':
 				e.preventDefault();
-				if (seat.highlightedIndex > 0) seat.highlightedIndex -= 1;
+				players[seatId].isDropdownOpen = true;
+				if (count)
+					players[seatId].highlightedIndex = (players[seatId].highlightedIndex - 1 + count) % count;
 				break;
-			case 'Enter':
+			case 'Home':
+				if (!open || !count) return;
 				e.preventDefault();
-				if (seat.highlightedIndex >= 0 && seat.highlightedIndex < seat.filteredHeroes.length) {
-					handleHeroChange(seatId, seat.filteredHeroes[seat.highlightedIndex]);
+				players[seatId].highlightedIndex = 0;
+				break;
+			case 'End':
+				if (!open || !count) return;
+				e.preventDefault();
+				players[seatId].highlightedIndex = count - 1;
+				break;
+			case 'Enter': {
+				e.preventDefault();
+				const idx = players[seatId].highlightedIndex;
+				if (open && idx >= 0 && idx < count) {
+					handleHeroChange(seatId, players[seatId].filteredHeroes[idx]);
 				}
 				break;
+			}
 			case 'Escape':
-				seat.isDropdownOpen = false;
+				e.preventDefault();
+				players[seatId].isDropdownOpen = false;
 				break;
 			default:
 				return;
 		}
-		if (seat.highlightedIndex !== -1) {
+
+		const idx = players[seatId].highlightedIndex;
+		if (players[seatId].isDropdownOpen && idx >= 0) {
 			document
-				.getElementById(`t${index}-${seatId}-opt-${seat.highlightedIndex}`)
+				.getElementById(`t${index}-${seatId}-opt-${idx}`)
 				?.scrollIntoView({ block: 'nearest' });
 		}
 	};
@@ -328,7 +357,7 @@
 							role="listbox"
 							class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded border border-gray-700 bg-gray-900 py-0.5 shadow-xl"
 						>
-							{#each players[seat.id].filteredHeroes.slice(0, 8) as hero, idx (hero.name)}
+							{#each players[seat.id].filteredHeroes as hero, idx (hero.name)}
 								<li
 									id="t{index}-{seat.id}-opt-{idx}"
 									role="option"
