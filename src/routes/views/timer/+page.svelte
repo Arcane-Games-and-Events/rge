@@ -2,10 +2,10 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
-	import { BREAK_ENDED_LABEL, breakDisplayFromStored, formatTimerDisplay } from '$lib/timerDisplay';
+	import { formatTime } from '$lib/timerDisplay';
 
 	let displayRound = '00:00';
-	let displayBreak = BREAK_ENDED_LABEL;
+	let displayBreak = '00:00';
 
 	// Timer state for fallback (when admin page isn't open)
 	let timers = {
@@ -35,10 +35,10 @@
 	function checkFallback() {
 		const now = Date.now();
 		if (!timers.Round.isPaused && now - timers.Round.lastFbUpdate > 3000) {
-			displayRound = formatTimerDisplay('Round', getFallbackTime('Round'));
+			displayRound = formatTime(getFallbackTime('Round'));
 		}
 		if (!timers.Break.isPaused && now - timers.Break.lastFbUpdate > 3000) {
-			displayBreak = formatTimerDisplay('Break', getFallbackTime('Break'));
+			displayBreak = formatTime(getFallbackTime('Break'));
 		}
 	}
 
@@ -52,7 +52,7 @@
 		);
 		unsubscribers.push(
 			onValue(ref(db, 'timers/Break/displayTime'), (snap) => {
-				displayBreak = breakDisplayFromStored(snap.val());
+				displayBreak = snap.val() ?? '00:00';
 				timers.Break.lastFbUpdate = Date.now();
 			})
 		);
@@ -116,13 +116,10 @@
 		</p>
 	</div>
 
-	<!-- Break timer. An invisible 00:00 holds the box at the width of the clock
-	     and the value is justified to its end, so "Soon" finishes exactly where
-	     the last digit would rather than at the far edge of the column. -->
+	<!-- Break timer -->
 	<div>
-		<p class="grid w-fit justify-items-end text-8xl text-white font-bold tabular-nums">
-			<span class="invisible col-start-1 row-start-1" aria-hidden="true">00:00</span>
-			<span class="col-start-1 row-start-1">{displayBreak}</span>
+		<p class="text-8xl text-left text-white font-bold tabular-nums">
+			{displayBreak}
 		</p>
 	</div>
 </div>

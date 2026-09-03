@@ -6,7 +6,7 @@
 	import MatchInfo from '../../lib/MatchInfo.svelte';
 	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
-	import { formatTimerDisplay } from '$lib/timerDisplay';
+	import { formatTime } from '$lib/timerDisplay';
 
 	// Timer state with internal tracking
 	let timers = {
@@ -48,7 +48,7 @@
 
 	function updateDisplay(type) {
 		const currentTime = getCurrentTime(type);
-		timers[type].display = formatTimerDisplay(type, currentTime);
+		timers[type].display = formatTime(currentTime);
 		set(ref(db, `timers/${type}/displayTime`), timers[type].display);
 	}
 
@@ -71,7 +71,7 @@
 		timers[type].remainingTime = seconds;
 		timers[type].startTime = Date.now();
 		timers[type].isPaused = false;
-		timers[type].display = formatTimerDisplay(type, seconds);
+		timers[type].display = formatTime(seconds);
 
 		await set(ref(db, `timers/${type}/remainingTime`), seconds);
 		await set(ref(db, `timers/${type}/displayTime`), timers[type].display);
@@ -124,14 +124,14 @@
 	async function resetTimer(type) {
 		timers[type].isPaused = true;
 		timers[type].remainingTime = 0;
-		timers[type].display = formatTimerDisplay(type, 0);
+		timers[type].display = formatTime(0);
 		timers[type].startTime = null;
 
 		clearInterval(timerIntervals[type]);
 
 		await set(ref(db, `timers/${type}/isPaused`), true);
 		await set(ref(db, `timers/${type}/remainingTime`), 0);
-		await set(ref(db, `timers/${type}/displayTime`), formatTimerDisplay(type, 0));
+		await set(ref(db, `timers/${type}/displayTime`), formatTime(0));
 	}
 
 	async function toggleCountUp() {
@@ -161,7 +161,7 @@
 					if (!timers[type].isPaused && timers[type].startTime) {
 						startTimerInterval(type);
 					} else {
-						timers[type].display = formatTimerDisplay(type, timers[type].remainingTime);
+						timers[type].display = formatTime(timers[type].remainingTime);
 					}
 				}
 			} catch (err) {
@@ -188,7 +188,7 @@
 				if (snap.val() !== null) {
 					timers[type].remainingTime = snap.val();
 					if (timers[type].isPaused) {
-						timers[type].display = formatTimerDisplay(type, snap.val());
+						timers[type].display = formatTime(snap.val());
 					}
 				}
 			});
