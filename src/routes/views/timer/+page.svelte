@@ -116,14 +116,13 @@
 		</p>
 	</div>
 
-	<!-- Break timer. The label is right aligned; the running clock is not. -->
+	<!-- Break timer. An invisible 00:00 holds the box at the width of the clock
+	     and the value is justified to its end, so "Soon" finishes exactly where
+	     the last digit would rather than at the far edge of the column. -->
 	<div>
-		<p
-			class="text-8xl text-white font-bold tabular-nums {displayBreak === BREAK_ENDED_LABEL
-				? 'text-right'
-				: 'text-left'}"
-		>
-			{displayBreak}
+		<p class="grid w-fit justify-items-end text-8xl text-white font-bold tabular-nums">
+			<span class="invisible col-start-1 row-start-1" aria-hidden="true">00:00</span>
+			<span class="col-start-1 row-start-1">{displayBreak}</span>
 		</p>
 	</div>
 </div>
