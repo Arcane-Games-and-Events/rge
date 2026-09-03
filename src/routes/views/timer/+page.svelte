@@ -2,24 +2,25 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import { formatTimerDisplay } from '$lib/timerDisplay';
 
 	let displayRound = '00:00';
 	let displayBreak = '00:00';
 
 	// Timer state for fallback (when admin page isn't open)
 	let timers = {
-		Round: { remainingTime: 0, startTime: null, isPaused: true, isCountingUp: false, lastFbUpdate: 0 },
+		Round: {
+			remainingTime: 0,
+			startTime: null,
+			isPaused: true,
+			isCountingUp: false,
+			lastFbUpdate: 0
+		},
 		Break: { remainingTime: 0, startTime: null, isPaused: true, lastFbUpdate: 0 }
 	};
 
 	let animFrame;
 	let unsubscribers = [];
-
-	function formatTime(seconds) {
-		const m = Math.floor(Math.abs(seconds) / 60).toString().padStart(2, '0');
-		const s = (Math.abs(seconds) % 60).toString().padStart(2, '0');
-		return `${m}:${s}`;
-	}
 
 	function getFallbackTime(type) {
 		const timer = timers[type];
@@ -34,10 +35,10 @@
 	function checkFallback() {
 		const now = Date.now();
 		if (!timers.Round.isPaused && now - timers.Round.lastFbUpdate > 3000) {
-			displayRound = formatTime(getFallbackTime('Round'));
+			displayRound = formatTimerDisplay('Round', getFallbackTime('Round'));
 		}
 		if (!timers.Break.isPaused && now - timers.Break.lastFbUpdate > 3000) {
-			displayBreak = formatTime(getFallbackTime('Break'));
+			displayBreak = formatTimerDisplay('Break', getFallbackTime('Break'));
 		}
 	}
 
@@ -103,7 +104,7 @@
 
 	onDestroy(() => {
 		if (typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(animFrame);
-		unsubscribers.forEach(unsub => unsub && unsub());
+		unsubscribers.forEach((unsub) => unsub && unsub());
 	});
 </script>
 

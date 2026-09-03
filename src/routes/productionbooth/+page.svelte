@@ -6,6 +6,7 @@
 	import MatchInfo from '../../lib/MatchInfo.svelte';
 	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
+	import { formatTimerDisplay } from '$lib/timerDisplay';
 
 	// Timer state with internal tracking
 	let timers = {
@@ -29,14 +30,6 @@
 	// Timer intervals
 	let timerIntervals = { Round: null, Break: null };
 
-	function formatTime(seconds) {
-		const m = Math.floor(Math.abs(seconds) / 60)
-			.toString()
-			.padStart(2, '0');
-		const s = (Math.abs(seconds) % 60).toString().padStart(2, '0');
-		return `${m}:${s}`;
-	}
-
 	function getCurrentTime(type) {
 		const timer = timers[type];
 		if (!timer.startTime || timer.isPaused) {
@@ -55,7 +48,7 @@
 
 	function updateDisplay(type) {
 		const currentTime = getCurrentTime(type);
-		timers[type].display = formatTime(currentTime);
+		timers[type].display = formatTimerDisplay(type, currentTime);
 		set(ref(db, `timers/${type}/displayTime`), timers[type].display);
 	}
 
@@ -78,7 +71,7 @@
 		timers[type].remainingTime = seconds;
 		timers[type].startTime = Date.now();
 		timers[type].isPaused = false;
-		timers[type].display = formatTime(seconds);
+		timers[type].display = formatTimerDisplay(type, seconds);
 
 		await set(ref(db, `timers/${type}/remainingTime`), seconds);
 		await set(ref(db, `timers/${type}/displayTime`), timers[type].display);
@@ -168,7 +161,7 @@
 					if (!timers[type].isPaused && timers[type].startTime) {
 						startTimerInterval(type);
 					} else {
-						timers[type].display = formatTime(timers[type].remainingTime);
+						timers[type].display = formatTimerDisplay(type, timers[type].remainingTime);
 					}
 				}
 			} catch (err) {
@@ -195,7 +188,7 @@
 				if (snap.val() !== null) {
 					timers[type].remainingTime = snap.val();
 					if (timers[type].isPaused) {
-						timers[type].display = formatTime(snap.val());
+						timers[type].display = formatTimerDisplay(type, snap.val());
 					}
 				}
 			});
