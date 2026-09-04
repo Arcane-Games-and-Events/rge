@@ -36,9 +36,9 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@flesh-and-blood/cards": "^5.0.6",
-		"@flesh-and-blood/search": "^5.0.6",
-		"@flesh-and-blood/types": "^5.0.5",
+		"@flesh-and-blood/cards": "^5.0.14",
+		"@flesh-and-blood/search": "^5.0.14",
+		"@flesh-and-blood/types": "^5.0.12",
 		"@vercel/speed-insights": "^1.0.12"
 	}
 }
