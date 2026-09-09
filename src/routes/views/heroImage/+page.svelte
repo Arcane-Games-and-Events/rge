@@ -2,36 +2,12 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import HeroMedia from '$lib/HeroMedia.svelte';
 
 	let players = {
 		p1: { hero: '' },
 		p2: { hero: '' }
 	};
-
-	function slugify(heroName) {
-		return heroName
-			.toLowerCase()
-			.replace(/["',]/g, '')
-			.replace(/[^a-z0-9\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.trim();
-	}
-
-	// Special-case check for Arakni, Huntsman
-	function getHeroImage(heroName) {
-		if (!heroName) return '/heroImages/default.jpg';
-
-		// Normalize the input for comparison
-		const normalized = heroName.toLowerCase().replace(/["',]/g, '').trim();
-
-		if (normalized === 'arakni huntsman') {
-			return '/heroImages/arakni-huntsman.jpg';
-		}
-
-		// Default path
-		const slug = slugify(heroName);
-		return `/heroImages/${slug}.jpg`;
-	}
 
 	function fetchData() {
 		Object.keys(players).forEach((playerId) => {
@@ -52,24 +28,5 @@
 	});
 </script>
 
-{#if players.p1.hero}
-	{#key players.p1.hero}
-		<img
-			class="scale-x-[-1]"
-			src={getHeroImage(players.p1.hero)}
-			alt={players.p1.hero}
-			width="1000"
-		/>
-	{/key}
-{/if}
-
-{#if players.p2.hero}
-	{#key players.p2.hero}
-		<img
-			class="mt-4"
-			src={getHeroImage(players.p2.hero)}
-			alt={players.p2.hero}
-			width="1000"
-		/>
-	{/key}
-{/if}
+<HeroMedia hero={players.p1.hero} className="scale-x-[-1]" />
+<HeroMedia hero={players.p2.hero} className="mt-4" />
