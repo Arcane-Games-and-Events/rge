@@ -45,7 +45,7 @@
 
 	// The LSS look gives each caster's name a fixed footprint: broken after the
 	// first word and scaled so it always fills the same area.
-	const NAME_BOX = { normal: { width: 288, height: 72 }, large: { width: 288, height: 88 } };
+	const NAME_BOX = { normal: { width: 288, height: 150 }, large: { width: 288, height: 180 } };
 </script>
 
 <h1 class="text-center text-2xl font-bold mb-4">Commentators Booth</h1>

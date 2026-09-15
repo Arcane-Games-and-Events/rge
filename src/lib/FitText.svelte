@@ -2,9 +2,9 @@
 	import { onMount, tick } from 'svelte';
 
 	// Text that always occupies the same box: it shrinks when it is long and grows
-	// when it is short. The text is drawn into an SVG whose viewBox is set to the
-	// text's own measured bounds, so the browser scales it to fill the box for us —
-	// no measure-and-retry loop, and it re-fits whenever the words change.
+	// when it is short. The lines are drawn into an SVG whose viewBox is set to the
+	// text's own measured bounds, so the browser does the scaling for us — one pass
+	// rather than a measure-and-retry loop, and it re-fits whenever the words change.
 	export let text = '';
 	/** 'left', 'center' or 'right' — how the lines sit against each other. */
 	export let align = 'left';
@@ -12,9 +12,18 @@
 	export let height = 80;
 	/** Put everything after the first space on a second line. */
 	export let breakAtFirstSpace = false;
+	/** Give each line its own size so every line comes out the same width. */
+	export let equaliseLineWidths = true;
 	export let weight = 700;
 
-	let textEl;
+	// Internal drawing unit. The viewBox scaling makes the absolute value
+	// irrelevant; it only needs to be large enough to measure precisely.
+	const BASE = 100;
+	const LINE_GAP = 1.02;
+
+	let groupEl;
+	let lineEls = [];
+	let sizes = [];
 	let viewBox = '0 0 1 1';
 	let measured = false;
 
@@ -32,18 +41,40 @@
 	$: fit =
 		align === 'right' ? 'xMaxYMid meet' : align === 'center' ? 'xMidYMid meet' : 'xMinYMid meet';
 
-	// Re-measure whenever the words change.
-	$: (lines, remeasure());
+	// Each line starts where the previous one ends, which depends on that line's
+	// own size once the widths have been equalised.
+	$: tops = sizes.map((_, i) => sizes.slice(0, i).reduce((sum, s) => sum + s * LINE_GAP, 0));
 
-	async function remeasure() {
+	$: (lines, reflow());
+
+	async function reflow() {
+		sizes = lines.map(() => BASE);
+		await tick();
+		equalise();
 		await tick();
 		measure();
 	}
 
+	// Scale each line so they all come out the same width: a long first name
+	// shrinks to match a short surname, and a short one grows. Width scales
+	// linearly with font size, so a single pass lands exactly.
+	function equalise() {
+		if (!equaliseLineWidths || lines.length < 2) return;
+		const measuredWidths = lines.map((_, i) => lineEls[i]?.getComputedTextLength?.() ?? 0);
+		if (measuredWidths.some((w) => !w)) return;
+
+		// getComputedTextLength reports the width at whatever size the line is
+		// currently drawn at, so normalise back to BASE first. Without this a second
+		// pass measures already-equalised lines, finds them equal, and undoes itself.
+		const natural = measuredWidths.map((w, i) => w * (BASE / (sizes[i] || BASE)));
+		const target = Math.max(...natural);
+		sizes = natural.map((w) => BASE * (target / w));
+	}
+
 	function measure() {
-		if (!textEl) return;
+		if (!groupEl) return;
 		try {
-			const box = textEl.getBBox();
+			const box = groupEl.getBBox();
 			if (box.width <= 0 || box.height <= 0) return;
 
 			// A name with no space is a single line, and on its own it would scale to
@@ -52,10 +83,10 @@
 			// size whatever the name is, with the short one centred in the gap.
 			const reserved = Math.max(lines.length, breakAtFirstSpace ? 2 : 1);
 			const perLine = box.height / lines.length;
-			const height = perLine * reserved;
-			const y = box.y - (height - box.height) / 2;
+			const boxHeight = perLine * reserved;
+			const y = box.y - (boxHeight - box.height) / 2;
 
-			viewBox = `${box.x} ${y} ${box.width} ${height}`;
+			viewBox = `${box.x} ${y} ${box.width} ${boxHeight}`;
 			measured = true;
 		} catch {
 			// getBBox throws if the node is not rendered yet; the next pass will catch it.
@@ -63,13 +94,15 @@
 	}
 
 	onMount(async () => {
-		// Measuring before the webfont arrives would size the box to the fallback,
-		// so wait for fonts to settle and measure again.
+		// Measuring before the webfont arrives would size everything to the
+		// fallback face, so wait for fonts to settle and run it again.
 		try {
 			await document.fonts?.ready;
 		} catch {
-			// no font loading API; the measurement above stands
+			// no font loading API; the pass above stands
 		}
+		equalise();
+		await tick();
 		measure();
 	});
 </script>
@@ -83,18 +116,17 @@
 		aria-label={text}
 		role="img"
 	>
-		<text
-			bind:this={textEl}
-			x="0"
-			y="0"
-			text-anchor={anchor}
-			dominant-baseline="hanging"
-			fill="currentColor"
-			font-weight={weight}
-		>
+		<g bind:this={groupEl} fill="currentColor" font-weight={weight}>
 			{#each lines as line, i (i)}
-				<tspan x="0" dy={i === 0 ? '0' : '1.02em'}>{line}</tspan>
+				<text
+					bind:this={lineEls[i]}
+					x="0"
+					y={tops[i] ?? 0}
+					font-size={sizes[i] ?? BASE}
+					text-anchor={anchor}
+					dominant-baseline="hanging">{line}</text
+				>
 			{/each}
-		</text>
+		</g>
 	</svg>
 {/if}
