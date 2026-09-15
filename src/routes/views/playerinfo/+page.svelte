@@ -52,7 +52,7 @@
 
 <div class="container mx-auto">
 	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-left' : 'text-right'}">
-		<p class="text-2xl">{players.p1.name}</p>
+		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
 		<div class="flex text-sm {$lssEvent ? 'justify-center' : 'justify-end'}">
 			<p class="text-color">{players.p1.hero}</p>
 			<p class="ml-1">{players.p1.record}</p>
@@ -60,7 +60,7 @@
 	</div>
 
 	<div class="w-72 mx-auto text-left font-bold text-white">
-		<p class="text-2xl">{players.p2.name}</p>
+		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
 		<div class="flex text-sm {$lssEvent ? 'justify-center' : 'justify-start'}">
 			<p class="mr-1">{players.p2.record}</p>
 			<p class="text-color">{players.p2.hero}</p>
@@ -74,7 +74,7 @@
 	<div>
 		<h1 class="text-center text-2xl font-bold mb-4">Centered Names</h1>
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl">{players.p1.name}</p>
+			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p1.record}</p>
 				<p class="ml-1 text-color">{players.p1.hero}</p>
@@ -82,7 +82,7 @@
 		</div>
 
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl">{players.p2.name}</p>
+			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p2.record}</p>
 				<p class="ml-1 text-color">{players.p2.hero}</p>

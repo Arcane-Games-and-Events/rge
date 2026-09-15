@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import { lssEvent, subscribeLssEvent } from '$lib/lssEvent';
 
 	let players = {
 		p1: { name: '', record: '', hero: '' },
@@ -26,6 +27,7 @@
 
 	onMount(() => {
 		fetchData();
+		subscribeLssEvent();
 	});
 </script>
 
@@ -33,7 +35,7 @@
 
 <div class="container mx-auto">
 	<div class="w-72 mx-auto text-right font-bold text-white">
-		<p class="text-2xl">{players.p1.name}</p>
+		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
 		<div class="flex justify-end text-sm">
 			<p class="text-color">{players.p1.hero}</p>
 			<p class="ml-1">{players.p1.record}</p>
@@ -41,7 +43,7 @@
 	</div>
 
 	<div class="w-72 mx-auto text-left font-bold text-white">
-		<p class="text-2xl">{players.p2.name}</p>
+		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
 		<div class="flex justify-start text-sm">
 			<p class="mr-1">{players.p2.record}</p>
 			<p class="text-color">{players.p2.hero}</p>
@@ -51,7 +53,7 @@
 	<div>
 		<h1 class="text-center text-2xl font-bold mb-4 mt-8">Centered Names</h1>
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl">{players.p1.name}</p>
+			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p1.record}</p>
 				<p class="ml-1 text-color">{players.p1.hero}</p>
@@ -59,7 +61,7 @@
 		</div>
 
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl">{players.p2.name}</p>
+			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p2.record}</p>
 				<p class="ml-1 text-color">{players.p2.hero}</p>
