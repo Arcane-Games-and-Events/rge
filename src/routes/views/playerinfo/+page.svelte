@@ -59,7 +59,7 @@
 		</div>
 	</div>
 
-	<div class="w-72 mx-auto text-left font-bold text-white">
+	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-right' : 'text-left'}">
 		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
 		<div class="flex text-sm {$lssEvent ? 'justify-center' : 'justify-start'}">
 			<p class="mr-1">{players.p2.record}</p>
