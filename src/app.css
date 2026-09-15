@@ -29,7 +29,12 @@ body {
 }
 
 /* Headings use Space Grotesk */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -73,4 +78,99 @@ h1, h2, h3, h4, h5, h6 {
 	.section-header {
 		@apply font-display text-xl font-bold text-white;
 	}
+}
+
+/* ---------------------------------------------------------------------------
+   LSS event styling
+
+   Toggled from the Event Presets page and applied by the root layout to OBS
+   views only. Off, nothing below applies and every view looks exactly as it
+   always has.
+   --------------------------------------------------------------------------- */
+
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-RegularItalic.woff2') format('woff2');
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-Medium.woff2') format('woff2');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-MediumItalic.woff2') format('woff2');
+	font-weight: 500;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-Demi.woff2') format('woff2');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-DemiItalic.woff2') format('woff2');
+	font-weight: 600;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-BoldItalic.woff2') format('woff2');
+	font-weight: 700;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-Heavy.woff2') format('woff2');
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Tiller';
+	src: url('/fonts/tiller/Tiller-HeavyItalic.woff2') format('woff2');
+	font-weight: 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+/* White text across every view. The descendant selector and !important are
+   needed because the views set their own colours with Tailwind utilities
+   (text-gray-400 and friends), which would otherwise win. */
+.lss-event,
+.lss-event * {
+	color: #ffffff !important;
+}
+
+/* Tiller everywhere except the clock and life-total views, which keep their
+   current face. Same reasoning as above: font-display and font-sans utilities
+   sit on the elements themselves. */
+.lss-event-font,
+.lss-event-font * {
+	font-family: 'Tiller', ui-sans-serif, system-ui, sans-serif !important;
 }
