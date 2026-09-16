@@ -294,35 +294,27 @@
 		}
 	};
 
-	// Shift+L toggles the search box: from anywhere else on the page it takes
-	// focus and selects what is already there, so the next keystroke starts a
-	// fresh card; from inside the box it steps back out.
+	// Shift+backslash toggles the search box: from anywhere on the page it takes focus
+	// and selects what is already there, so the next keystroke starts a fresh
+	// card; from inside the box it steps back out.
 	//
-	// L is a character someone may be in the middle of typing, so this stands
-	// down while any *other* editable field has focus -- claiming it globally
-	// would mean no capital L in a player or caster name. Giving up the capital
-	// in this box is the price of the toggle, and a cheap one: the search is
-	// matched case-insensitively, so "lightning" finds Lightning Press.
-	const isEditable = (el) =>
-		!!el &&
-		(el.tagName === 'INPUT' ||
-			el.tagName === 'TEXTAREA' ||
-			el.tagName === 'SELECT' ||
-			el.isContentEditable);
-
+	// It fires even while another field has focus, which a letter could not have
+	// done -- the pipe this produces is not a character anyone types into a name
+	// or a card search, so there is nothing to stand down for.
+	//
+	// Matched on the physical key as well as the character, so a layout that puts
+	// something other than a pipe on shift-backslash still works.
 	function handleFocusHotkey(e) {
 		if (!e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
-		if (e.key !== 'L' && e.key !== 'l') return;
+		if (e.code !== 'Backslash' && e.key !== '|' && e.key !== '\\') return;
+		e.preventDefault();
 		if (e.target === inputEl) {
 			// Stepping out deliberately, so take the results list down with it --
 			// nothing else would close it until the next click elsewhere.
-			e.preventDefault();
 			listOpen = false;
 			inputEl.blur();
 			return;
 		}
-		if (isEditable(e.target)) return;
-		e.preventDefault();
 		inputEl?.focus();
 		inputEl?.select();
 	}
@@ -357,7 +349,7 @@
 			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Esc</kbd>
 			clear
 			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
-				>Shift+L</kbd
+				>Shift+\</kbd
 			> focus / exit
 		</div>
 		{#if flash}
