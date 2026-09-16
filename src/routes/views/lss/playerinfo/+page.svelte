@@ -6,8 +6,8 @@
 	import 'flag-icons/css/flag-icons.min.css';
 
 	let players = {
-		p1: { name: '', record: '', hero: '', flag: '', pronouns: '' },
-		p2: { name: '', record: '', hero: '', flag: '', pronouns: '' }
+		p1: { name: '', record: '', hero: '', flag: '' },
+		p2: { name: '', record: '', hero: '', flag: '' }
 	};
 
 	let draftInfo = { name: '', pod: '', seat: '' };
@@ -21,8 +21,7 @@
 						name: data.name || '',
 						record: data.record || '',
 						hero: data.hero || '',
-						flag: data.flag || '',
-						pronouns: data.pronouns || ''
+						flag: data.flag || ''
 					};
 				}
 			});
@@ -71,9 +70,6 @@
 					></span>
 				</div>
 			{/if}
-			{#if players[seat.id].pronouns}
-				<p class="text-center text-sm">{players[seat.id].pronouns}</p>
-			{/if}
 		</div>
 	{/each}
 
@@ -100,9 +96,6 @@
 							title={players[seat.id].flag.toUpperCase()}
 						></span>
 					</div>
-				{/if}
-				{#if players[seat.id].pronouns}
-					<p class="text-center text-sm">{players[seat.id].pronouns}</p>
 				{/if}
 			</div>
 		{/each}
