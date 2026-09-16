@@ -6,8 +6,8 @@
  */
 export const TURN_COUNTER_PATH = 'turnCounter';
 
-/** Turns start at one; the control will not go below this. */
-export const MIN_TURN = 1;
+/** Turns start at zero; the control will not go below this. */
+export const MIN_TURN = 0;
 
 /**
  * Coerce whatever is stored into a usable turn number.
