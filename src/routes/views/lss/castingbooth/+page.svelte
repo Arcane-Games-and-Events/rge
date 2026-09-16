@@ -25,8 +25,6 @@
 	const NAME_BOX = { normal: { width: 288, height: 150 }, large: { width: 288, height: 180 } };
 </script>
 
-<h1 class="mb-4 text-center text-2xl font-bold">Commentators Booth</h1>
-
 <div class="container mx-auto">
 	<div class="mx-auto w-72 text-center font-bold text-white">
 		<div class="flex justify-center">
@@ -40,7 +38,7 @@
 		</div>
 	</div>
 
-	<div class="mx-auto mt-4 w-72 text-center font-bold text-white">
+	<div class="mx-auto mt-12 w-72 text-center font-bold text-white">
 		<div class="flex justify-center">
 			<FitText
 				text={rightCommentatorName}
@@ -53,9 +51,7 @@
 	</div>
 </div>
 
-<h1 class="mb-4 text-center text-2xl font-bold">Large Commentators Booth</h1>
-
-<div class="container mx-auto">
+<div class="container mx-auto mt-16">
 	<div class="mx-auto w-72 text-center font-bold text-white">
 		<div class="flex justify-center">
 			<FitText
@@ -68,7 +64,7 @@
 		</div>
 	</div>
 
-	<div class="mx-auto mt-4 w-72 text-center font-bold text-white">
+	<div class="mx-auto mt-12 w-72 text-center font-bold text-white">
 		<div class="flex justify-center">
 			<FitText
 				text={rightCommentatorName}
