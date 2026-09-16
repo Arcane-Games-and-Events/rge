@@ -19,7 +19,7 @@
 	];
 </script>
 
-<div class="container mx-auto">
+<div class="container mx-auto pt-12">
 	{#each seats as seat (seat.id)}
 		<div class="marker-slot {seat.align}">
 			{#if active === seat.id}
