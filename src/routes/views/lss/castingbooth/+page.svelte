@@ -5,9 +5,7 @@
 	import FitText from '$lib/FitText.svelte';
 
 	let leftCommentatorName = '';
-	let leftCommentatorSubtitle = '';
 	let rightCommentatorName = '';
-	let rightCommentatorSubtitle = '';
 
 	const syncWithDatabase = () => {
 		onValue(
@@ -15,16 +13,8 @@
 			(s) => (leftCommentatorName = s.val() || '')
 		);
 		onValue(
-			ref(db, 'castingBooth/LeftCommentator/subtitle'),
-			(s) => (leftCommentatorSubtitle = s.val() || '')
-		);
-		onValue(
 			ref(db, 'castingBooth/RightCommentator/name'),
 			(s) => (rightCommentatorName = s.val() || '')
-		);
-		onValue(
-			ref(db, 'castingBooth/RightCommentator/subtitle'),
-			(s) => (rightCommentatorSubtitle = s.val() || '')
 		);
 	};
 
@@ -48,9 +38,6 @@
 				height={NAME_BOX.normal.height}
 			/>
 		</div>
-		<div class="flex justify-center text-sm">
-			<p class="font-light">{leftCommentatorSubtitle}</p>
-		</div>
 	</div>
 
 	<div class="mx-auto mt-4 w-72 text-center font-bold text-white">
@@ -62,9 +49,6 @@
 				width={NAME_BOX.normal.width}
 				height={NAME_BOX.normal.height}
 			/>
-		</div>
-		<div class="flex justify-center text-sm">
-			<p class="font-light">{rightCommentatorSubtitle}</p>
 		</div>
 	</div>
 </div>
@@ -82,9 +66,6 @@
 				height={NAME_BOX.large.height}
 			/>
 		</div>
-		<div class="flex justify-center text-sm">
-			<p class="font-light">{leftCommentatorSubtitle}</p>
-		</div>
 	</div>
 
 	<div class="mx-auto mt-4 w-72 text-center font-bold text-white">
@@ -96,9 +77,6 @@
 				width={NAME_BOX.large.width}
 				height={NAME_BOX.large.height}
 			/>
-		</div>
-		<div class="flex justify-center text-sm">
-			<p class="font-light">{rightCommentatorSubtitle}</p>
 		</div>
 	</div>
 </div>
