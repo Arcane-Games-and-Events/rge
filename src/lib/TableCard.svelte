@@ -8,6 +8,7 @@
 	import { FLAG_COUNTRIES } from '$lib/flags';
 	import { PRONOUN_OPTIONS } from '$lib/pronouns';
 	import 'flag-icons/css/flag-icons.min.css';
+	import '$lib/flagOverrides.css';
 
 	// Everything for one table in one card: its two players, their life totals,
 	// and the signals sent to that table's screen.

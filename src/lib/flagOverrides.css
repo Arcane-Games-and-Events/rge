@@ -1,0 +1,19 @@
+/*
+ * Flag overrides layered on top of the flag-icons package.
+ *
+ * Import this immediately after 'flag-icons/css/flag-icons.min.css' anywhere
+ * flags are rendered. The selectors carry one extra class over the package's
+ * own so they win regardless of the order the bundler emits the two files in.
+ *
+ * tw: the delegation competes internationally as Chinese Taipei, so the
+ * broadcast shows the Chinese Taipei Olympic flag rather than the flag
+ * flag-icons ships for the code. The stored player value stays 'tw', so no
+ * saved player data has to change.
+ */
+.fi.fi-tw {
+	background-image: url('/flags/tw.svg');
+}
+
+.fi.fi-tw.fis {
+	background-image: url('/flags/tw-1x1.svg');
+}

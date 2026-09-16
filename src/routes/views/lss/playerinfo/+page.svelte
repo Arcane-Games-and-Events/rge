@@ -4,6 +4,7 @@
 	import { db } from '../../../../firebaseClient';
 	import ShrinkText from '$lib/ShrinkText.svelte';
 	import 'flag-icons/css/flag-icons.min.css';
+	import '$lib/flagOverrides.css';
 
 	let players = {
 		p1: { name: '', record: '', hero: '', flag: '' },
