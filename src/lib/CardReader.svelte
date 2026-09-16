@@ -294,11 +294,37 @@
 		}
 	};
 
+	// Shift+L puts the cursor back in the search box from anywhere on the page,
+	// selecting whatever is there so the next keystroke starts a fresh card.
+	//
+	// Unlike the arrow shortcuts elsewhere in the booth, L is a character someone
+	// may be in the middle of typing, so this deliberately stands down while an
+	// editable field has focus. Claiming it globally would mean no capital L in a
+	// player or caster name, and no card starting with one -- Lightning Press
+	// would come out as "ightning Press" in this very box.
+	const isEditable = (el) =>
+		!!el &&
+		(el.tagName === 'INPUT' ||
+			el.tagName === 'TEXTAREA' ||
+			el.tagName === 'SELECT' ||
+			el.isContentEditable);
+
+	function handleFocusHotkey(e) {
+		if (!e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
+		if (e.key !== 'L' && e.key !== 'l') return;
+		if (isEditable(e.target)) return;
+		e.preventDefault();
+		inputEl?.focus();
+		inputEl?.select();
+	}
+
 	onMount(() => {
 		inputEl?.focus();
 		document.addEventListener('click', handleClickOutside);
+		window.addEventListener('keydown', handleFocusHotkey);
 		return () => {
 			document.removeEventListener('click', handleClickOutside);
+			window.removeEventListener('keydown', handleFocusHotkey);
 		};
 	});
 
@@ -319,7 +345,11 @@
 				>Enter</kbd
 			>
 			air
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Esc</kbd> clear
+			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Esc</kbd>
+			clear
+			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
+				>Shift+L</kbd
+			> focus
 		</div>
 		{#if flash}
 			<div class="text-[10px] font-medium text-green-400 whitespace-nowrap">On air: {flash}</div>
