@@ -12,9 +12,20 @@
 	export let height = 80;
 	/** Put everything after the first space on a second line. */
 	export let breakAtFirstSpace = false;
-	/** Give each line its own size so every line comes out the same width. */
-	export let equaliseLineWidths = true;
 	export let weight = 700;
+
+	/**
+	 * Size of the first line relative to the last, so a first name sits smaller
+	 * over a larger surname.
+	 *
+	 * Matching the two widths instead was the obvious reading of the reference
+	 * graphic, but it ties each line's size to how many letters the word has: a
+	 * short word over a long one came out enormous ("Jo" over "Konstantinopoulos"
+	 * at eight times the size), and a surname longer than the first name inverted
+	 * the look by making the first name the larger of the two. A fixed ratio always
+	 * reads the same way round, whatever the name.
+	 */
+	export let firstLineScale = 0.65;
 
 	// Internal drawing unit. The viewBox scaling makes the absolute value
 	// irrelevant; it only needs to be large enough to measure precisely.
@@ -22,8 +33,6 @@
 	const LINE_GAP = 1.02;
 
 	let groupEl;
-	let lineEls = [];
-	let sizes = [];
 	let viewBox = '0 0 1 1';
 	let measured = false;
 
@@ -41,34 +50,18 @@
 	$: fit =
 		align === 'right' ? 'xMaxYMid meet' : align === 'center' ? 'xMidYMid meet' : 'xMinYMid meet';
 
+	// The last line is the reference size; anything above it sits smaller.
+	$: sizes = lines.map((_, i) => (i === lines.length - 1 ? BASE : BASE * firstLineScale));
+
 	// Each line starts where the previous one ends, which depends on that line's
-	// own size once the widths have been equalised.
+	// own size.
 	$: tops = sizes.map((_, i) => sizes.slice(0, i).reduce((sum, s) => sum + s * LINE_GAP, 0));
 
-	$: (lines, reflow());
+	$: (lines, sizes, remeasure());
 
-	async function reflow() {
-		sizes = lines.map(() => BASE);
-		await tick();
-		equalise();
+	async function remeasure() {
 		await tick();
 		measure();
-	}
-
-	// Scale each line so they all come out the same width: a long first name
-	// shrinks to match a short surname, and a short one grows. Width scales
-	// linearly with font size, so a single pass lands exactly.
-	function equalise() {
-		if (!equaliseLineWidths || lines.length < 2) return;
-		const measuredWidths = lines.map((_, i) => lineEls[i]?.getComputedTextLength?.() ?? 0);
-		if (measuredWidths.some((w) => !w)) return;
-
-		// getComputedTextLength reports the width at whatever size the line is
-		// currently drawn at, so normalise back to BASE first. Without this a second
-		// pass measures already-equalised lines, finds them equal, and undoes itself.
-		const natural = measuredWidths.map((w, i) => w * (BASE / (sizes[i] || BASE)));
-		const target = Math.max(...natural);
-		sizes = natural.map((w) => BASE * (target / w));
 	}
 
 	function measure() {
@@ -101,8 +94,6 @@
 		} catch {
 			// no font loading API; the pass above stands
 		}
-		equalise();
-		await tick();
 		measure();
 	});
 </script>
@@ -119,7 +110,6 @@
 		<g bind:this={groupEl} fill="currentColor" font-weight={weight}>
 			{#each lines as line, i (i)}
 				<text
-					bind:this={lineEls[i]}
 					x="0"
 					y={tops[i] ?? 0}
 					font-size={sizes[i] ?? BASE}
