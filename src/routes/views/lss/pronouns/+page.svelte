@@ -15,14 +15,18 @@
 		});
 	});
 
-	const seats = ['p1', 'p2'];
+	// The two seats point away from each other, matching the player info overlay.
+	const seats = [
+		{ id: 'p1', align: 'align-left' },
+		{ id: 'p2', align: 'align-right' }
+	];
 </script>
 
 <div class="container mx-auto">
-	{#each seats as seat (seat)}
-		<div class="pronoun-slot">
-			{#if players[seat].pronouns}
-				<p class="pronouns">{players[seat].pronouns}</p>
+	{#each seats as seat (seat.id)}
+		<div class="pronoun-slot {seat.align}">
+			{#if players[seat.id].pronouns}
+				<p class="pronouns">{players[seat.id].pronouns}</p>
 			{/if}
 		</div>
 	{/each}
@@ -37,7 +41,14 @@
 		margin: 0 auto;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+	}
+
+	.align-left {
+		justify-content: flex-start;
+	}
+
+	.align-right {
+		justify-content: flex-end;
 	}
 
 	.pronouns {
