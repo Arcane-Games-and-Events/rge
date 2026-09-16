@@ -5,6 +5,9 @@
 	import { heroes, loadHeroes } from '$lib/heroes';
 	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 	import debounce from 'lodash.debounce';
+	import { FLAG_COUNTRIES } from '$lib/flags';
+	import 'flag-icons/css/flag-icons.min.css';
+	import { lssEvent } from '$lib/lssEvent';
 
 	// Everything for one table in one card: its two players, their life totals,
 	// and the signals sent to that table's screen.
@@ -49,6 +52,7 @@
 		name: '',
 		record: '',
 		hero: '',
+		flag: '',
 		query: '',
 		isDropdownOpen: false,
 		filteredHeroes: [],
@@ -84,6 +88,7 @@
 				const data = snap.val() || {};
 				players[seat.id].name = data.name || '';
 				players[seat.id].record = data.record || '';
+				players[seat.id].flag = data.flag || '';
 				players[seat.id].hero = data.hero || '';
 				players[seat.id].query = data.hero || '';
 			});
@@ -179,7 +184,7 @@
 		off(ref(db, `${playerPath}/p2`));
 		players = { p1: p2Copy, p2: p1Copy };
 
-		for (const field of ['name', 'record', 'hero']) {
+		for (const field of ['name', 'record', 'hero', 'flag']) {
 			updateFirebaseNow(`${playerPath}/p1/${field}`, p2Copy[field]);
 			updateFirebaseNow(`${playerPath}/p2/${field}`, p1Copy[field]);
 		}
@@ -317,6 +322,35 @@
 				</div>
 
 				<div class="flex items-center gap-1">
+					<!-- Flag picker, part of the LSS look only. The span alongside shows
+					     the chosen flag, since a native option cannot carry one. -->
+					{#if $lssEvent}
+						<span
+							class="flex h-9 flex-none items-center rounded border border-gray-700 bg-gray-900 pl-1"
+						>
+							{#if players[seat.id].flag}
+								<span
+									class="fi fi-{players[seat.id].flag} rounded-sm"
+									style="font-size:14px"
+									title={players[seat.id].flag.toUpperCase()}
+								></span>
+							{:else}
+								<span class="w-[19px] text-center text-[10px] text-gray-600">–</span>
+							{/if}
+							<select
+								aria-label="{seat.label} flag"
+								class="h-9 w-12 cursor-pointer appearance-none bg-transparent px-1 text-center font-mono text-[10px] uppercase text-gray-300 focus:outline-none"
+								bind:value={players[seat.id].flag}
+								on:change={(e) => handleInputChange(seat.id, 'flag', e.target.value)}
+							>
+								<option value="">--</option>
+								{#each FLAG_COUNTRIES as country (country.code)}
+									<option value={country.code}>{country.code.toUpperCase()} — {country.name}</option
+									>
+								{/each}
+							</select>
+						</span>
+					{/if}
 					<input
 						type="text"
 						placeholder="Name"

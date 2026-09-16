@@ -2,11 +2,12 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import 'flag-icons/css/flag-icons.min.css';
 	import { lssEvent, subscribeLssEvent } from '$lib/lssEvent';
 
 	let players = {
-		p1: { name: '', record: '', hero: '' },
-		p2: { name: '', record: '', hero: '' }
+		p1: { name: '', record: '', hero: '', flag: '' },
+		p2: { name: '', record: '', hero: '', flag: '' }
 	};
 
 	let draftInfo = {
@@ -24,7 +25,8 @@
 					players[playerId] = {
 						name: data.name || '',
 						record: data.record || '',
-						hero: data.hero || ''
+						hero: data.hero || '',
+						flag: data.flag || ''
 					};
 				}
 			});
@@ -64,6 +66,14 @@
 				<p class="ml-1">{players.p1.record}</p>
 			</div>
 		{/if}
+		{#if $lssEvent && players.p1.flag}
+			<div class="text-center">
+				<span
+					class="fi fi-{players.p1.flag} mt-1 inline-block text-2xl"
+					title={players.p1.flag.toUpperCase()}
+				></span>
+			</div>
+		{/if}
 	</div>
 
 	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-right' : 'text-left'}">
@@ -77,6 +87,14 @@
 			<div class="flex justify-start text-sm">
 				<p class="mr-1">{players.p2.record}</p>
 				<p class="text-color">{players.p2.hero}</p>
+			</div>
+		{/if}
+		{#if $lssEvent && players.p2.flag}
+			<div class="text-center">
+				<span
+					class="fi fi-{players.p2.flag} mt-1 inline-block text-2xl"
+					title={players.p2.flag.toUpperCase()}
+				></span>
 			</div>
 		{/if}
 	</div>
