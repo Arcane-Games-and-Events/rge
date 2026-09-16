@@ -322,31 +322,31 @@
 				</div>
 
 				<div class="flex items-center gap-1">
-					<!-- Flag picker, part of the LSS look only. The span alongside shows
-					     the chosen flag, since a native option cannot carry one. -->
+					<!-- Flag picker, part of the LSS look only. The control shows the flag
+					     on its own; the select sits transparent over it, so picking still
+					     uses the native dropdown. -->
 					{#if $lssEvent}
 						<span
-							class="flex h-9 flex-none items-center rounded border border-gray-700 bg-gray-900 pl-1"
+							class="relative flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded border border-gray-700 bg-gray-900"
 						>
 							{#if players[seat.id].flag}
 								<span
-									class="fi fi-{players[seat.id].flag} rounded-sm"
-									style="font-size:14px"
+									class="fi fi-{players[seat.id].flag}"
+									style="font-size:18px"
 									title={players[seat.id].flag.toUpperCase()}
 								></span>
 							{:else}
-								<span class="w-[19px] text-center text-[10px] text-gray-600">–</span>
+								<span class="text-xs leading-none text-gray-600" title="No flag">⚑</span>
 							{/if}
 							<select
 								aria-label="{seat.label} flag"
-								class="h-9 w-12 cursor-pointer appearance-none bg-transparent px-1 text-center font-mono text-[10px] uppercase text-gray-300 focus:outline-none"
+								class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
 								bind:value={players[seat.id].flag}
 								on:change={(e) => handleInputChange(seat.id, 'flag', e.target.value)}
 							>
-								<option value="">--</option>
+								<option value="">No flag</option>
 								{#each FLAG_COUNTRIES as country (country.code)}
-									<option value={country.code}>{country.code.toUpperCase()} — {country.name}</option
-									>
+									<option value={country.code}>{country.name}</option>
 								{/each}
 							</select>
 						</span>
