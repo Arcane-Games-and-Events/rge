@@ -47,12 +47,41 @@
 
 	$: (lines, reflow());
 
+	// tick() promises Svelte has written to the DOM, not that the browser has laid
+	// it out, and getBBox reads layout. Measuring straight after a tick could read
+	// the previous name's geometry, which is why a name changed live came out at
+	// the wrong size while a reload was always right: the reload had a second
+	// measurement from onMount once fonts were ready, and an update had none.
+	//
+	// Rather than guess how many frames are enough, measure repeatedly until the
+	// answer stops moving.
+	const nextFrame = () =>
+		typeof requestAnimationFrame === 'undefined'
+			? Promise.resolve()
+			: new Promise((resolve) => requestAnimationFrame(resolve));
+
+	// A name can change again mid-reflow; only the newest run may write a result.
+	let reflowId = 0;
+
 	async function reflow() {
+		const id = ++reflowId;
+
 		sizes = lines.map(() => BASE);
 		await tick();
+		await nextFrame();
+		if (id !== reflowId) return;
+
 		equalise();
 		await tick();
-		measure();
+
+		let previous = null;
+		for (let attempt = 0; attempt < 4; attempt++) {
+			await nextFrame();
+			if (id !== reflowId) return;
+			measure();
+			if (viewBox === previous) break;
+			previous = viewBox;
+		}
 	}
 
 	// Scale each line so they all come out the same width: a long first name
@@ -94,16 +123,16 @@
 	}
 
 	onMount(async () => {
-		// Measuring before the webfont arrives would size everything to the
-		// fallback face, so wait for fonts to settle and run it again.
+		// The first pass runs against the fallback face, since the webfont is still
+		// loading. Redo the whole reflow once it lands rather than just
+		// re-measuring: the line sizes are derived from glyph widths, so they need
+		// recomputing against the real face too.
 		try {
 			await document.fonts?.ready;
 		} catch {
 			// no font loading API; the pass above stands
 		}
-		equalise();
-		await tick();
-		measure();
+		await reflow();
 	});
 </script>
 
