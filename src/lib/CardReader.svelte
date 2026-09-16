@@ -294,14 +294,15 @@
 		}
 	};
 
-	// Shift+L puts the cursor back in the search box from anywhere on the page,
-	// selecting whatever is there so the next keystroke starts a fresh card.
+	// Shift+L toggles the search box: from anywhere else on the page it takes
+	// focus and selects what is already there, so the next keystroke starts a
+	// fresh card; from inside the box it steps back out.
 	//
-	// Unlike the arrow shortcuts elsewhere in the booth, L is a character someone
-	// may be in the middle of typing, so this deliberately stands down while an
-	// editable field has focus. Claiming it globally would mean no capital L in a
-	// player or caster name, and no card starting with one -- Lightning Press
-	// would come out as "ightning Press" in this very box.
+	// L is a character someone may be in the middle of typing, so this stands
+	// down while any *other* editable field has focus -- claiming it globally
+	// would mean no capital L in a player or caster name. Giving up the capital
+	// in this box is the price of the toggle, and a cheap one: the search is
+	// matched case-insensitively, so "lightning" finds Lightning Press.
 	const isEditable = (el) =>
 		!!el &&
 		(el.tagName === 'INPUT' ||
@@ -312,6 +313,14 @@
 	function handleFocusHotkey(e) {
 		if (!e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return;
 		if (e.key !== 'L' && e.key !== 'l') return;
+		if (e.target === inputEl) {
+			// Stepping out deliberately, so take the results list down with it --
+			// nothing else would close it until the next click elsewhere.
+			e.preventDefault();
+			listOpen = false;
+			inputEl.blur();
+			return;
+		}
 		if (isEditable(e.target)) return;
 		e.preventDefault();
 		inputEl?.focus();
@@ -349,7 +358,7 @@
 			clear
 			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
 				>Shift+L</kbd
-			> focus
+			> focus / exit
 		</div>
 		{#if flash}
 			<div class="text-[10px] font-medium text-green-400 whitespace-nowrap">On air: {flash}</div>
