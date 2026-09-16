@@ -4,6 +4,7 @@
 	import { db } from '../../firebaseClient';
 	import CardReader from '../../lib/CardReader.svelte';
 	import MatchInfo from '../../lib/MatchInfo.svelte';
+	import TurnCounter from '../../lib/TurnCounter.svelte';
 	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
 	import { formatTime } from '$lib/timerDisplay';
@@ -324,6 +325,9 @@
 						</div>
 					{/each}
 				</div>
+
+				<!-- Turn counter -->
+				<TurnCounter />
 
 				<!-- Round info / status row -->
 				<div class="rounded-lg border border-gray-800 bg-gray-900 p-1.5">

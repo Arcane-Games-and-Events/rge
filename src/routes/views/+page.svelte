@@ -71,7 +71,7 @@
 				<div class="text-[10px] text-gray-500">Tiller font, white text</div>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-				{#each [{ href: '/views/lss/castingbooth', label: 'Casting Booth' }, { href: '/views/lss/roundinfo', label: 'Round Info' }, { href: '/views/lss/playerinfo', label: 'Player Info' }, { href: '/views/lss/lifecounter', label: 'Life Counter' }, { href: '/views/lss/timer', label: 'Timer' }, { href: '/views/lss/eventtext', label: 'Event Text' }] as item}
+				{#each [{ href: '/views/lss/castingbooth', label: 'Casting Booth' }, { href: '/views/lss/roundinfo', label: 'Round Info' }, { href: '/views/lss/playerinfo', label: 'Player Info' }, { href: '/views/lss/lifecounter', label: 'Life Counter' }, { href: '/views/lss/timer', label: 'Timer' }, { href: '/views/lss/eventtext', label: 'Event Text' }, { href: '/views/lss/turncounter', label: 'Turn Counter' }] as item}
 					<div class="flex items-center gap-1">
 						<a
 							class="flex-1 rounded-lg border border-gray-800 bg-gray-800/50 px-3 py-2.5 text-sm text-gray-300 transition-colors hover:border-teal-500 hover:bg-gray-800 hover:text-white"
