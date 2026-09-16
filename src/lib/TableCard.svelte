@@ -6,6 +6,7 @@
 	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 	import debounce from 'lodash.debounce';
 	import { FLAG_COUNTRIES } from '$lib/flags';
+	import { PRONOUN_OPTIONS } from '$lib/pronouns';
 	import 'flag-icons/css/flag-icons.min.css';
 
 	// Everything for one table in one card: its two players, their life totals,
@@ -52,6 +53,7 @@
 		record: '',
 		hero: '',
 		flag: '',
+		pronouns: '',
 		query: '',
 		isDropdownOpen: false,
 		filteredHeroes: [],
@@ -65,13 +67,26 @@
 	let customText = '';
 	let startSignalTimer = null;
 
-	const updateFirebase = debounce(async (path, value) => {
-		try {
-			await set(ref(db, path), value);
-		} catch (err) {
-			console.error(`Error saving ${path}:`, err);
+	// One debounce per field rather than one shared by all of them. Sharing a
+	// single debounced function means two fields edited inside the same window
+	// collapse into one call and the earlier field's value is never written.
+	const writers = new Map();
+
+	function updateFirebase(path, value) {
+		if (!writers.has(path)) {
+			writers.set(
+				path,
+				debounce(async (latest) => {
+					try {
+						await set(ref(db, path), latest);
+					} catch (err) {
+						console.error(`Error saving ${path}:`, err);
+					}
+				}, 300)
+			);
 		}
-	}, 300);
+		writers.get(path)(value);
+	}
 
 	function updateFirebaseNow(path, value) {
 		try {
@@ -88,6 +103,7 @@
 				players[seat.id].name = data.name || '';
 				players[seat.id].record = data.record || '';
 				players[seat.id].flag = data.flag || '';
+				players[seat.id].pronouns = data.pronouns || '';
 				players[seat.id].hero = data.hero || '';
 				players[seat.id].query = data.hero || '';
 			});
@@ -183,7 +199,7 @@
 		off(ref(db, `${playerPath}/p2`));
 		players = { p1: p2Copy, p2: p1Copy };
 
-		for (const field of ['name', 'record', 'hero', 'flag']) {
+		for (const field of ['name', 'record', 'hero', 'flag', 'pronouns']) {
 			updateFirebaseNow(`${playerPath}/p1/${field}`, p2Copy[field]);
 			updateFirebaseNow(`${playerPath}/p2/${field}`, p1Copy[field]);
 		}
@@ -365,64 +381,77 @@
 					/>
 				</div>
 
-				<div class="relative combobox-t{index}">
-					<input
-						type="text"
-						placeholder="Hero..."
-						class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
-						role="combobox"
-						aria-controls="t{index}-{seat.id}-hero-list"
-						aria-expanded={players[seat.id].isDropdownOpen}
-						autocomplete="off"
-						bind:value={players[seat.id].query}
-						on:input={(e) => {
-							players[seat.id].query = e.target.value;
-							updateFilteredHeroes(seat.id);
-							players[seat.id].isDropdownOpen = true;
-						}}
-						on:keydown={(e) => handleKeyDown(seat.id, e)}
-					/>
-					{#if players[seat.id].isDropdownOpen && players[seat.id].filteredHeroes.length}
-						<ul
-							id="t{index}-{seat.id}-hero-list"
-							role="listbox"
-							class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded border border-gray-700 bg-gray-900 py-0.5 shadow-xl"
-						>
-							{#each players[seat.id].filteredHeroes as hero, idx (hero.name)}
-								<li
-									id="t{index}-{seat.id}-opt-{idx}"
-									role="option"
-									aria-selected={players[seat.id].highlightedIndex === idx}
-									class={players[seat.id].highlightedIndex === idx
-										? accent.option
-										: 'hover:bg-gray-800'}
-									on:mouseenter={() => (players[seat.id].highlightedIndex = idx)}
-								>
-									<button
-										type="button"
-										class="flex h-9 w-full items-center gap-1.5 px-1.5 text-left text-xs text-gray-200"
-										on:click={() => handleHeroChange(seat.id, hero)}
+				<div class="flex items-center gap-1">
+					<select
+						aria-label="{seat.label} pronouns"
+						class="h-9 w-20 flex-none rounded border border-gray-700 bg-gray-900 px-1 text-xs text-gray-300 transition-colors focus:outline-none {accent.focus}"
+						bind:value={players[seat.id].pronouns}
+						on:change={(e) => handleInputChange(seat.id, 'pronouns', e.target.value)}
+					>
+						<option value="">pronouns</option>
+						{#each PRONOUN_OPTIONS as option (option)}
+							<option value={option}>{option}</option>
+						{/each}
+					</select>
+					<div class="relative min-w-0 flex-1 combobox-t{index}">
+						<input
+							type="text"
+							placeholder="Hero..."
+							class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
+							role="combobox"
+							aria-controls="t{index}-{seat.id}-hero-list"
+							aria-expanded={players[seat.id].isDropdownOpen}
+							autocomplete="off"
+							bind:value={players[seat.id].query}
+							on:input={(e) => {
+								players[seat.id].query = e.target.value;
+								updateFilteredHeroes(seat.id);
+								players[seat.id].isDropdownOpen = true;
+							}}
+							on:keydown={(e) => handleKeyDown(seat.id, e)}
+						/>
+						{#if players[seat.id].isDropdownOpen && players[seat.id].filteredHeroes.length}
+							<ul
+								id="t{index}-{seat.id}-hero-list"
+								role="listbox"
+								class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded border border-gray-700 bg-gray-900 py-0.5 shadow-xl"
+							>
+								{#each players[seat.id].filteredHeroes as hero, idx (hero.name)}
+									<li
+										id="t{index}-{seat.id}-opt-{idx}"
+										role="option"
+										aria-selected={players[seat.id].highlightedIndex === idx}
+										class={players[seat.id].highlightedIndex === idx
+											? accent.option
+											: 'hover:bg-gray-800'}
+										on:mouseenter={() => (players[seat.id].highlightedIndex = idx)}
 									>
-										{#if hero.image}
-											<img
-												src={hero.image}
-												alt=""
-												class="h-5 w-5 flex-none rounded object-cover"
-												loading="lazy"
-											/>
-										{:else}
-											<span
-												class="flex h-5 w-5 flex-none items-center justify-center rounded bg-gray-700 text-[9px] font-bold text-gray-400"
-											>
-												{hero.name.charAt(0)}
-											</span>
-										{/if}
-										<span class="truncate">{hero.name}</span>
-									</button>
-								</li>
-							{/each}
-						</ul>
-					{/if}
+										<button
+											type="button"
+											class="flex h-9 w-full items-center gap-1.5 px-1.5 text-left text-xs text-gray-200"
+											on:click={() => handleHeroChange(seat.id, hero)}
+										>
+											{#if hero.image}
+												<img
+													src={hero.image}
+													alt=""
+													class="h-5 w-5 flex-none rounded object-cover"
+													loading="lazy"
+												/>
+											{:else}
+												<span
+													class="flex h-5 w-5 flex-none items-center justify-center rounded bg-gray-700 text-[9px] font-bold text-gray-400"
+												>
+													{hero.name.charAt(0)}
+												</span>
+											{/if}
+											<span class="truncate">{hero.name}</span>
+										</button>
+									</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
 				</div>
 			</div>
 		{/each}

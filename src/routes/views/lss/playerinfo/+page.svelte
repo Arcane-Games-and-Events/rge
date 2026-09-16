@@ -2,11 +2,12 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../../firebaseClient';
+	import ShrinkText from '$lib/ShrinkText.svelte';
 	import 'flag-icons/css/flag-icons.min.css';
 
 	let players = {
-		p1: { name: '', record: '', hero: '', flag: '' },
-		p2: { name: '', record: '', hero: '', flag: '' }
+		p1: { name: '', record: '', hero: '', flag: '', pronouns: '' },
+		p2: { name: '', record: '', hero: '', flag: '', pronouns: '' }
 	};
 
 	let draftInfo = { name: '', pod: '', seat: '' };
@@ -20,7 +21,8 @@
 						name: data.name || '',
 						record: data.record || '',
 						hero: data.hero || '',
-						flag: data.flag || ''
+						flag: data.flag || '',
+						pronouns: data.pronouns || ''
 					};
 				}
 			});
@@ -47,6 +49,10 @@
 		{ id: 'p1', align: 'text-left' },
 		{ id: 'p2', align: 'text-right' }
 	];
+
+	// The centred block keeps a fixed footprint so it can be positioned once in
+	// OBS: names render at one size and only shrink if they would overrun.
+	const NAME_BOX = { width: 288, height: 40, size: 28 };
 </script>
 
 <div class="container mx-auto">
@@ -65,8 +71,42 @@
 					></span>
 				</div>
 			{/if}
+			{#if players[seat.id].pronouns}
+				<p class="text-center text-sm">{players[seat.id].pronouns}</p>
+			{/if}
 		</div>
 	{/each}
+
+	<!-- Centred names, fixed footprint -->
+	<div class="mt-6">
+		{#each seats as seat (seat.id)}
+			<div class="mx-auto w-72 font-bold text-white">
+				<div class="flex justify-center">
+					<ShrinkText
+						text={players[seat.id].name}
+						width={NAME_BOX.width}
+						height={NAME_BOX.height}
+						size={NAME_BOX.size}
+					/>
+				</div>
+				<div class="flex flex-col items-center text-sm">
+					<p>{players[seat.id].hero}</p>
+					<p>{players[seat.id].record}</p>
+				</div>
+				{#if players[seat.id].flag}
+					<div class="text-center">
+						<span
+							class="fi fi-{players[seat.id].flag} mt-1 inline-block text-2xl"
+							title={players[seat.id].flag.toUpperCase()}
+						></span>
+					</div>
+				{/if}
+				{#if players[seat.id].pronouns}
+					<p class="text-center text-sm">{players[seat.id].pronouns}</p>
+				{/if}
+			</div>
+		{/each}
+	</div>
 
 	<div class="mx-auto w-72 text-center font-bold text-white">
 		<p class="text-2xl">{draftInfo.name}</p>
