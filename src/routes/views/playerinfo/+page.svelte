@@ -2,12 +2,10 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
-	import 'flag-icons/css/flag-icons.min.css';
-	import { lssEvent, subscribeLssEvent } from '$lib/lssEvent';
 
 	let players = {
-		p1: { name: '', record: '', hero: '', flag: '' },
-		p2: { name: '', record: '', hero: '', flag: '' }
+		p1: { name: '', record: '', hero: '' },
+		p2: { name: '', record: '', hero: '' }
 	};
 
 	let draftInfo = {
@@ -25,8 +23,7 @@
 					players[playerId] = {
 						name: data.name || '',
 						record: data.record || '',
-						hero: data.hero || '',
-						flag: data.flag || ''
+						hero: data.hero || ''
 					};
 				}
 			});
@@ -46,57 +43,26 @@
 	onMount(() => {
 		fetchData();
 		fetchDraftInfo();
-		subscribeLssEvent();
 	});
 </script>
 
 <h1 class="text-center text-2xl font-bold mb-4">Views</h1>
 
 <div class="container mx-auto">
-	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-left' : 'text-right'}">
-		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
-		{#if $lssEvent}
-			<div class="flex flex-col items-center text-sm">
-				<p class="text-color">{players.p1.hero}</p>
-				<p>{players.p1.record}</p>
-			</div>
-		{:else}
-			<div class="flex justify-end text-sm">
-				<p class="text-color">{players.p1.hero}</p>
-				<p class="ml-1">{players.p1.record}</p>
-			</div>
-		{/if}
-		{#if $lssEvent && players.p1.flag}
-			<div class="text-center">
-				<span
-					class="fi fi-{players.p1.flag} mt-1 inline-block text-2xl"
-					title={players.p1.flag.toUpperCase()}
-				></span>
-			</div>
-		{/if}
+	<div class="w-72 mx-auto text-right font-bold text-white">
+		<p class="text-2xl">{players.p1.name}</p>
+		<div class="flex justify-end text-sm">
+			<p class="text-color">{players.p1.hero}</p>
+			<p class="ml-1">{players.p1.record}</p>
+		</div>
 	</div>
 
-	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-right' : 'text-left'}">
-		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
-		{#if $lssEvent}
-			<div class="flex flex-col items-center text-sm">
-				<p class="text-color">{players.p2.hero}</p>
-				<p>{players.p2.record}</p>
-			</div>
-		{:else}
-			<div class="flex justify-start text-sm">
-				<p class="mr-1">{players.p2.record}</p>
-				<p class="text-color">{players.p2.hero}</p>
-			</div>
-		{/if}
-		{#if $lssEvent && players.p2.flag}
-			<div class="text-center">
-				<span
-					class="fi fi-{players.p2.flag} mt-1 inline-block text-2xl"
-					title={players.p2.flag.toUpperCase()}
-				></span>
-			</div>
-		{/if}
+	<div class="w-72 mx-auto text-left font-bold text-white">
+		<p class="text-2xl">{players.p2.name}</p>
+		<div class="flex justify-start text-sm">
+			<p class="mr-1">{players.p2.record}</p>
+			<p class="text-color">{players.p2.hero}</p>
+		</div>
 	</div>
 
 	<div class="w-72 mx-auto text-center font-bold text-white">
@@ -106,7 +72,7 @@
 	<div>
 		<h1 class="text-center text-2xl font-bold mb-4">Centered Names</h1>
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
+			<p class="text-2xl">{players.p1.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p1.record}</p>
 				<p class="ml-1 text-color">{players.p1.hero}</p>
@@ -114,7 +80,7 @@
 		</div>
 
 		<div class="w-72 mx-auto text-center font-bold text-white">
-			<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
+			<p class="text-2xl">{players.p2.name}</p>
 			<div class="flex justify-center text-sm">
 				<p>{players.p2.record}</p>
 				<p class="ml-1 text-color">{players.p2.hero}</p>

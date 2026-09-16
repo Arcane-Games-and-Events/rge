@@ -81,11 +81,10 @@ h6 {
 }
 
 /* ---------------------------------------------------------------------------
-   LSS event styling
+   LSS overlay styling
 
-   Toggled from the Event Presets page and applied by the root layout to OBS
-   views only. Off, nothing below applies and every view looks exactly as it
-   always has.
+   Applied by the /views/lss layout, and nowhere else. The original overlays
+   under /views are untouched by anything below.
    --------------------------------------------------------------------------- */
 
 @font-face {
@@ -159,18 +158,11 @@ h6 {
 	font-display: swap;
 }
 
-/* White text across every view. The descendant selector and !important are
-   needed because the views set their own colours with Tailwind utilities
-   (text-gray-400 and friends), which would otherwise win. */
-.lss-event,
-.lss-event * {
+/* Tiller and white text throughout. The descendant selector and !important are
+   needed because the views set their own colours and faces with Tailwind
+   utilities (text-gray-400, font-display) that would otherwise win. */
+.lss-view,
+.lss-view * {
 	color: #ffffff !important;
-}
-
-/* Tiller everywhere except the clock and life-total views, which keep their
-   current face. Same reasoning as above: font-display and font-sans utilities
-   sit on the elements themselves. */
-.lss-event-font,
-.lss-event-font * {
 	font-family: 'Tiller', ui-sans-serif, system-ui, sans-serif !important;
 }

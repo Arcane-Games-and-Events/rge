@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient'; // Adjust the path to your Firebase setup
-	import { lssEvent, subscribeLssEvent, setLssEvent } from '$lib/lssEvent';
 
 	let commentator1 = '';
 	let subtitle1 = '';
@@ -69,7 +68,6 @@
 	onMount(() => {
 		loadSets(); // Load available sets
 		syncWithDatabase();
-		subscribeLssEvent();
 	});
 </script>
 
@@ -96,62 +94,23 @@
 								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
 								placeholder="Name"
 								bind:value={commentator.value}
-								on:input={(e) =>
-									updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
+								on:input={(e) => updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
 							/>
 						</div>
 						<div>
-							<label
-								for={commentator.subtitleId}
-								class="mb-1 block text-sm font-medium text-gray-300">Subtitle</label
-							>
+							<label for={commentator.subtitleId} class="mb-1 block text-sm font-medium text-gray-300">Subtitle</label>
 							<input
 								id={commentator.subtitleId}
 								type="text"
 								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
 								placeholder="Title or role"
 								bind:value={commentator.subtitleValue}
-								on:input={(e) =>
-									updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
+								on:input={(e) => updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
 							/>
 						</div>
 					</div>
 				</div>
 			{/each}
-		</div>
-
-		<!-- Event Style Section -->
-		<div class="mt-8 rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
-			<h2 class="mb-4 font-display text-lg font-semibold text-white">Event Style</h2>
-			<div class="flex items-start justify-between gap-4">
-				<div class="min-w-0">
-					<label for="lss-event" class="block text-sm font-medium text-gray-300">LSS Event</label>
-					<p class="mt-1 text-xs text-gray-500">
-						Switches every view to the Tiller font with white text. The timer, life counter and
-						scorekeeper views keep their current font.
-					</p>
-				</div>
-				<button
-					id="lss-event"
-					type="button"
-					role="switch"
-					aria-checked={$lssEvent}
-					on:click={() => setLssEvent(!$lssEvent)}
-					class="relative inline-flex h-7 w-12 flex-none items-center rounded-full transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none {$lssEvent
-						? 'bg-blue-600'
-						: 'bg-gray-700'}"
-				>
-					<span class="sr-only">Toggle the LSS event style</span>
-					<span
-						class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform {$lssEvent
-							? 'translate-x-6'
-							: 'translate-x-1'}"
-					></span>
-				</button>
-			</div>
-			<p class="mt-3 text-xs {$lssEvent ? 'text-blue-400' : 'text-gray-500'}">
-				{$lssEvent ? 'LSS styling is live on every view.' : 'Views are using their normal styling.'}
-			</p>
 		</div>
 
 		<!-- Event Settings Section -->
@@ -171,9 +130,7 @@
 				</div>
 
 				<div>
-					<label for="set-dropdown" class="mb-1 block text-sm font-medium text-gray-300"
-						>Draft Set</label
-					>
+					<label for="set-dropdown" class="mb-1 block text-sm font-medium text-gray-300">Draft Set</label>
 					<select
 						id="set-dropdown"
 						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
@@ -188,9 +145,7 @@
 				</div>
 
 				<div>
-					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300"
-						>Event Text</label
-					>
+					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300">Event Text</label>
 					<input
 						id="event-text"
 						type="text"
