@@ -53,18 +53,32 @@
 <div class="container mx-auto">
 	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-left' : 'text-right'}">
 		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p1.name}</p>
-		<div class="flex text-sm {$lssEvent ? 'justify-center' : 'justify-end'}">
-			<p class="text-color">{players.p1.hero}</p>
-			<p class="ml-1">{players.p1.record}</p>
-		</div>
+		{#if $lssEvent}
+			<div class="flex flex-col items-center text-sm">
+				<p class="text-color">{players.p1.hero}</p>
+				<p>{players.p1.record}</p>
+			</div>
+		{:else}
+			<div class="flex justify-end text-sm">
+				<p class="text-color">{players.p1.hero}</p>
+				<p class="ml-1">{players.p1.record}</p>
+			</div>
+		{/if}
 	</div>
 
 	<div class="w-72 mx-auto font-bold text-white {$lssEvent ? 'text-right' : 'text-left'}">
 		<p class="text-2xl {$lssEvent ? 'whitespace-nowrap' : ''}">{players.p2.name}</p>
-		<div class="flex text-sm {$lssEvent ? 'justify-center' : 'justify-start'}">
-			<p class="mr-1">{players.p2.record}</p>
-			<p class="text-color">{players.p2.hero}</p>
-		</div>
+		{#if $lssEvent}
+			<div class="flex flex-col items-center text-sm">
+				<p class="text-color">{players.p2.hero}</p>
+				<p>{players.p2.record}</p>
+			</div>
+		{:else}
+			<div class="flex justify-start text-sm">
+				<p class="mr-1">{players.p2.record}</p>
+				<p class="text-color">{players.p2.hero}</p>
+			</div>
+		{/if}
 	</div>
 
 	<div class="w-72 mx-auto text-center font-bold text-white">
