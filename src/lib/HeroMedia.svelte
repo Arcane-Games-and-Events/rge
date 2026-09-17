@@ -48,11 +48,44 @@
 		// has everything; the others cover the progress of getting there.
 		const events = ['loadedmetadata', 'progress', 'canplaythrough', 'suspend'];
 		for (const name of events) node.addEventListener(name, startIfLoaded);
+
+		// The `loop` attribute is not enough on its own. A source that runs for hours has
+		// to survive anything that stops it -- OBS suspending a hidden scene, a decoder
+		// hiccup, an `ended` that fires despite `loop` -- so playback is restarted here
+		// rather than trusted to the attribute. Everything is already buffered, so a
+		// restart costs nothing.
+		// Throttled: a play() the browser refuses fires `pause` straight back, and an
+		// unthrottled handler would spin on it.
+		let lastRestart = 0;
+		const restart = () => {
+			if (!started) return;
+			const now = Date.now();
+			if (now - lastRestart < 1000) return;
+			lastRestart = now;
+			if (node.ended || node.currentTime >= node.duration - 0.05) node.currentTime = 0;
+			node.play().catch(() => {});
+		};
+		node.addEventListener('ended', restart);
+		node.addEventListener('pause', restart);
+
+		// Final net: nothing above fires if the element simply stops advancing. Checked
+		// rarely enough to be free, often enough that no one watches a frozen plate.
+		let lastTime = -1;
+		const watchdog = setInterval(() => {
+			if (!started) return;
+			if (node.paused || node.currentTime === lastTime) restart();
+			lastTime = node.currentTime;
+		}, 3000);
+
 		node.load();
 
 		return {
 			destroy() {
+				clearInterval(watchdog);
 				for (const name of events) node.removeEventListener(name, startIfLoaded);
+				node.removeEventListener('ended', restart);
+				node.removeEventListener('pause', restart);
+				started = false;
 				node.pause();
 				// Cancels an in-flight download, so a hero changed mid-load does not leave the
 				// abandoned video competing with the new one.
