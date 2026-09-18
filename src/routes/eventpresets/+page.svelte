@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient'; // Adjust the path to your Firebase setup
+	import { TIMER_PRESETS_PATH, DEFAULT_TIMER_PRESETS, toTimerPresets } from '$lib/timerPresets';
 
 	let commentator1 = '';
 	let subtitle1 = '';
@@ -15,6 +16,12 @@
 	let sets = []; // Available sets
 	let selectedSet = ''; // Selected set
 	let eventText = ''; // Event text line
+
+	// The two one-tap lengths behind each timer's buttons in the booth.
+	let timerPresets = {
+		Round: [...DEFAULT_TIMER_PRESETS.Round],
+		Break: [...DEFAULT_TIMER_PRESETS.Break]
+	};
 
 	// Set codes come from /api/cards/sets, which derives them from
 	// @flesh-and-blood/cards on the server.
@@ -54,6 +61,16 @@
 		onValue(formatRef, (snapshot) => (format = snapshot.val() ?? ''));
 		onValue(selectedSetRef, (snapshot) => (selectedSet = snapshot.val() ?? ''));
 		onValue(eventTextRef, (snapshot) => (eventText = snapshot.val() ?? ''));
+
+		// Saved on change rather than on every keystroke, so this echo never lands
+		// mid-word and rewrites what is being typed.
+		onValue(ref(db, TIMER_PRESETS_PATH), (snapshot) => {
+			const stored = snapshot.val() || {};
+			timerPresets = {
+				Round: toTimerPresets('Round', stored.Round),
+				Break: toTimerPresets('Break', stored.Break)
+			};
+		});
 	};
 
 	const updateDatabase = async (key, value) => {
@@ -63,6 +80,33 @@
 		} catch (err) {
 			console.error(`Error updating ${key} in database:`, err);
 		}
+	};
+
+	const saveTimerPreset = async (type, slot, field) => {
+		// One slot at a time through the same coercion the booth uses, so a blank or
+		// silly entry lands back on that slot's default instead of a blank button.
+		const pair =
+			slot === 0 ? [field.value, timerPresets[type][1]] : [timerPresets[type][0], field.value];
+		const [first, second] = toTimerPresets(type, pair);
+		timerPresets[type] = [first, second];
+
+		// Written straight onto the field rather than left to the binding: a rejected
+		// entry usually coerces back to the value already held, so nothing changes for
+		// Svelte to react to and the box would go on showing the text that was refused.
+		field.value = slot === 0 ? first : second;
+
+		await updateDatabase(`${TIMER_PRESETS_PATH}/${type}`, timerPresets[type]);
+	};
+
+	const resetTimerPresets = async () => {
+		timerPresets = {
+			Round: [...DEFAULT_TIMER_PRESETS.Round],
+			Break: [...DEFAULT_TIMER_PRESETS.Break]
+		};
+		await updateDatabase(TIMER_PRESETS_PATH, {
+			Round: [...DEFAULT_TIMER_PRESETS.Round],
+			Break: [...DEFAULT_TIMER_PRESETS.Break]
+		});
 	};
 
 	onMount(() => {
@@ -94,18 +138,23 @@
 								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
 								placeholder="Name"
 								bind:value={commentator.value}
-								on:input={(e) => updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
+								on:input={(e) =>
+									updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
 							/>
 						</div>
 						<div>
-							<label for={commentator.subtitleId} class="mb-1 block text-sm font-medium text-gray-300">Subtitle</label>
+							<label
+								for={commentator.subtitleId}
+								class="mb-1 block text-sm font-medium text-gray-300">Subtitle</label
+							>
 							<input
 								id={commentator.subtitleId}
 								type="text"
 								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
 								placeholder="Title or role"
 								bind:value={commentator.subtitleValue}
-								on:input={(e) => updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
+								on:input={(e) =>
+									updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
 							/>
 						</div>
 					</div>
@@ -130,7 +179,9 @@
 				</div>
 
 				<div>
-					<label for="set-dropdown" class="mb-1 block text-sm font-medium text-gray-300">Draft Set</label>
+					<label for="set-dropdown" class="mb-1 block text-sm font-medium text-gray-300"
+						>Draft Set</label
+					>
 					<select
 						id="set-dropdown"
 						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
@@ -145,7 +196,9 @@
 				</div>
 
 				<div>
-					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300">Event Text</label>
+					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300"
+						>Event Text</label
+					>
 					<input
 						id="event-text"
 						type="text"
@@ -156,6 +209,51 @@
 					/>
 					<p class="mt-1 text-xs text-gray-500">View at /views/eventtext</p>
 				</div>
+			</div>
+		</div>
+
+		<!-- Timer Presets Section -->
+		<div class="mt-8 rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
+			<div class="mb-1 flex items-baseline justify-between gap-3">
+				<h2 class="font-display text-lg font-semibold text-white">Timer Presets</h2>
+				<button
+					type="button"
+					on:click={resetTimerPresets}
+					class="rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-400 transition-colors hover:border-gray-600 hover:text-white"
+					>Reset</button
+				>
+			</div>
+			<p class="mb-4 text-sm text-gray-400">
+				The two one-tap buttons behind each timer in the production booth.
+			</p>
+
+			<div class="space-y-4">
+				{#each [{ type: 'Round', accent: 'text-blue-400', focus: 'focus:border-blue-500 focus:ring-blue-500' }, { type: 'Break', accent: 'text-purple-400', focus: 'focus:border-purple-500 focus:ring-purple-500' }] as t (t.type)}
+					<div>
+						<span class="mb-1 block text-sm font-medium {t.accent}">{t.type}</span>
+						<div class="grid grid-cols-2 gap-3">
+							{#each [0, 1] as slot (slot)}
+								<div class="relative">
+									<input
+										id="preset-{t.type}-{slot}"
+										type="number"
+										min="1"
+										max="600"
+										step="0.5"
+										aria-label="{t.type} preset {slot + 1}, minutes"
+										class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 pr-12 text-white transition-colors focus:ring-1 focus:outline-none {t.focus}"
+										value={timerPresets[t.type][slot]}
+										on:change={(e) => saveTimerPreset(t.type, slot, e.target)}
+									/>
+									<span
+										class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-500"
+										>min</span
+									>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/each}
 			</div>
 		</div>
 	</div>

@@ -9,6 +9,7 @@
 	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
 	import { formatTime } from '$lib/timerDisplay';
+	import { TIMER_PRESETS_PATH, DEFAULT_TIMER_PRESETS, toTimerPresets } from '$lib/timerPresets';
 
 	// Timer state with internal tracking
 	let timers = {
@@ -25,9 +26,12 @@
 	// Custom time inputs
 	let customTime = { Round: null, Break: null };
 
-	// Presets
-	const roundPresets = [55, 35];
-	const breakPresets = [10, 5];
+	// Preset button lengths, configured on the event presets page. Defaults stand in
+	// until something is stored, so the buttons are never blank.
+	let presets = {
+		Round: [...DEFAULT_TIMER_PRESETS.Round],
+		Break: [...DEFAULT_TIMER_PRESETS.Break]
+	};
 
 	// Timer intervals
 	let timerIntervals = { Round: null, Break: null };
@@ -207,6 +211,14 @@
 		onValue(ref(db, 'timers/Round/isCountingUp'), (snap) => {
 			if (snap.val() !== null) timers.Round.isCountingUp = snap.val();
 		});
+
+		onValue(ref(db, TIMER_PRESETS_PATH), (snap) => {
+			const stored = snap.val() || {};
+			presets = {
+				Round: toTimerPresets('Round', stored.Round),
+				Break: toTimerPresets('Break', stored.Break)
+			};
+		});
 	});
 
 	onDestroy(() => {
@@ -247,7 +259,7 @@
 			<div class="order-1 min-w-0 space-y-1.5 md:order-2">
 				<!-- Timer row -->
 				<div class="grid grid-cols-2 gap-1.5">
-					{#each [{ type: 'Round', presets: roundPresets, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: breakPresets, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
+					{#each [{ type: 'Round', presets: presets.Round, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: presets.Break, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
 						<div
 							class="flex flex-wrap items-center gap-1 rounded-lg border border-gray-800 bg-gray-900 p-1.5"
 						>
