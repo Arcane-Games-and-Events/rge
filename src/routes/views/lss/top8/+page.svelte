@@ -77,8 +77,11 @@
 
 	// Fixed boxes so every tile lines up whatever the names are: both lines render at
 	// their set size and only an unusually long one is scaled down inside its box.
-	const NAME_BOX = { width: 260, height: 34, size: 30 };
-	const HERO_BOX = { width: 260, height: 20, size: 17 };
+	// Sized to the space the bar actually leaves once its padding and the portrait are
+	// accounted for. Any wider and a long name runs under the angled right edge, which
+	// clips it -- the very thing the shrink-to-fit is there to prevent.
+	const NAME_BOX = { width: 250, height: 34, size: 30 };
+	const HERO_BOX = { width: 250, height: 20, size: 17 };
 
 	// 1ST, 2ND, 3RD, 4TH -- the placement reads as a finishing position rather than an
 	// index, which is what the seed number means to anyone watching.
@@ -161,17 +164,21 @@
 		overflow: hidden;
 	}
 
+	/* The round labels are dark on lavender, which means out-specifying the blanket
+	   white the LSS layout sets on every element under it. */
 	.label {
 		position: absolute;
 		height: 54px;
-		padding: 0 18px;
+		padding: 0 20px;
 		display: flex;
 		align-items: center;
 		font-size: 32px;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		background: rgba(10, 8, 18, 0.72);
-		border: 2px solid rgba(255, 255, 255, 0.85);
+		color: #24132f !important;
+		background: linear-gradient(180deg, #efe4f8, #d9c4ec);
+		border: 3px solid #2a1636;
+		border-radius: 6px;
 	}
 
 	.tile {
@@ -189,7 +196,8 @@
 		opacity: 0.35;
 	}
 
-	/* The lighter block carrying the finishing position and the flag. */
+	/* Lavender block carrying the finishing position and the flag, dark text on light
+	   so it reads as a separate plate rather than part of the name bar. */
 	.placement {
 		flex: none;
 		width: 85px;
@@ -197,10 +205,13 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 6px;
-		background: rgba(196, 170, 226, 0.22);
-		border: 1px solid rgba(255, 255, 255, 0.22);
+		gap: 5px;
+		color: #24132f !important;
+		background: linear-gradient(180deg, #efe4f8, #cfb6e6);
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 		box-sizing: border-box;
+		z-index: 1;
 	}
 
 	.rank {
@@ -209,13 +220,19 @@
 		line-height: 1;
 	}
 
+	/* Set on the children as well as the block: the layout's blanket rule matches
+	   every element directly, and a matched rule beats an inherited one however dark
+	   the parent is. */
 	.num {
-		font-size: 34px;
+		font-size: 36px;
+		line-height: 1;
+		color: #24132f !important;
 	}
 
 	.suffix {
 		font-size: 16px;
 		margin-left: 2px;
+		color: #24132f !important;
 	}
 
 	.flag {
@@ -225,17 +242,20 @@
 	}
 
 	/* Name over hero, with room kept clear on the right for the diamond. */
+	/* The name bar runs darkest at the left and warms toward the portrait, and its
+	   right edge is cut back at an angle so the tile ends on a point rather than a
+	   square corner. */
 	.who {
 		flex: 1;
 		min-width: 0;
+		margin-left: -8px;
+		padding: 0 118px 0 24px;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		gap: 4px;
-		padding: 0 110px 0 16px;
-		background: rgba(10, 8, 18, 0.72);
-		border: 1px solid rgba(255, 255, 255, 0.16);
-		border-left: none;
+		gap: 3px;
+		background: linear-gradient(95deg, #2e1a3f 0%, #4a2657 48%, #7c4080 100%);
+		clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
 		box-sizing: border-box;
 	}
 
@@ -248,8 +268,9 @@
 		margin-top: -37px;
 		transform: rotate(45deg);
 		overflow: hidden;
-		border: 2px solid rgba(255, 255, 255, 0.85);
-		background: #000;
+		border: 3px solid #e4d5f2;
+		background: #140b1c;
+		z-index: 2;
 	}
 
 	.diamond-inner {
