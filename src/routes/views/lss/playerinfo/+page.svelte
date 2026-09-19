@@ -50,6 +50,11 @@
 		{ id: 'p2', align: 'text-right' }
 	];
 
+	// Uppercased in the data rather than with text-transform, because ShrinkText
+	// measures the string it is given: a CSS transform would have it sizing the
+	// lower-case width and then overrunning once the capitals were drawn.
+	const upper = (text) => (text || '').toUpperCase();
+
 	// The centred block keeps a fixed footprint so it can be positioned once in
 	// OBS: names render at one size and only shrink if they would overrun.
 	const NAME_BOX = { width: 288, height: 40, size: 28 };
@@ -58,7 +63,7 @@
 <div class="container mx-auto">
 	{#each seats as seat (seat.id)}
 		<div class="mx-auto w-72 font-bold text-white {seat.align}">
-			<p class="text-2xl whitespace-nowrap">{players[seat.id].name}</p>
+			<p class="text-2xl whitespace-nowrap">{upper(players[seat.id].name)}</p>
 			<div class="flex flex-col items-center text-sm">
 				<p>{players[seat.id].hero}</p>
 				<p>{players[seat.id].record}</p>
@@ -80,7 +85,7 @@
 			<div class="mx-auto w-72 font-bold text-white">
 				<div class="flex justify-center">
 					<ShrinkText
-						text={players[seat.id].name}
+						text={upper(players[seat.id].name)}
 						width={NAME_BOX.width}
 						height={NAME_BOX.height}
 						size={NAME_BOX.size}

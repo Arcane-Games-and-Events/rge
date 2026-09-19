@@ -40,7 +40,7 @@
 	});
 </script>
 
-<div class="mt-4 text-center text-white text-sm font-bold tracking-wide">
+<div class="mt-4 text-center text-white text-sm font-bold tracking-wide uppercase">
 	<p class="font-medium">{tournamentStatus}</p>
 	<p>{format} | <span class="text-color">{roundInfo}</span></p>
 	<p class="">{format}</p>
