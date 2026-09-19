@@ -40,12 +40,25 @@ const artBySlug = new Map(
 	})
 );
 
-const heroes = [
-	...new Set(cards.filter((c) => (c.types || []).includes('Hero')).map((c) => c.name))
-]
+const heroCards = cards.filter((c) => (c.types || []).includes('Hero'));
+
+// Whether a hero is young decides which overlays show it, and it cannot be read off
+// the name: 28 young heroes carry a subtitle and 8 adults do not. A name can appear
+// on more than one printing, so young wins if any of them says so.
+const youngByName = new Map();
+for (const card of heroCards) {
+	const name = toAscii(card.name);
+	youngByName.set(name, youngByName.get(name) || !!card.young);
+}
+
+const heroes = [...new Set(heroCards.map((c) => c.name))]
 	.map((raw) => {
 		const name = toAscii(raw);
-		return { name, image: artBySlug.get(slugify(name)) ?? null };
+		return {
+			name,
+			image: artBySlug.get(slugify(name)) ?? null,
+			young: youngByName.get(name) ?? false
+		};
 	})
 	.sort((a, b) => a.name.localeCompare(b.name));
 

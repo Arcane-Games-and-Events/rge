@@ -24,3 +24,4 @@ static/heroImages/backup/
 # Hero videos live in the Supabase bucket, not the repo: the library is >1GB
 # and git history cannot be trimmed once binaries are in it.
 static/heroes/
+static/heroCards/
