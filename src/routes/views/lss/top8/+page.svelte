@@ -242,9 +242,12 @@
 	}
 
 	/* Name over hero, with room kept clear on the right for the diamond. */
-	/* The name bar runs darkest at the left and warms toward the portrait, and its
-	   right edge is cut back at an angle so the tile ends on a point rather than a
-	   square corner. */
+	/* The name bar runs darkest at the left and warms toward the portrait. Its right
+	   edge carries a "<" notch rather than a straight cut: the two corners stay out at
+	   the full width and the middle is pulled back, so the diamond sits into the bar
+	   instead of on top of it. The notch stops a few pixels short of the portrait's
+	   left corner: cut any deeper and a wedge of background shows through between the
+	   two. */
 	.who {
 		flex: 1;
 		min-width: 0;
@@ -255,7 +258,7 @@
 		justify-content: center;
 		gap: 3px;
 		background: linear-gradient(95deg, #2e1a3f 0%, #4a2657 48%, #7c4080 100%);
-		clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
+		clip-path: polygon(0 0, 100% 0, calc(100% - 92px) 50%, 100% 100%, 0 100%);
 		box-sizing: border-box;
 	}
 
