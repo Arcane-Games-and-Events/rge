@@ -3,6 +3,7 @@
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient';
 	import { heroes, loadHeroes } from '$lib/heroes';
+	import debounce from 'lodash.debounce';
 	import { FLAG_COUNTRIES } from '$lib/flags';
 	import 'flag-icons/css/flag-icons.min.css';
 	import '$lib/flagOverrides.css';
@@ -29,10 +30,30 @@
 		});
 	});
 
-	// Save a change to a player's name or hero
+	// One debounce per field rather than one shared by all of them. Sharing a single
+	// debounced function means two fields edited inside the same window collapse into
+	// one call and the earlier field's value is never written.
+	const writers = new Map();
+
+	// Save a change to a player's name, hero or flag. Called as the field changes so
+	// the overlay follows along live -- a name typed here appears on the graphic
+	// without anyone having to leave the box first.
 	function updatePlayer(i, field, val) {
 		players[i][field] = val;
-		set(ref(db, `top8/players/${i}/${field}`), val);
+		const path = `top8/players/${i}/${field}`;
+		if (!writers.has(path)) {
+			writers.set(
+				path,
+				debounce(async (latest) => {
+					try {
+						await set(ref(db, path), latest);
+					} catch (err) {
+						console.error(`Error saving ${path}:`, err);
+					}
+				}, 250)
+			);
+		}
+		writers.get(path)(val);
 	}
 
 	// Toggle a winner: clicking the same seed again clears it
@@ -101,7 +122,7 @@
 								type="text"
 								placeholder="Name"
 								bind:value={p.name}
-								on:change={(e) => updatePlayer(i, 'name', e.target.value)}
+								on:input={(e) => updatePlayer(i, 'name', e.target.value)}
 							/>
 							<div class="flex items-center gap-1">
 								<select

@@ -70,7 +70,10 @@
 	const decided = (key, seed) =>
 		matches[key] !== undefined && matches[key] !== null && matches[key] !== seed;
 
-	const seatOf = (seed) => (seed === undefined || seed === null ? null : players[seed]);
+	// Seats are resolved in the markup rather than through this helper: Svelte tracks
+	// the dependencies it can see in an expression, and `players` read inside a
+	// function body is not one of them, so the quarters kept showing the old values
+	// until something else forced the block to rebuild.
 
 	// Fixed boxes so every tile lines up whatever the names are: both lines render at
 	// their set size and only an unusually long one is scaled down inside its box.
@@ -92,7 +95,7 @@
 
 		{#each round.matches as match (match.key)}
 			{#each match.seeds as seed, i (i)}
-				{@const seat = seatOf(seed)}
+				{@const seat = seed === undefined || seed === null ? null : players[seed]}
 				<div
 					class="tile"
 					class:dim={decided(match.key, seed)}
@@ -259,8 +262,13 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		/* The stills are 16:9 frames whose subject sits to the right, so a square crop
-		   taken from the centre would cut the hero in half. */
+		/* The stills are 16:9 frames whose subject sits to the right, so the square crop
+		   is taken from that edge. That alone is not enough: a diamond is widest across
+		   its middle, so anything against the right edge falls into the clipped corner.
+		   The image is pulled left to carry that content into the centre of the shape,
+		   and pushed down so the framing sits in the upper right of the source. It is
+		   scaled up by more than it is moved, so no gap opens behind it. */
 		object-position: right center;
+		transform: scale(1.45) translate(-8%, 8%);
 	}
 </style>
