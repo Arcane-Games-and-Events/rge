@@ -3,11 +3,14 @@
 	import { ref, onValue, set } from 'firebase/database';
 	import { db } from '../../firebaseClient';
 	import { heroes, loadHeroes } from '$lib/heroes';
+	import { FLAG_COUNTRIES } from '$lib/flags';
+	import 'flag-icons/css/flag-icons.min.css';
+	import '$lib/flagOverrides.css';
 
 	// 8 fixed seed slots and their current heroes
 	let players = Array(8)
 		.fill()
-		.map(() => ({ name: '', hero: '' }));
+		.map(() => ({ name: '', hero: '', flag: '' }));
 	// match winners stored as m0…m6 → seed index
 	let matches = {};
 
@@ -17,7 +20,8 @@
 			const data = snap.val() || {};
 			players = players.map((_, i) => ({
 				name: data[i]?.name ?? '',
-				hero: data[i]?.hero ?? ''
+				hero: data[i]?.hero ?? '',
+				flag: data[i]?.flag ?? ''
 			}));
 		});
 		onValue(ref(db, 'top8/matches'), (snap) => {
@@ -80,10 +84,16 @@
 	<div class="p-3 sm:p-4 max-w-4xl mx-auto space-y-3">
 		<!-- Player Setup Card -->
 		<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-			<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-2">Player Setup</div>
+			<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-2">
+				Player Setup
+			</div>
 			<div class="grid grid-cols-2 sm:grid-cols-4 gap-1">
 				{#each players as p, i}
-					<div class="flex items-center gap-1.5 rounded border border-gray-800 bg-gray-800/50 px-2 py-1.5 {p.name ? 'border-l-2 border-l-blue-500' : ''}">
+					<div
+						class="flex items-center gap-1.5 rounded border border-gray-800 bg-gray-800/50 px-2 py-1.5 {p.name
+							? 'border-l-2 border-l-blue-500'
+							: ''}"
+					>
 						<span class="text-[10px] font-mono text-gray-500 flex-shrink-0">{i + 1}</span>
 						<div class="flex-1 min-w-0 space-y-0.5">
 							<input
@@ -93,14 +103,36 @@
 								bind:value={p.name}
 								on:change={(e) => updatePlayer(i, 'name', e.target.value)}
 							/>
-							<select
-								class="w-full rounded border border-gray-700 bg-gray-900 px-1.5 py-0.5 text-[11px] text-white focus:border-blue-500 focus:outline-none"
-								bind:value={p.hero}
-								on:change={(e) => updatePlayer(i, 'hero', e.target.value)}
-							>
-								<option value="">Hero</option>
-								{#each heroOptions as h}<option value={h}>{h}</option>{/each}
-							</select>
+							<div class="flex items-center gap-1">
+								<select
+									class="min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-1.5 py-0.5 text-[11px] text-white focus:border-blue-500 focus:outline-none"
+									bind:value={p.hero}
+									on:change={(e) => updatePlayer(i, 'hero', e.target.value)}
+								>
+									<option value="">Hero</option>
+									{#each heroOptions as h}<option value={h}>{h}</option>{/each}
+								</select>
+								<div class="relative h-5 w-7 flex-none">
+									{#if p.flag}
+										<span class="fi fi-{p.flag} absolute inset-0 !h-full !w-full"></span>
+									{:else}
+										<span
+											class="absolute inset-0 rounded border border-gray-700 bg-gray-900 text-center text-[9px] leading-5 text-gray-500"
+											>?</span
+										>
+									{/if}
+									<select
+										class="absolute inset-0 cursor-pointer opacity-0"
+										aria-label="Seed {i + 1} flag"
+										bind:value={p.flag}
+										on:change={(e) => updatePlayer(i, 'flag', e.target.value)}
+									>
+										<option value="">No flag</option>
+										{#each FLAG_COUNTRIES as c (c.code)}<option value={c.code}>{c.name}</option
+											>{/each}
+									</select>
+								</div>
+							</div>
 						</div>
 					</div>
 				{/each}
@@ -111,15 +143,28 @@
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 			<!-- Quarterfinals -->
 			<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-				<div class="text-[10px] text-blue-400 uppercase tracking-wider font-medium mb-3">Quarterfinals</div>
+				<div class="text-[10px] text-blue-400 uppercase tracking-wider font-medium mb-3">
+					Quarterfinals
+				</div>
 				<div class="space-y-2">
 					{#each quarterfinalSeeds as seeds, qi}
-						<div class="rounded-lg border border-gray-800 overflow-hidden {matches[`m${qi}`] !== undefined && matches[`m${qi}`] !== null ? 'border-l-2 border-l-green-500' : ''}">
+						<div
+							class="rounded-lg border border-gray-800 overflow-hidden {matches[`m${qi}`] !==
+								undefined && matches[`m${qi}`] !== null
+								? 'border-l-2 border-l-green-500'
+								: ''}"
+						>
 							{#each seeds as seed, idx}
 								<button
 									type="button"
 									on:click={() => toggleWinner(qi, seed)}
-									class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches[`m${qi}`] === seed ? 'bg-green-600/30' : 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0 ? '' : 'border-t border-gray-700'}"
+									class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches[
+										`m${qi}`
+									] === seed
+										? 'bg-green-600/30'
+										: 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0
+										? ''
+										: 'border-t border-gray-700'}"
 								>
 									<img
 										src={heroFilename(players[seed]?.hero)}
@@ -147,16 +192,29 @@
 
 			<!-- Semifinals -->
 			<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-				<div class="text-[10px] text-purple-400 uppercase tracking-wider font-medium mb-3">Semifinals</div>
+				<div class="text-[10px] text-purple-400 uppercase tracking-wider font-medium mb-3">
+					Semifinals
+				</div>
 				<div class="space-y-2">
 					{#each semifinalSeeds as seeds, si}
-						<div class="rounded-lg border border-gray-800 overflow-hidden {matches[`m${si + 4}`] !== undefined && matches[`m${si + 4}`] !== null ? 'border-l-2 border-l-green-500' : ''}">
+						<div
+							class="rounded-lg border border-gray-800 overflow-hidden {matches[`m${si + 4}`] !==
+								undefined && matches[`m${si + 4}`] !== null
+								? 'border-l-2 border-l-green-500'
+								: ''}"
+						>
 							{#each seeds as seed, idx}
 								{#if seed !== undefined && seed !== null}
 									<button
 										type="button"
 										on:click={() => toggleWinner(si + 4, seed)}
-										class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches[`m${si + 4}`] === seed ? 'bg-green-600/30' : 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0 ? '' : 'border-t border-gray-700'}"
+										class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches[
+											`m${si + 4}`
+										] === seed
+											? 'bg-green-600/30'
+											: 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0
+											? ''
+											: 'border-t border-gray-700'}"
 									>
 										<img
 											src={heroFilename(players[seed]?.hero)}
@@ -177,7 +235,11 @@
 										{/if}
 									</button>
 								{:else}
-									<div class="w-full p-2 flex items-center gap-2 bg-gray-800/30 {idx === 0 ? '' : 'border-t border-gray-700'}">
+									<div
+										class="w-full p-2 flex items-center gap-2 bg-gray-800/30 {idx === 0
+											? ''
+											: 'border-t border-gray-700'}"
+									>
 										<div class="w-8 h-8 rounded-full bg-gray-700 flex-shrink-0"></div>
 										<div class="text-xs text-gray-600 italic">Awaiting QF winner</div>
 									</div>
@@ -190,15 +252,27 @@
 
 			<!-- Final -->
 			<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-				<div class="text-[10px] text-amber-400 uppercase tracking-wider font-medium mb-3">Final</div>
+				<div class="text-[10px] text-amber-400 uppercase tracking-wider font-medium mb-3">
+					Final
+				</div>
 				<div class="space-y-2">
-					<div class="rounded-lg border border-gray-800 overflow-hidden {matches.m6 !== undefined && matches.m6 !== null ? 'border-l-2 border-l-amber-500' : ''}">
+					<div
+						class="rounded-lg border border-gray-800 overflow-hidden {matches.m6 !== undefined &&
+						matches.m6 !== null
+							? 'border-l-2 border-l-amber-500'
+							: ''}"
+					>
 						{#each finalSeeds as seed, idx}
 							{#if seed !== undefined && seed !== null}
 								<button
 									type="button"
 									on:click={() => toggleWinner(6, seed)}
-									class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches.m6 === seed ? 'bg-amber-600/30' : 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0 ? '' : 'border-t border-gray-700'}"
+									class="w-full p-2 flex items-center gap-2 transition-colors focus:outline-none {matches.m6 ===
+									seed
+										? 'bg-amber-600/30'
+										: 'bg-gray-800/50 hover:bg-gray-800'} {idx === 0
+										? ''
+										: 'border-t border-gray-700'}"
 								>
 									<img
 										src={heroFilename(players[seed]?.hero)}
@@ -219,7 +293,11 @@
 									{/if}
 								</button>
 							{:else}
-								<div class="w-full p-2 flex items-center gap-2 bg-gray-800/30 {idx === 0 ? '' : 'border-t border-gray-700'}">
+								<div
+									class="w-full p-2 flex items-center gap-2 bg-gray-800/30 {idx === 0
+										? ''
+										: 'border-t border-gray-700'}"
+								>
 									<div class="w-8 h-8 rounded-full bg-gray-700 flex-shrink-0"></div>
 									<div class="text-xs text-gray-600 italic">Awaiting SF winner</div>
 								</div>
@@ -230,8 +308,12 @@
 
 				<!-- Champion Display -->
 				{#if matches.m6 !== undefined && matches.m6 !== null}
-					<div class="mt-3 p-3 rounded-lg bg-gradient-to-r from-amber-600/20 to-amber-500/10 border border-amber-500/30">
-						<div class="text-[10px] text-amber-400 uppercase tracking-wider font-medium mb-2">Champion</div>
+					<div
+						class="mt-3 p-3 rounded-lg bg-gradient-to-r from-amber-600/20 to-amber-500/10 border border-amber-500/30"
+					>
+						<div class="text-[10px] text-amber-400 uppercase tracking-wider font-medium mb-2">
+							Champion
+						</div>
 						<div class="flex items-center gap-3">
 							<img
 								src={heroFilename(players[matches.m6]?.hero)}
