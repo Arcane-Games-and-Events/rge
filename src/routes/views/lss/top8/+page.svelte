@@ -120,6 +120,7 @@
 								width={NAME_BOX.width}
 								height={NAME_BOX.height}
 								size={NAME_BOX.size}
+								align="left"
 							/>
 							<ShrinkText
 								text={(seat.hero || '').toUpperCase()}
@@ -127,6 +128,7 @@
 								height={HERO_BOX.height}
 								size={HERO_BOX.size}
 								weight={400}
+								align="left"
 							/>
 						{/if}
 					</div>
@@ -257,5 +259,8 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		/* The stills are 16:9 frames whose subject sits to the right, so a square crop
+		   taken from the centre would cut the hero in half. */
+		object-position: right center;
 	}
 </style>

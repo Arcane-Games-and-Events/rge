@@ -11,6 +11,14 @@
 	/** Font size in px when the text fits, which is most of the time. */
 	export let size = 28;
 	export let weight = 700;
+	/** 'center' keeps the line centred in the box; 'left' starts it at the left edge. */
+	export let align = 'center';
+
+	$: anchor = align === 'left' ? 'start' : 'middle';
+	// The viewBox is what scales an overlong line down, so the alignment has to be
+	// applied to it as well as to the text: leaving it centred would pull a shrunken
+	// line back towards the middle of the box.
+	$: fit = align === 'left' ? 'xMinYMid meet' : 'xMidYMid meet';
 
 	let textEl;
 	let contentWidth = width;
@@ -55,7 +63,7 @@
 {#if text}
 	<svg
 		{viewBox}
-		preserveAspectRatio="xMidYMid meet"
+		preserveAspectRatio={fit}
 		style="width:{width}px;height:{height}px;overflow:visible"
 		class:opacity-0={!measured}
 		aria-label={text}
@@ -63,9 +71,9 @@
 	>
 		<text
 			bind:this={textEl}
-			x={contentWidth / 2}
+			x={align === 'left' ? 0 : contentWidth / 2}
 			y={height / 2}
-			text-anchor="middle"
+			text-anchor={anchor}
 			dominant-baseline="central"
 			font-size={size}
 			font-weight={weight}
