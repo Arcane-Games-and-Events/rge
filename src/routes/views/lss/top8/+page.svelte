@@ -83,6 +83,26 @@
 	const NAME_BOX = { width: 250, height: 34, size: 30 };
 	const HERO_BOX = { width: 250, height: 20, size: 17 };
 
+	// The portrait and the notch cut for it come from the same numbers. The diamond is
+	// a square turned 45 degrees, so its half-width is side / sqrt(2), and a notch that
+	// wraps it needs its two edges at exactly that slope, meeting the diamond's own
+	// corners. Its centre sits DIAMOND_RIGHT + side/2 in from the tile's right edge.
+	const TILE_H = 105;
+	// Sized so the turned square spans the tile's full height: its top and bottom
+	// points then sit exactly on the bar's two notch corners.
+	const DIAMOND = TILE_H / Math.SQRT2;
+	const DIAMOND_RIGHT = 6;
+	const DIAMOND_HALF = (DIAMOND * Math.SQRT2) / 2;
+	const DIAMOND_CENTRE = DIAMOND_RIGHT + DIAMOND / 2;
+	// Clear space between the bar's edge and the diamond, measured straight across
+	// the gap. The edges run at 45 degrees, so opening a gap of g means moving the
+	// notch g * sqrt(2) along the horizontal.
+	const NOTCH_GAP = 2;
+	const NOTCH_SHIFT = NOTCH_GAP * Math.SQRT2;
+	const NOTCH_CORNER = DIAMOND_CENTRE + NOTCH_SHIFT;
+	const NOTCH_TIP = DIAMOND_CENTRE + DIAMOND_HALF + NOTCH_SHIFT;
+	const notchClip = `polygon(0 0, calc(100% - ${NOTCH_CORNER}px) 0, calc(100% - ${NOTCH_TIP}px) 50%, calc(100% - ${NOTCH_CORNER}px) 100%, 0 100%)`;
+
 	// 1ST, 2ND, 3RD, 4TH -- the placement reads as a finishing position rather than an
 	// index, which is what the seed number means to anyone watching.
 	function ordinal(n) {
@@ -116,7 +136,7 @@
 						{/if}
 					</div>
 
-					<div class="who">
+					<div class="who" style="clip-path: {notchClip};">
 						{#if seat}
 							<!-- Shrunk to fit rather than clipped: a long name must still be
 							     readable, and an ellipsis in the middle of someone's surname
@@ -141,7 +161,11 @@
 
 					<!-- Rotated square: the frame turns, the art turns back, so the portrait
 					     reads upright inside a diamond. -->
-					<div class="diamond">
+					<div
+						class="diamond"
+						style="width: {DIAMOND}px; height: {DIAMOND}px; right: {DIAMOND_RIGHT}px; margin-top: {-DIAMOND /
+							2}px;"
+					>
 						<div class="diamond-inner">
 							{#if seat && seat.hero}
 								<img src={heroImageUrl(seat.hero)} alt="" />
@@ -243,11 +267,9 @@
 
 	/* Name over hero, with room kept clear on the right for the diamond. */
 	/* The name bar runs darkest at the left and warms toward the portrait. Its right
-	   edge carries a "<" notch rather than a straight cut: the two corners stay out at
-	   the full width and the middle is pulled back, so the diamond sits into the bar
-	   instead of on top of it. The notch stops a few pixels short of the portrait's
-	   left corner: cut any deeper and a wedge of background shows through between the
-	   two. */
+	   edge is notched to the diamond's shape -- the clip-path is set inline from the
+	   same numbers that place the portrait, so the two edges run parallel with a
+	   constant gap between them. */
 	.who {
 		flex: 1;
 		min-width: 0;
@@ -258,17 +280,13 @@
 		justify-content: center;
 		gap: 3px;
 		background: linear-gradient(95deg, #2e1a3f 0%, #4a2657 48%, #7c4080 100%);
-		clip-path: polygon(0 0, 100% 0, calc(100% - 92px) 50%, 100% 100%, 0 100%);
 		box-sizing: border-box;
 	}
 
+	/* Size and position come from the script, alongside the notch cut for it. */
 	.diamond {
 		position: absolute;
-		right: 6px;
 		top: 50%;
-		width: 74px;
-		height: 74px;
-		margin-top: -37px;
 		transform: rotate(45deg);
 		overflow: hidden;
 		border: 3px solid #e4d5f2;
