@@ -97,7 +97,7 @@
 	// Clear space between the bar's edge and the diamond, measured straight across
 	// the gap. The edges run at 45 degrees, so opening a gap of g means moving the
 	// notch g * sqrt(2) along the horizontal.
-	const NOTCH_GAP = 2;
+	const NOTCH_GAP = 5;
 	const NOTCH_SHIFT = NOTCH_GAP * Math.SQRT2;
 	const NOTCH_CORNER = DIAMOND_CENTRE + NOTCH_SHIFT;
 	const NOTCH_TIP = DIAMOND_CENTRE + DIAMOND_HALF + NOTCH_SHIFT;
@@ -197,6 +197,7 @@
 		display: flex;
 		align-items: center;
 		font-size: 32px;
+		font-weight: 700;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: #24132f !important;
@@ -249,12 +250,14 @@
 	   the parent is. */
 	.num {
 		font-size: 36px;
+		font-weight: 700;
 		line-height: 1;
 		color: #24132f !important;
 	}
 
 	.suffix {
 		font-size: 16px;
+		font-weight: 700;
 		margin-left: 2px;
 		color: #24132f !important;
 	}
