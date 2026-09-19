@@ -29,13 +29,23 @@ const videoBase = (env.PUBLIC_HERO_VIDEO_BASE_URL || '').trim().replace(/\/+$/, 
 /**
  * Video candidates for a hero, best first, or [] when no bucket is configured.
  *
- * An array rather than a single URL so a second format can be added later without
- * touching the component that consumes it.
+ * Best first: the hero's own film, then the plain-name one it shares with its other
+ * versions. The component works down the list, so a missing file costs one 404.
  * @param {string} name
  * @returns {string[]}
  */
 export function heroVideoUrls(name) {
 	const slug = heroSlug(name);
 	if (!videoBase || !slug) return [];
-	return [`${videoBase}/${slug}.mp4`];
+
+	const urls = [`${videoBase}/${slug}.webm`];
+
+	// A titled hero with no film of its own falls back to the plain name, because the
+	// two are the same character: "Briar, Warden of Thorns" plays briar.webm. Twenty
+	// three heroes rely on this rather than on a duplicated upload. Tried in order, so
+	// a hero that does have its own film never reaches the fallback.
+	const plain = heroSlug(String(name).split(',')[0]);
+	if (plain && plain !== slug) urls.push(`${videoBase}/${plain}.webm`);
+
+	return urls;
 }

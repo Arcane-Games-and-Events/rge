@@ -19,12 +19,26 @@
 
 	let frameShown = false;
 	let videoFailed = false;
+	let attempt = 0;
 
 	// The {#key} below rebuilds the elements on a hero change but not this state.
-	$: (hero, ((frameShown = false), (videoFailed = false)));
+	$: (hero, ((frameShown = false), (videoFailed = false), (attempt = 0)));
 
 	$: imageSrc = heroImageUrl(hero);
-	$: videoSrc = heroVideoUrls(hero)[0] ?? '';
+	$: candidates = heroVideoUrls(hero);
+	$: videoSrc = candidates[attempt] ?? '';
+
+	// Candidates are ordered best first -- the hero's own film, then the plain-name one
+	// shared with its other versions. A 404 on the first is the normal way a titled
+	// hero reaches the shared film, so it steps down the list rather than giving up.
+	function nextCandidate() {
+		if (attempt + 1 < candidates.length) {
+			attempt += 1;
+			frameShown = false;
+		} else {
+			videoFailed = true;
+		}
+	}
 
 	// Whether every byte is held locally. `canplaythrough` is not the same thing -- it means
 	// the browser guesses it can reach the end at the current download rate, which is a
@@ -133,20 +147,24 @@
 			/>
 
 			{#if videoSrc && !videoFailed}
-				<video
-					use:playWhenLoaded
-					src={videoSrc}
-					class="absolute inset-0 h-full w-full object-cover transition-opacity duration-150"
-					class:opacity-0={!frameShown}
-					loop
-					muted
-					playsinline
-					preload="auto"
-					aria-hidden="true"
-					tabindex="-1"
-					on:loadeddata={() => (frameShown = true)}
-					on:error={() => (videoFailed = true)}
-				></video>
+				<!-- Keyed on the URL as well as the hero: stepping to the next candidate has
+				     to build a fresh element, since the action only loads its node once. -->
+				{#key videoSrc}
+					<video
+						use:playWhenLoaded
+						src={videoSrc}
+						class="absolute inset-0 h-full w-full object-cover transition-opacity duration-150"
+						class:opacity-0={!frameShown}
+						loop
+						muted
+						playsinline
+						preload="auto"
+						aria-hidden="true"
+						tabindex="-1"
+						on:loadeddata={() => (frameShown = true)}
+						on:error={nextCandidate}
+					></video>
+				{/key}
 			{/if}
 		</div>
 	{/key}
