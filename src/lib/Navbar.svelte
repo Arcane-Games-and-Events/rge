@@ -14,7 +14,8 @@
 		{ name: 'Production Booth', href: '/productionbooth' },
 		{ name: 'Metagame', href: '/metagame' },
 		{ name: 'Top 8', href: '/graphics' },
-		{ name: 'Event Presets', href: '/eventpresets' }
+		{ name: 'Event Presets', href: '/eventpresets' },
+		{ name: 'Judge QR', href: '/judge/qr' }
 	];
 
 	const archiveItems = [
@@ -24,7 +25,9 @@
 	];
 
 	$: currentPath = $page?.url?.pathname || '';
-	$: isArchiveActive = archiveItems.some(item => currentPath === item.href || currentPath.startsWith(item.href + '/'));
+	$: isArchiveActive = archiveItems.some(
+		(item) => currentPath === item.href || currentPath.startsWith(item.href + '/')
+	);
 
 	function handleClickOutside(e) {
 		if (!e.target.closest('.archive-dropdown')) {
@@ -41,7 +44,9 @@
 			<!-- Logo -->
 			<div class="flex items-center gap-8">
 				<a href="/" class="flex items-center gap-2">
-					<span class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text font-display text-2xl font-bold text-transparent">
+					<span
+						class="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text font-display text-2xl font-bold text-transparent"
+					>
 						RGE
 					</span>
 				</a>
@@ -53,8 +58,8 @@
 							href={item.href}
 							class="rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
 								{currentPath === item.href || currentPath.startsWith(item.href + '/')
-									? 'bg-white/10 text-white'
-									: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
+								? 'bg-white/10 text-white'
+								: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
 						>
 							{item.name}
 						</a>
@@ -64,27 +69,37 @@
 					<div class="relative archive-dropdown">
 						<button
 							type="button"
-							on:click|stopPropagation={() => isArchiveOpen = !isArchiveOpen}
+							on:click|stopPropagation={() => (isArchiveOpen = !isArchiveOpen)}
 							class="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
-								{isArchiveActive
-									? 'bg-white/10 text-white'
-									: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
+								{isArchiveActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}"
 						>
 							Archive
-							<svg class="h-4 w-4 transition-transform {isArchiveOpen ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+							<svg
+								class="h-4 w-4 transition-transform {isArchiveOpen ? 'rotate-180' : ''}"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+								/>
 							</svg>
 						</button>
 						{#if isArchiveOpen}
-							<div class="absolute left-0 top-full mt-1 w-40 rounded-lg border border-white/10 bg-gray-900 py-1 shadow-xl">
+							<div
+								class="absolute left-0 top-full mt-1 w-40 rounded-lg border border-white/10 bg-gray-900 py-1 shadow-xl"
+							>
 								{#each archiveItems as item}
 									<a
 										href={item.href}
-										on:click={() => isArchiveOpen = false}
+										on:click={() => (isArchiveOpen = false)}
 										class="block px-4 py-2 text-sm transition-colors
 											{currentPath === item.href || currentPath.startsWith(item.href + '/')
-												? 'bg-white/10 text-white'
-												: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
+											? 'bg-white/10 text-white'
+											: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
 									>
 										{item.name}
 									</a>
@@ -105,12 +120,28 @@
 				>
 					<span class="sr-only">Open main menu</span>
 					{#if isMobileMenuOpen}
-						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+						<svg
+							class="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+						>
 							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
 						</svg>
 					{:else}
-						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+						<svg
+							class="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+							/>
 						</svg>
 					{/if}
 				</button>
@@ -128,8 +159,8 @@
 						on:click={() => (isMobileMenuOpen = false)}
 						class="block rounded-lg px-3 py-2.5 text-base font-medium transition-all duration-200
 							{currentPath === item.href || currentPath.startsWith(item.href + '/')
-								? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white'
-								: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
+							? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white'
+							: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
 					>
 						{item.name}
 					</a>
@@ -139,15 +170,25 @@
 				<div class="pt-2 border-t border-white/10 mt-2">
 					<button
 						type="button"
-						on:click={() => isMobileArchiveOpen = !isMobileArchiveOpen}
+						on:click={() => (isMobileArchiveOpen = !isMobileArchiveOpen)}
 						class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-base font-medium transition-all duration-200
 							{isArchiveActive
-								? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white'
-								: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
+							? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white'
+							: 'text-gray-400 hover:bg-white/5 hover:text-white'}"
 					>
 						Archive
-						<svg class="h-5 w-5 transition-transform {isMobileArchiveOpen ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+						<svg
+							class="h-5 w-5 transition-transform {isMobileArchiveOpen ? 'rotate-180' : ''}"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+							/>
 						</svg>
 					</button>
 					{#if isMobileArchiveOpen}
@@ -155,11 +196,14 @@
 							{#each archiveItems as item}
 								<a
 									href={item.href}
-									on:click={() => { isMobileMenuOpen = false; isMobileArchiveOpen = false; }}
+									on:click={() => {
+										isMobileMenuOpen = false;
+										isMobileArchiveOpen = false;
+									}}
 									class="block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
 										{currentPath === item.href || currentPath.startsWith(item.href + '/')
-											? 'bg-white/10 text-white'
-											: 'text-gray-500 hover:bg-white/5 hover:text-white'}"
+										? 'bg-white/10 text-white'
+										: 'text-gray-500 hover:bg-white/5 hover:text-white'}"
 								>
 									{item.name}
 								</a>

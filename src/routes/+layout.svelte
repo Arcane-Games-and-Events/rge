@@ -6,22 +6,20 @@
 
 	injectSpeedInsights();
 
-	// Define routes where the navbar and dark theme should be hidden (OBS views)
-	const excludedRoutes = ['/views/'];
+	// OBS views render bare: no navbar, no dark theme. The judge page keeps the
+	// theme but drops the navbar, since it is opened on a judge's phone from a QR
+	// code and should offer nothing beyond its own controls.
+	const viewRoutes = ['/views/'];
+	const bareRoutes = ['/judge'];
 
-	// Reactive variable to determine if we're on an admin/control route (not OBS views)
-	let isAdminRoute = true;
-
-	// Reactively determine if the current route is excluded
-	$: {
-		const currentPath = $page?.url?.pathname || '';
-		isAdminRoute = !excludedRoutes.some((route) => currentPath.startsWith(route));
-	}
+	$: currentPath = $page?.url?.pathname || '';
+	$: isView = viewRoutes.some((route) => currentPath.startsWith(route));
+	$: showNav = !isView && !bareRoutes.includes(currentPath);
 </script>
 
-{#if isAdminRoute}
+{#if !isView}
 	<div class="dark-theme min-h-screen bg-gray-950">
-		<Navbar />
+		{#if showNav}<Navbar />{/if}
 		<main class="relative">
 			<slot />
 		</main>

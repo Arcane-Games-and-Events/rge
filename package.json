@@ -40,6 +40,7 @@
 		"@flesh-and-blood/search": "^5.1.5",
 		"@flesh-and-blood/types": "^5.1.0",
 		"@vercel/speed-insights": "^1.0.12",
-		"flag-icons": "^7.5.0"
+		"flag-icons": "^7.5.0",
+		"qrcode": "^1.5.4"
 	}
 }
