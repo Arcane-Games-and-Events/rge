@@ -1,5 +1,5 @@
 <script>
-	import { onMount, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 
 	// Text that always occupies the same box: it shrinks when it is long and grows
 	// when it is short. The lines are drawn into an SVG whose viewBox is set to the
@@ -122,17 +122,29 @@
 		}
 	}
 
+	// A cold load can measure before the face has even been requested: with no
+	// text on the page yet, fonts.ready resolves at once, the name then arrives
+	// and renders in the fallback face, and Tiller swaps in under a measurement
+	// taken against the wrong glyphs. The next refresh has the font cached and
+	// comes out right, which is how it showed up in OBS. So whenever a face
+	// finishes loading, reflow again. Redo the whole reflow rather than just
+	// re-measuring: the line sizes are derived from glyph widths, so they need
+	// recomputing against the real face too.
+	const onFontsLoaded = () => reflow();
+
 	onMount(async () => {
-		// The first pass runs against the fallback face, since the webfont is still
-		// loading. Redo the whole reflow once it lands rather than just
-		// re-measuring: the line sizes are derived from glyph widths, so they need
-		// recomputing against the real face too.
+		document.fonts?.addEventListener?.('loadingdone', onFontsLoaded);
 		try {
 			await document.fonts?.ready;
 		} catch {
 			// no font loading API; the pass above stands
 		}
 		await reflow();
+	});
+
+	onDestroy(() => {
+		if (typeof document !== 'undefined')
+			document.fonts?.removeEventListener?.('loadingdone', onFontsLoaded);
 	});
 </script>
 

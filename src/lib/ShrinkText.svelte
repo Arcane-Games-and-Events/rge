@@ -1,5 +1,5 @@
 <script>
-	import { onMount, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 
 	// One line of text in a box of fixed size. It renders at a set font size and
 	// only shrinks when it would otherwise overrun the box, so most names look
@@ -49,14 +49,25 @@
 		}
 	}
 
+	// Measuring before the webfont lands would size against the fallback face, and
+	// fonts.ready alone does not guard against it: on a cold load the text is not
+	// there yet when it resolves, so the face has not even been requested. Measure
+	// again whenever a face finishes loading.
+	const onFontsLoaded = () => remeasure();
+
 	onMount(async () => {
-		// Measuring before the webfont lands would size against the fallback face.
+		document.fonts?.addEventListener?.('loadingdone', onFontsLoaded);
 		try {
 			await document.fonts?.ready;
 		} catch {
 			// no font loading API; the measurement above stands
 		}
 		measure();
+	});
+
+	onDestroy(() => {
+		if (typeof document !== 'undefined')
+			document.fonts?.removeEventListener?.('loadingdone', onFontsLoaded);
 	});
 </script>
 
