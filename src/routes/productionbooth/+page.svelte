@@ -6,6 +6,7 @@
 	import MatchInfo from '../../lib/MatchInfo.svelte';
 	import TurnCounter from '../../lib/TurnCounter.svelte';
 	import ActivePlayerControl from '../../lib/ActivePlayerControl.svelte';
+	import ChoiceControl from '../../lib/ChoiceControl.svelte';
 	import TableCard from '../../lib/TableCard.svelte';
 	import CommentatorBooth from '../../lib/CommentatorBooth.svelte';
 	import { formatTime } from '$lib/timerDisplay';
@@ -342,6 +343,7 @@
 				<!-- Turn counter and which side is on the play -->
 				<TurnCounter />
 				<ActivePlayerControl />
+				<ChoiceControl />
 
 				<!-- Round info / status row -->
 				<div class="rounded-lg border border-gray-800 bg-gray-900 p-1.5">
