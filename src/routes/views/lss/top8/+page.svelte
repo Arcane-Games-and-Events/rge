@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../../firebaseClient';
 	import { heroImageUrl } from '$lib/heroMedia';
@@ -37,14 +38,25 @@
 		[1, 6]
 	];
 
-	$: rounds = [
+	// Each seat is resolved here rather than with {@const} in the markup, for two
+	// reasons. It makes `players` a visible dependency of `rounds`, so the tiles
+	// refresh when a player is edited. And Svelte 4 drops the intro/outro methods
+	// from any block that has an {@const} as a direct child, so with one sitting
+	// between the {#if} and the {#key}, the winner's fade-in was never scheduled.
+	const seatFor = (seed) => (seed === undefined || seed === null ? null : players[seed]);
+	const seats = (pair) => pair.map((seed, i) => ({ i, seed, seat: seatFor(seed) }));
+
+	// `players &&` puts the store in the reactive statement's own expression;
+	// seatFor reads it from inside a function body, which Svelte cannot see.
+	$: rounds = players && [
 		{
 			label: 'Quarters',
 			x: 23,
 			labelY: 23,
-			matches: QUARTER_SEEDS.map((seeds, i) => ({
+			advances: true,
+			matches: QUARTER_SEEDS.map((pair, i) => ({
 				key: `m${i}`,
-				seeds,
+				seats: seats(pair),
 				y: [87 + i * 250, 202 + i * 250]
 			}))
 		},
@@ -52,16 +64,17 @@
 			label: 'Semis',
 			x: 702,
 			labelY: 148,
+			advances: true,
 			matches: [
-				{ key: 'm4', seeds: [matches.m0, matches.m1], y: [212, 327] },
-				{ key: 'm5', seeds: [matches.m2, matches.m3], y: [712, 827] }
+				{ key: 'm4', seats: seats([matches.m0, matches.m1]), y: [212, 327] },
+				{ key: 'm5', seats: seats([matches.m2, matches.m3]), y: [712, 827] }
 			]
 		},
 		{
 			label: 'Finals',
 			x: 1370,
 			labelY: 398,
-			matches: [{ key: 'm6', seeds: [matches.m4, matches.m5], y: [462, 577] }]
+			matches: [{ key: 'm6', seats: seats([matches.m4, matches.m5]), y: [462, 577] }]
 		}
 	];
 
@@ -69,11 +82,6 @@
 	// leaves both at full strength rather than guessing at one.
 	const decided = (key, seed) =>
 		matches[key] !== undefined && matches[key] !== null && matches[key] !== seed;
-
-	// Seats are resolved in the markup rather than through this helper: Svelte tracks
-	// the dependencies it can see in an expression, and `players` read inside a
-	// function body is not one of them, so the quarters kept showing the old values
-	// until something else forced the block to rebuild.
 
 	// Fixed boxes so every tile lines up whatever the names are: both lines render at
 	// their set size and only an unusually long one is scaled down inside its box.
@@ -88,6 +96,13 @@
 	// wraps it needs its two edges at exactly that slope, meeting the diamond's own
 	// corners. Its centre sits DIAMOND_RIGHT + side/2 in from the tile's right edge.
 	const TILE_H = 105;
+	const TILE_W = 472;
+
+	// The chevron beside each pair that points the winner at the next round: 48x68,
+	// centred on the pair. The reference stood it 45px clear of the tiles; it sits
+	// tighter here, and since the diamond overhangs the tile by 9px the clearance
+	// from the portrait's point is 9px less than the gap says.
+	const ARROW = { w: 48, h: 68, gap: 20 };
 	// Sized so the turned square spans the tile's full height: its top and bottom
 	// points then sit exactly on the bar's two notch corners.
 	const DIAMOND = TILE_H / Math.SQRT2;
@@ -97,11 +112,17 @@
 	// Clear space between the bar's edge and the diamond, measured straight across
 	// the gap. The edges run at 45 degrees, so opening a gap of g means moving the
 	// notch g * sqrt(2) along the horizontal.
-	const NOTCH_GAP = 5;
+	const NOTCH_GAP = 10;
 	const NOTCH_SHIFT = NOTCH_GAP * Math.SQRT2;
 	const NOTCH_CORNER = DIAMOND_CENTRE + NOTCH_SHIFT;
 	const NOTCH_TIP = DIAMOND_CENTRE + DIAMOND_HALF + NOTCH_SHIFT;
 	const notchClip = `polygon(0 0, calc(100% - ${NOTCH_CORNER}px) 0, calc(100% - ${NOTCH_TIP}px) 50%, calc(100% - ${NOTCH_CORNER}px) 100%, 0 100%)`;
+
+	// How a winner arrives in the next round's box. Long enough to read as an
+	// entrance rather than a flicker, short enough that the bracket never looks
+	// behind the operator. The loser's box dims on its own, faster, so the eye
+	// goes from the fade-down to the fade-up.
+	const ARRIVE_MS = 500;
 
 	// 1ST, 2ND, 3RD, 4TH -- the placement reads as a finishing position rather than an
 	// index, which is what the seed number means to anyone watching.
@@ -117,46 +138,79 @@
 		<div class="label" style="left: {round.x}px; top: {round.labelY}px;">{round.label}</div>
 
 		{#each round.matches as match (match.key)}
-			{#each match.seeds as seed, i (i)}
-				{@const seat = seed === undefined || seed === null ? null : players[seed]}
+			{#if round.advances}
+				<!-- Two strokes closing to a point: the pair on the left, the winner's
+				     destination on the right. -->
+				<svg
+					class="arrow"
+					width={ARROW.w}
+					height={ARROW.h}
+					viewBox="0 0 {ARROW.w} {ARROW.h}"
+					style="left: {round.x + TILE_W + ARROW.gap}px; top: {(match.y[0] + match.y[1] + TILE_H) /
+						2 -
+						ARROW.h / 2}px;"
+					aria-hidden="true"
+				>
+					<polyline
+						points="4,4 {ARROW.w - 4},{ARROW.h / 2} 4,{ARROW.h - 4}"
+						fill="none"
+						stroke="#ffffff"
+						stroke-width="5"
+						stroke-linecap="square"
+						stroke-linejoin="miter"
+					/>
+				</svg>
+			{/if}
+			{#each match.seats as { i, seed, seat } (i)}
 				<div
 					class="tile"
 					class:dim={decided(match.key, seed)}
 					style="left: {round.x}px; top: {match.y[i]}px;"
 				>
 					<div class="placement">
-						{#if seat}
-							{@const o = ordinal(seed + 1)}
-							<span class="rank"
-								><span class="num">{o.n}</span><span class="suffix">{o.suffix}</span></span
-							>
-							{#if seat.flag}
-								<span class="fi fi-{seat.flag} flag"></span>
-							{/if}
-						{/if}
+						<!-- A keyed each around the fading element, rather than an if block with a
+						     key block inside it. With the key block between the if and the element,
+						     the compiled block was rebuilt on change without ever scheduling its
+						     intro, so the winner snapped in. A keyed each mounts with an intro,
+						     unmounts with an outro, and a changed key does both -- a winner re-picked
+						     to a different seat arrives the same way a first winner does. -->
+						{#each seat ? [seed] : [] as key (key)}
+							<div class="arrive" transition:fade={{ duration: ARRIVE_MS }}>
+								<span class="rank"
+									><span class="num">{ordinal(seed + 1).n}</span><span class="suffix"
+										>{ordinal(seed + 1).suffix}</span
+									></span
+								>
+								{#if seat.flag}
+									<span class="fi fi-{seat.flag} flag"></span>
+								{/if}
+							</div>
+						{/each}
 					</div>
 
 					<div class="who" style="clip-path: {notchClip};">
-						{#if seat}
-							<!-- Shrunk to fit rather than clipped: a long name must still be
-							     readable, and an ellipsis in the middle of someone's surname
-							     is not something to put on air. -->
-							<ShrinkText
-								text={(seat.name || '').toUpperCase()}
-								width={NAME_BOX.width}
-								height={NAME_BOX.height}
-								size={NAME_BOX.size}
-								align="left"
-							/>
-							<ShrinkText
-								text={(seat.hero || '').toUpperCase()}
-								width={HERO_BOX.width}
-								height={HERO_BOX.height}
-								size={HERO_BOX.size}
-								weight={400}
-								align="left"
-							/>
-						{/if}
+						{#each seat ? [seed] : [] as key (key)}
+							<div class="arrive" transition:fade={{ duration: ARRIVE_MS }}>
+								<!-- Shrunk to fit rather than clipped: a long name must still be
+								     readable, and an ellipsis in the middle of someone's surname
+								     is not something to put on air. -->
+								<ShrinkText
+									text={(seat.name || '').toUpperCase()}
+									width={NAME_BOX.width}
+									height={NAME_BOX.height}
+									size={NAME_BOX.size}
+									align="left"
+								/>
+								<ShrinkText
+									text={(seat.hero || '').toUpperCase()}
+									width={HERO_BOX.width}
+									height={HERO_BOX.height}
+									size={HERO_BOX.size}
+									weight={400}
+									align="left"
+								/>
+							</div>
+						{/each}
 					</div>
 
 					<!-- Rotated square: the frame turns, the art turns back, so the portrait
@@ -167,9 +221,13 @@
 							2}px;"
 					>
 						<div class="diamond-inner">
-							{#if seat && seat.hero}
-								<img src={heroImageUrl(seat.hero)} alt="" />
-							{/if}
+							{#each seat && seat.hero ? [seed] : [] as key (key)}
+								<img
+									src={heroImageUrl(seat.hero)}
+									alt=""
+									transition:fade={{ duration: ARRIVE_MS }}
+								/>
+							{/each}
 						</div>
 					</div>
 				</div>
@@ -201,9 +259,13 @@
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: #24132f !important;
-		background: linear-gradient(180deg, #efe4f8, #d9c4ec);
+		background: linear-gradient(180deg, #f6ecff 0%, #ecd6fe 50%, #dcc0f4 100%);
 		border: 3px solid #2a1636;
-		border-radius: 6px;
+	}
+
+	.arrow {
+		position: absolute;
+		overflow: visible;
 	}
 
 	.tile {
@@ -230,13 +292,26 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 5px;
+		gap: 8px;
 		color: #24132f !important;
-		background: linear-gradient(180deg, #efe4f8, #cfb6e6);
-		border-radius: 6px;
+		background: linear-gradient(180deg, #f6ecff 0%, #ecd6fe 50%, #dcc0f4 100%);
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 		box-sizing: border-box;
 		z-index: 1;
+	}
+
+	/* The fading wrapper takes over the layout its parent box used to do. */
+	.placement .arrive {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.who .arrive {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
 	}
 
 	.rank {
@@ -263,14 +338,14 @@
 	}
 
 	.flag {
-		width: 34px !important;
-		height: 23px !important;
-		line-height: 23px !important;
+		width: 36px !important;
+		height: 27px !important;
+		line-height: 27px !important;
 	}
 
 	/* Name over hero, with room kept clear on the right for the diamond. */
-	/* The name bar runs darkest at the left and warms toward the portrait. Its right
-	   edge is notched to the diamond's shape -- the clip-path is set inline from the
+	/* The name bar holds #3A274E across its left half and lifts toward the portrait,
+	   as the reference does. Its right edge is notched to the diamond's shape -- the clip-path is set inline from the
 	   same numbers that place the portrait, so the two edges run parallel with a
 	   constant gap between them. */
 	.who {
@@ -282,7 +357,7 @@
 		flex-direction: column;
 		justify-content: center;
 		gap: 3px;
-		background: linear-gradient(95deg, #2e1a3f 0%, #4a2657 48%, #7c4080 100%);
+		background: linear-gradient(95deg, #3a274e 0%, #3a274e 42%, #6e4a8a 100%);
 		box-sizing: border-box;
 	}
 
