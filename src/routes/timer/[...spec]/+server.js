@@ -77,8 +77,16 @@ function respond(request, status, headline, detail, clock) {
 	});
 }
 
-/** @param {{ params: { spec?: string }, request: Request, fetch: typeof fetch }} event */
-async function setTimer({ params, request, fetch }) {
+// The write goes out through Node's own fetch, taken as this module loads, not
+// the global looked up at call time. In development SvelteKit swaps that global
+// for a warning wrapper while it renders a page, and Companion tends to send a
+// timer command in the same instant OBS reloads its sources, which logged
+// "Avoid calling fetch eagerly during server-side rendering" for a write that
+// has nothing to do with rendering.
+const nativeFetch = globalThis.fetch;
+
+/** @param {{ params: { spec?: string }, request: Request }} event */
+async function setTimer({ params, request }) {
 	const command = parseTimerCommand((params.spec || '').split('/'));
 
 	if (!command.ok) {
@@ -103,7 +111,7 @@ async function setTimer({ params, request, fetch }) {
 	if (command.type === 'Round') fields.isCountingUp = command.countUp;
 
 	try {
-		const res = await fetch(`${base}/timers/${command.type}.json`, {
+		const res = await nativeFetch(`${base}/timers/${command.type}.json`, {
 			method: 'PATCH',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(fields)
