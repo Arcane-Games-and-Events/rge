@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
+	import ShrinkText from '$lib/ShrinkText.svelte';
 
 	// Hydrate from localStorage or defaults
 	let players, matches;
@@ -28,7 +29,8 @@
 		matches = { m0: null, m1: null, m2: null, m3: null, m4: null, m5: null, m6: null };
 	}
 
-	let playersUnsub, matchesUnsub;
+	let playersUnsub, matchesUnsub, eventUnsub;
+	let eventText = '';
 	let imagesReady = false;
 	let preloadedImages = new Map();
 
@@ -94,12 +96,10 @@
 
 	// Preload all player hero images
 	async function preloadAllImages(playerList) {
-		const heroesToLoad = playerList
-			.map(p => p.hero)
-			.filter(h => h && h.trim());
+		const heroesToLoad = playerList.map((p) => p.hero).filter((h) => h && h.trim());
 
 		// Count how many images will be in the DOM (quarterfinals always show 8)
-		const qfImageCount = playerList.filter(p => p.hero && p.hero.trim()).length;
+		const qfImageCount = playerList.filter((p) => p.hero && p.hero.trim()).length;
 		resetDisplayState(qfImageCount);
 
 		if (heroesToLoad.length === 0) {
@@ -109,7 +109,7 @@
 		}
 
 		imagesReady = false;
-		const promises = heroesToLoad.map(hero => preloadImage(hero));
+		const promises = heroesToLoad.map((hero) => preloadImage(hero));
 		await Promise.all(promises);
 		imagesReady = true;
 	}
@@ -145,6 +145,7 @@
 			await preloadAllImages(players);
 		});
 
+		eventUnsub = onValue(ref(db, 'eventText'), (snap) => (eventText = snap.val() ?? ''));
 		matchesUnsub = onValue(ref(db, 'top8/matches'), (snap) => {
 			const d = snap.val() || {};
 			matches = {
@@ -163,6 +164,7 @@
 	onDestroy(() => {
 		playersUnsub && playersUnsub();
 		matchesUnsub && matchesUnsub();
+		eventUnsub && eventUnsub();
 	});
 
 	// === BRACKET ORDER ===
@@ -180,124 +182,456 @@
 	];
 	// Final: winners of those semis
 	$: viewFinalSeeds = [matches.m4, matches.m5];
+
+	// === CELLS ===
+	// The scene behind this source draws the bracket itself: fourteen dark plates
+	// and the lines between them. These are the plates' positions on the 1920x1080
+	// frame, measured off that scene and then nudged 3px left to match OBS, so
+	// each player lands inside their plate.
+	const CELL_H = 88;
+	// What a name may take of the cell: the width less the edge, the padding, the
+	// portrait and the gap beside it. A longer name shrinks to fit rather than clips.
+	// The portrait is a square the full height of the cell at its right end,
+	// standing clear of the plate by a gap. The text stops short of the gap.
+	const SQUARE = CELL_H;
+	const GAP = 8;
+	const TEXT_LEFT = 20;
+	const BADGE_W = 34 + 12;
+	const NAME_INSET = 4 + TEXT_LEFT + BADGE_W + SQUARE + GAP + 14;
+
+	// How a cell stands once its match is decided: the winner's edge turns green
+	// and the loser dims, as on the pairings; the champion is marked in tan.
+	const outcome = (winner, seed) =>
+		winner == null || seed == null ? '' : Number(winner) === Number(seed) ? 'won' : 'lost';
+	const NAME = { height: 32, size: 27 };
+	const HERO = { height: 22, size: 18 };
+	const QF = { left: 103, width: 454, tops: [87, 185, 299, 397, 511, 609, 723, 821] };
+	const SF = { left: 676, width: 470, tops: [284, 389, 554, 658] };
+	const FINAL = { left: 1213, width: 470, tops: [409, 509] };
+	// The event's name and the title, under the final, where the scene had them.
+	const CAPTION = { left: 1224, top: 636 };
 </script>
 
 {#if imagesReady}
-<div class="w-full py-8" class:ready={displayReady}>
-	<div class="mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-8">
+	<div class="stage" class:ready={displayReady}>
 		<!-- Quarterfinals -->
-		<div class="space-y-[45px]">
-			{#each viewQuarterSeeds as seeds, matchIdx}
-				<div class="space-y-[28px]">
-					{#each seeds as seed, playerIdx}
-						{@const delay = (matchIdx * 2 + playerIdx) * 80}
-						<div class="player-row flex justify-end gap-x-2 h-[70px]" class:animate={displayReady} style="--delay: {delay}ms;">
-							<div class="flex flex-col text-right -space-y-1">
-								<div class="text-[25px] font-bold text-white">
-									({seed + 1}) {players[seed].name || '—'}
-								</div>
-								<div class="text-[20px] italic font-bold text-[#D9B499]">
-									{players[seed].hero || '—'}
-								</div>
-							</div>
-							{#if players[seed].hero}
+		{#each viewQuarterSeeds as seeds, matchIdx}
+			{#each seeds as seed, playerIdx}
+				{@const i = matchIdx * 2 + playerIdx}
+				{@const COL = QF}
+				<div
+					class="player-row {outcome(matches[`m${matchIdx}`], seed)}"
+					class:animate={displayReady}
+					style="--delay: {i * 80}ms; left: {QF.left}px; top: {QF.tops[i]}px; width: {QF.width}px;"
+				>
+					<div class="plate"></div>
+					<div class="content">
+						{#if players[seed].hero}
+							<div class="art">
 								<img
 									src={getPreloadedImage(players[seed].hero)}
 									alt={players[seed].hero}
-									class="w-[70px] h-[70px] rounded-full object-cover object-right"
 									on:load={handleDomImageLoad}
 									on:error={handleDomImageLoad}
 								/>
-							{/if}
+							</div>
+						{/if}
+						<div class="seed">{seed + 1}</div>
+						<div class="who">
+							<div class="name">
+								<ShrinkText
+									text={players[seed].name || '—'}
+									width={COL.width - NAME_INSET}
+									height={NAME.height}
+									size={NAME.size}
+									align="left"
+								/>
+							</div>
+							<div class="hero">
+								<ShrinkText
+									text={players[seed].hero || '—'}
+									width={COL.width - NAME_INSET}
+									height={HERO.height}
+									size={HERO.size}
+									align="left"
+								/>
+							</div>
 						</div>
-					{/each}
+					</div>
 				</div>
 			{/each}
-		</div>
+		{/each}
 
 		<!-- Semifinals (fade-in winners) -->
-		<div class="space-y-[100px]">
-			{#each viewSemiSeeds as seeds, matchIdx}
-				<div class="space-y-[36px]">
-					{#each seeds as seed, playerIdx}
-						{@const delay = 640 + (matchIdx * 2 + playerIdx) * 80}
-						<div
-							class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
-							class:animate={displayReady}
-							class:opacity-0={seed === null}
-							class:opacity-100={seed !== null}
-							style="--delay: {delay}ms;"
-						>
+		{#each viewSemiSeeds as seeds, matchIdx}
+			{#each seeds as seed, playerIdx}
+				{@const i = matchIdx * 2 + playerIdx}
+				{@const COL = SF}
+				<div
+					class="player-row {outcome(matches[`m${4 + matchIdx}`], seed)}"
+					class:animate={displayReady}
+					style="--delay: {640 + i * 80}ms; left: {SF.left}px; top: {SF.tops[
+						i
+					]}px; width: {SF.width}px;"
+				>
+					<div class="plate"></div>
+					{#key seed}
+						<div class="content" class:arrive={seed !== null}>
+							{#if seed !== null}<div class="flash"></div>{/if}
 							{#if seed !== null}
-								<div class="flex flex-col text-right -space-y-1">
-									<div class="text-[25px] font-bold text-white">
-										({seed + 1}) {players[seed].name}
+								<div class="art">
+									<img src={getPreloadedImage(players[seed].hero)} alt={players[seed].hero} />
+								</div>
+								<div class="seed">{seed + 1}</div>
+								<div class="who">
+									<div class="name">
+										<ShrinkText
+											text={players[seed].name}
+											width={COL.width - NAME_INSET}
+											height={NAME.height}
+											size={NAME.size}
+											align="left"
+										/>
 									</div>
-									<div class="text-[20px] italic font-bold text-[#D9B499]">
-										{players[seed].hero}
+									<div class="hero">
+										<ShrinkText
+											text={players[seed].hero}
+											width={COL.width - NAME_INSET}
+											height={HERO.height}
+											size={HERO.size}
+											align="left"
+										/>
 									</div>
 								</div>
-								<img
-									src={getPreloadedImage(players[seed].hero)}
-									alt={players[seed].hero}
-									class="w-[70px] h-[70px] rounded-full object-cover object-right"
-								/>
 							{/if}
 						</div>
-					{/each}
+					{/key}
 				</div>
 			{/each}
+		{/each}
+
+		<!-- Event and title -->
+		<div
+			class="caption"
+			class:animate={displayReady}
+			style="left: {CAPTION.left}px; top: {CAPTION.top}px;"
+		>
+			{#if eventText}<p class="event">{eventText}</p>{/if}
+			<h1 class="title"><b>Top 8</b> Bracket</h1>
 		</div>
 
 		<!-- Final (fade-in winners) -->
-		<div class="space-y-[30px]">
-			{#each viewFinalSeeds as seed, idx}
-				{@const delay = 960 + idx * 80}
-				<div
-					class="player-row flex justify-end gap-x-2 h-[70px] transition-opacity duration-500"
-					class:animate={displayReady}
-					class:opacity-0={seed === null}
-					class:opacity-100={seed !== null}
-					style="--delay: {delay}ms;"
-				>
-					{#if seed !== null}
-						<div class="flex flex-col text-right -space-y-1">
-							<div class="text-[25px] font-bold text-white">
-								({seed + 1}) {players[seed].name}
+		{#each viewFinalSeeds as seed, idx}
+			{@const COL = FINAL}
+			<div
+				class="player-row {outcome(matches.m6, seed)} {outcome(matches.m6, seed) === 'won'
+					? 'champion'
+					: ''}"
+				class:animate={displayReady}
+				style="--delay: {960 + idx * 80}ms; left: {FINAL.left}px; top: {FINAL.tops[
+					idx
+				]}px; width: {FINAL.width}px;"
+			>
+				<div class="plate"></div>
+				{#key seed}
+					<div class="content" class:arrive={seed !== null}>
+						<span class="halo" aria-hidden="true"></span>
+						<span class="halo late" aria-hidden="true"></span>
+						{#if seed !== null}<div class="flash"></div>{/if}
+						{#if seed !== null}
+							<div class="art">
+								<img src={getPreloadedImage(players[seed].hero)} alt={players[seed].hero} />
 							</div>
-							<div class="text-[20px] italic font-bold text-[#D9B499]">
-								{players[seed].hero}
+							<div class="seed">{seed + 1}</div>
+							<div class="who">
+								<div class="name">
+									<ShrinkText
+										text={players[seed].name}
+										width={COL.width - NAME_INSET}
+										height={NAME.height}
+										size={NAME.size}
+										align="left"
+									/>
+								</div>
+								<div class="hero">
+									<ShrinkText
+										text={players[seed].hero}
+										width={COL.width - NAME_INSET}
+										height={HERO.height}
+										size={HERO.size}
+										align="left"
+									/>
+								</div>
 							</div>
-						</div>
-						<img
-							src={getPreloadedImage(players[seed].hero)}
-							alt={players[seed].hero}
-							class="w-[70px] h-[70px] rounded-full object-cover object-right"
-						/>
-					{/if}
-				</div>
-			{/each}
-		</div>
+						{/if}
+					</div>
+				{/key}
+			</div>
+		{/each}
 	</div>
-</div>
 {/if}
 
 <style>
-	/* Container hidden until ready */
-	.w-full {
+	/* Pinned to the browser source size so each player lands in the plate the
+	   scene draws for them. Hidden until every portrait is ready. */
+	.stage {
+		position: relative;
+		width: 1920px;
+		height: 1080px;
+		overflow: hidden;
 		opacity: 0;
 		visibility: hidden;
 	}
 
-	.w-full.ready {
+	.stage.ready {
 		opacity: 1;
 		visibility: visible;
 	}
 
+	/* Each cell is the bar the other overlays use -- a translucent dark plate with
+	   the tan edge -- with the portrait a separate square at its right end, the
+	   scene showing through the gap between. The plate is always there; in the
+	   later rounds only the contents wait for a winner. */
 	.player-row {
+		position: absolute;
+		height: 88px;
+		box-sizing: border-box;
 		/* No animation until ready */
 		opacity: 0;
 		transform: translateX(-30px);
+		--square: 88px;
+		--gap: 8px;
+	}
+
+	/* The plate stops a gap short of the square: a shallow gradient with a
+	   hairline of light along its top, and a sweep of light across it once it has
+	   slid in. */
+	.plate {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: calc(var(--square) + var(--gap));
+		overflow: hidden;
+		background: linear-gradient(90deg, rgba(17, 24, 39, 0.72), rgba(17, 24, 39, 0.5));
+		border-left: 4px solid #d9b499;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+		transition:
+			border-color 400ms ease,
+			box-shadow 400ms ease,
+			opacity 400ms ease;
+	}
+
+	.plate::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: -40%;
+		width: 30%;
+		background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+		transform: skewX(-20deg);
+		opacity: 0;
+	}
+
+	.player-row.animate .plate::after {
+		animation: shine 0.9s ease-out forwards;
+		animation-delay: calc(var(--delay, 0ms) + 350ms);
+	}
+
+	@keyframes shine {
+		0% {
+			left: -40%;
+			opacity: 0;
+		}
+		20% {
+			opacity: 1;
+		}
+		100% {
+			left: 110%;
+			opacity: 0;
+		}
+	}
+
+	/* The seed, in a tan-outlined square at the left, as the rank is on the
+	   standings. */
+	.seed {
+		position: absolute;
+		left: 20px;
+		top: calc((100% - 34px) / 2);
+		width: 34px;
+		height: 34px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid rgba(217, 180, 153, 0.7);
+		font-size: 17px;
+		font-weight: 700;
+		color: #d9b499;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* Once the match is decided. */
+	.won .plate {
+		border-left-color: #4ade80;
+		box-shadow:
+			inset 0 1px 0 rgba(74, 222, 128, 0.25),
+			inset 0 0 40px rgba(74, 222, 128, 0.08);
+	}
+
+	.lost .plate,
+	.lost .content {
+		opacity: 0.45;
+	}
+
+	/* The champion's cell is lit in gold end to end: the plate warms from its
+	   edge, a gold line and glow run around plate and portrait alike, and a gold
+	   tag sits on the top edge naming the result. */
+	.plate::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(90deg, rgba(240, 200, 74, 0.3), transparent 55%);
+		opacity: 0;
+		transition: opacity 600ms ease;
+	}
+
+	.champion .plate::before {
+		opacity: 1;
+	}
+
+	.champion .plate {
+		border-left-color: #f0c84a;
+		box-shadow:
+			inset 0 1px 0 rgba(240, 200, 74, 0.6),
+			0 0 0 1px rgba(240, 200, 74, 0.6),
+			0 0 32px rgba(240, 200, 74, 0.45);
+	}
+
+	.champion .art {
+		box-shadow:
+			inset 0 0 0 1px rgba(240, 200, 74, 0.9),
+			0 0 0 1px rgba(240, 200, 74, 0.6),
+			0 0 32px rgba(240, 200, 74, 0.45);
+	}
+
+	.champion .seed {
+		background: linear-gradient(180deg, #f7d978, #d9a72a);
+		border-color: #f0c84a;
+		color: #0b0f19;
+	}
+
+	/* The coronation. Set apart from a winner merely arriving: the cell pops and
+	   settles, the glow flares gold and decays to its resting state, two rings
+	   ripple outward, a gold light sweeps the plate and the tag drops in. */
+	.champion .content,
+	.champion .content.arrive {
+		animation: championPop 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.champion .plate {
+		animation: championFlare 2.2s ease-out both;
+	}
+
+	.champion .plate::after {
+		background: linear-gradient(100deg, transparent, rgba(247, 217, 120, 0.45), transparent);
+		animation: shineAgain 1s ease-out 250ms both;
+	}
+
+	.halo {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		border: 2px solid #f0c84a;
+		opacity: 0;
+	}
+
+	.champion .halo {
+		animation: halo 1.4s ease-out 150ms both;
+	}
+
+	.champion .halo.late {
+		animation-delay: 550ms;
+	}
+
+	@keyframes championPop {
+		0% {
+			transform: scale(1);
+		}
+		35% {
+			transform: scale(1.06);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	@keyframes championFlare {
+		0% {
+			box-shadow:
+				inset 0 1px 0 rgba(247, 217, 120, 0.9),
+				0 0 0 2px rgba(247, 217, 120, 0.9),
+				0 0 90px rgba(240, 200, 74, 0.95);
+		}
+		100% {
+			box-shadow:
+				inset 0 1px 0 rgba(240, 200, 74, 0.6),
+				0 0 0 1px rgba(240, 200, 74, 0.6),
+				0 0 32px rgba(240, 200, 74, 0.45);
+		}
+	}
+
+	@keyframes shineAgain {
+		0% {
+			left: -40%;
+			opacity: 0;
+		}
+		20% {
+			opacity: 1;
+		}
+		100% {
+			left: 110%;
+			opacity: 0;
+		}
+	}
+
+	@keyframes halo {
+		0% {
+			opacity: 0.9;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(1.35, 1.9);
+		}
+	}
+
+	@keyframes tagFade {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	.champion .content::before {
+		animation: tagFade 0.8s ease-out 400ms both;
+		content: 'AGE Champion';
+		position: absolute;
+		top: -11px;
+		left: 16px;
+		height: 22px;
+		padding: 0 12px;
+		display: flex;
+		align-items: center;
+		background: linear-gradient(180deg, #f7d978, #d9a72a);
+		color: #0b0f19;
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.24em;
+		text-transform: uppercase;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 	}
 
 	.player-row.animate {
@@ -305,16 +639,199 @@
 		animation-delay: var(--delay, 0ms);
 	}
 
-	@keyframes slideReveal {
+	.content {
+		position: relative;
+		height: 100%;
+		transition: opacity 400ms ease;
+	}
+
+	/* A winner arriving in a later round: the contents wipe in from the left
+	   while the portrait settles from slightly enlarged, and a flash of tan
+	   blooms across the plate with a sweep of light after it. Keyed to the seed,
+	   so a corrected result plays it again. */
+	.content.arrive {
+		animation: advance 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.content.arrive .art {
+		animation: settle 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.flash {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: calc(var(--square) + var(--gap));
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	.flash::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: rgba(217, 180, 153, 0.5);
+		animation: flash 0.9s ease-out both;
+	}
+
+	.flash::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: -40%;
+		width: 30%;
+		background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+		transform: skewX(-20deg);
+		animation: shine 0.9s ease-out 120ms both;
+	}
+
+	@keyframes advance {
 		0% {
 			opacity: 0;
-			transform: translateX(-30px);
+			transform: translateX(-24px);
 			clip-path: inset(0 100% 0 0);
 		}
 		100% {
 			opacity: 1;
 			transform: translateX(0);
-			clip-path: inset(0 0 0 0);
+			clip-path: inset(-160px);
+		}
+	}
+
+	@keyframes settle {
+		0% {
+			opacity: 0;
+			transform: scale(1.25);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes flash {
+		0% {
+			opacity: 0;
+		}
+		15% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	/* The portrait: a square at the right, cropped from the still's upper right
+	   and enlarged, where these stills keep the face. */
+	.art {
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: var(--square);
+		height: 100%;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.08);
+		box-shadow: inset 0 0 0 1px rgba(217, 180, 153, 0.45);
+		transition: opacity 400ms ease;
+	}
+
+	.art img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: right top;
+		transform: scale(1.35);
+		transform-origin: right top;
+	}
+
+	.who {
+		position: absolute;
+		left: 66px;
+		right: calc(var(--square) + var(--gap) + 14px);
+		top: 0;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 8px;
+		min-width: 0;
+		line-height: 1;
+		text-align: left;
+	}
+
+	.name {
+		color: #fff;
+		display: flex;
+	}
+
+	.opacity-0 {
+		opacity: 0;
+	}
+
+	.caption {
+		position: absolute;
+		opacity: 0;
+	}
+
+	.caption.animate {
+		animation: fadeUp 0.6s ease-out 1100ms forwards;
+	}
+
+	.event {
+		margin: 0 0 6px;
+		font-size: 30px;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		color: #d9b499;
+	}
+
+	.title {
+		margin: 0;
+		font-size: 72px;
+		font-weight: 400;
+		line-height: 1;
+		color: #fff;
+		white-space: nowrap;
+	}
+
+	.title b {
+		font-weight: 700;
+	}
+
+	@keyframes fadeUp {
+		0% {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* The hero, in italic tan; the whole name always, shrinking to fit as the
+	   player's name does. */
+	.hero {
+		display: flex;
+		font-style: italic;
+		color: #d9b499;
+	}
+
+	/* The wipe ends on a clip far outside the cell rather than at its edge, so the
+	   champion's tag, the glow and the rings that ripple out past the cell are not
+	   cut off by the clip the animation leaves in place. */
+	@keyframes slideReveal {
+		0% {
+			opacity: 0;
+			transform: translateX(-30px);
+			clip-path: inset(-160px 100% -160px -160px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+			clip-path: inset(-160px);
 		}
 	}
 </style>

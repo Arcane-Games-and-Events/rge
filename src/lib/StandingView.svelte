@@ -2,49 +2,28 @@
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../firebaseClient';
+	import {
+		computeStandings as rank,
+		top8Seeding,
+		orderWithTop8,
+		ordinal,
+		WINS_TO_ADVANCE,
+		LOSSES_TO_DROP
+	} from '$lib/standings';
+	import { heroImageUrl } from '$lib/heroMedia';
 
 	const ROOT = 'tournament';
 
 	let currentRound = 1;
+	let eventText = '';
+
+	// Which sources have reported at least once. The load sequence waits for all
+	// of them, so nothing arrives part-way through it.
+	let seen = { round: false, players: false, rounds: false, history: false, event: false };
 	let players = [];
-	let roundsList = [];
 	let roundsTree = {};
 	let historyMap = {};
 	let standings = [];
-
-	// --- image helpers (with exceptions) ---
-	const normalize = (s = '') => s.toLowerCase().replace(/["',]/g, '').trim();
-
-	// Exceptions: normalized hero name -> explicit filename
-	const IMAGE_EXCEPTIONS = {
-		'arakni huntsman': '/heroImages/arakni-huntsman1.jpg'
-		// add more here as needed
-	};
-
-	const slugify = (name) =>
-		(name || '')
-			.toLowerCase()
-			.replace(/["',]/g, '')
-			.replace(/[^a-z0-9\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-')
-			.trim();
-
-	function imgSrc(name) {
-		if (!name) return '/heroImages/default.jpg';
-		const key = normalize(name);
-		if (key in IMAGE_EXCEPTIONS) return IMAGE_EXCEPTIONS[key];
-		return `/heroImages/${slugify(name)}.jpg`;
-	}
-
-	function onImgError(e, name) {
-		const key = normalize(name || '');
-		if (key in IMAGE_EXCEPTIONS) {
-			e.target.src = IMAGE_EXCEPTIONS[key].replace(/\.jpg$/i, '.png');
-		} else {
-			e.target.src = `/heroImages/${slugify(name)}.png`;
-		}
-	}
 
 	function normalizePlayers(map) {
 		const ids = Object.keys(map || {})
@@ -76,212 +55,39 @@
 		return arr;
 	}
 
-	function cmpWeights(N) {
-		const base = 2 ** N;
-		return Array.from({ length: N }, (_, i) => base - 2 ** i);
-	}
-	function seedFromId(id) {
-		let x = (id * 9301 + 49297) % 233280;
-		return x / 233280;
-	}
-
-	// Overlay ONLY normal winners/draws from pairings (no special BYE injection here)
-	function makeOverlayHistory() {
-		const overlay = {};
-		for (const [pid, perRound] of Object.entries(historyMap || {})) overlay[pid] = { ...perRound };
-
-		for (const rStr of Object.keys(roundsTree || {})) {
-			const r = Number(rStr);
-			const pr = roundsTree[r]?.pairings || {};
-			for (const [tKey, m] of Object.entries(pr)) {
-				const p1 = m?.p1 === 0 || m?.p1 ? Number(m.p1) : '';
-				const p2 = m?.p2 === 0 || m?.p2 ? Number(m.p2) : '';
-				const tableNum = m?.table || Number(tKey);
-				if (p1 === '' || p2 === '') continue;
-
-				const winner =
-					m?.winner === 'draw' ? 'draw' : m?.winner === 0 || m?.winner ? Number(m.winner) : null;
-
-				if (winner == null) continue;
-
-				if (winner === 'draw') {
-					overlay[p1] ??= {};
-					overlay[p2] ??= {};
-					overlay[p1][r] ??= { round: r, table: tableNum, opponentId: p2, result: 'D', live: true };
-					overlay[p2][r] ??= { round: r, table: tableNum, opponentId: p1, result: 'D', live: true };
-				} else {
-					const loser = winner === p1 ? p2 : p1;
-					overlay[winner] ??= {};
-					overlay[loser] ??= {};
-					overlay[winner][r] ??= {
-						round: r,
-						table: tableNum,
-						opponentId: loser,
-						result: 'W',
-						live: true
-					};
-					overlay[loser][r] ??= {
-						round: r,
-						table: tableNum,
-						opponentId: winner,
-						result: 'L',
-						live: true
-					};
-				}
-			}
-		}
-		return overlay;
-	}
-
-	// Open-match check (unchanged logic)
-	function currentRoundHasOpenMatches() {
-		const pr = roundsTree?.[currentRound]?.pairings || {};
-		for (const m of Object.values(pr)) {
-			const p1 = m?.p1 === 0 || m?.p1 ? Number(m.p1) : '';
-			const p2 = m?.p2 === 0 || m?.p2 ? Number(m.p2) : '';
-			const winner =
-				m?.winner === 'draw' ? 'draw' : m?.winner === 0 || m?.winner ? Number(m.winner) : null;
-			if (p1 !== '' && p2 !== '' && winner == null) return true;
-		}
-		return false;
-	}
-
-	function computeStandings() {
-		const maxRound = roundsList.length ? Math.max(...roundsList) : currentRound || 0;
-		const weights = cmpWeights(maxRound);
-		const overlay = makeOverlayHistory();
-		const inProgress = currentRoundHasOpenMatches();
-
-		const base = players.map((p) => {
-			const pid = p.id,
-				h = overlay?.[pid] || {};
-			let wins = 0,
-				losses = 0,
-				draws = 0,
-				byes = 0,
-				mp = 0;
-			const winByRound = Array.from({ length: maxRound }, () => 0);
-			const opps = new Set();
-
-			for (let r = 1; r <= maxRound; r++) {
-				const rec = h?.[r];
-				if (!rec) continue;
-				const res = String(rec.result || '').toUpperCase();
-				const opp = rec.opponentId;
-
-				// CALCULATION BEHAVIOR = original:
-				// - W increases wins and MP and counts toward CMP
-				// - L increases losses
-				// - D increases draws
-				// - B/BYE goes to "byes" ONLY (no MP/CMP/MLP, no opponent)
-				if (res === 'W') {
-					wins++;
-					mp++;
-					winByRound[r - 1] = 1;
-					if (opp !== '' && opp != null) opps.add(Number(opp));
-				} else if (res === 'L') {
-					losses++;
-					if (opp !== '' && opp != null) opps.add(Number(opp));
-				} else if (res === 'D') {
-					draws++;
-					if (opp !== '' && opp != null) opps.add(Number(opp));
-				} else if (res === 'B' || res === 'BYE') {
-					byes++; // display-only win
-				}
-			}
-
-			const cmp = winByRound.reduce((a, v, i) => a + (v ? weights[i] : 0), 0);
-
-			// MLP (ignore BYE rounds)
-			let lossesCount = 0,
-				playedCount = 0;
-			for (let r = 1; r <= maxRound; r++) {
-				const rec = h?.[r];
-				if (!rec) continue;
-				const res = String(rec.result || '').toUpperCase();
-				if (res === 'B' || res === 'BYE') continue;
-				playedCount++;
-				if (res === 'L') lossesCount++;
-			}
-			const mlp = playedCount > 0 ? lossesCount / playedCount : 0;
-
-			return {
-				id: pid,
-				name: p.name,
-				hero: p.hero,
-				dropped: p.dropped,
-				record: { wins, losses, draws, byes },
-				mp,
-				cmp,
-				mlp,
-				opponents: Array.from(opps),
-				seed: seedFromId(pid)
-			};
-		});
-
-		// Opponents' tie-breakers (unchanged)
-		const mlpById = Object.fromEntries(base.map((s) => [s.id, s.mlp]));
-		const cmpById = Object.fromEntries(base.map((s) => [s.id, s.cmp]));
-		for (const s of base) {
-			const opps = Array.from(new Set(s.opponents)).filter((x) => mlpById[x] != null);
-			if (opps.length === 0) {
-				s.omlp = 1;
-				s.ocmp = 0;
-			} else {
-				s.omlp = opps.reduce((a, id) => a + mlpById[id], 0) / opps.length;
-				s.ocmp = opps.reduce((a, id) => a + cmpById[id], 0) / opps.length;
-			}
-		}
-
-		// Sort rule (unchanged)
-		if (inProgress) {
-			base.sort((a, b) => {
-				if (b.record.wins !== a.record.wins) return b.record.wins - a.record.wins;
-				if (a.record.losses !== b.record.losses) return a.record.losses - b.record.losses;
-				if (b.record.draws !== a.record.draws) return b.record.draws - a.record.draws;
-				if (b.mp !== a.mp) return b.mp - a.mp;
-				if (b.cmp !== a.cmp) return b.cmp - a.cmp;
-				if (a.mlp !== b.mlp) return a.mlp - b.mlp;
-				if (a.omlp !== b.omlp) return a.omlp - b.omlp;
-				if (b.ocmp !== a.ocmp) return b.ocmp - a.ocmp;
-				return a.seed - b.seed;
-			});
-		} else {
-			base.sort((a, b) => {
-				if (b.mp !== a.mp) return b.mp - a.mp;
-				if (b.cmp !== a.cmp) return b.cmp - a.cmp;
-				if (a.mlp !== b.mlp) return a.mlp - b.mlp;
-				if (a.omlp !== b.omlp) return a.omlp - b.omlp;
-				if (b.ocmp !== a.ocmp) return b.ocmp - a.ocmp;
-				return a.seed - b.seed;
-			});
-		}
-
-		standings = base.map((s, i) => ({ rank: i + 1, ...s }));
-	}
+	// The arithmetic lives in $lib/standings, shared with the management page's
+	// preview, so the producer sees the same order this draws.
+	const computeStandings = () => {
+		standings = rank(players, { roundsTree, historyMap, currentRound });
+	};
 
 	onMount(() => {
+		const unsubEvent = onValue(ref(db, 'eventText'), (snap) => {
+			eventText = snap.val() ?? '';
+			seen.event = true;
+		});
 		const unsubRound = onValue(ref(db, `${ROOT}/currentRound`), (s) => {
 			currentRound = s.val() || 1;
+			seen.round = true;
 			computeStandings();
 		});
 		const unsubPlayers = onValue(ref(db, `${ROOT}/players`), (s) => {
 			players = normalizePlayers(s.val());
+			seen.players = true;
 			computeStandings();
 		});
 		const unsubRounds = onValue(ref(db, `${ROOT}/rounds`), (s) => {
 			roundsTree = s.val() || {};
-			roundsList = Object.keys(roundsTree)
-				.map(Number)
-				.filter(Number.isInteger)
-				.sort((a, b) => a - b);
+			seen.rounds = true;
 			computeStandings();
 		});
 		const unsubHistory = onValue(ref(db, `${ROOT}/history`), (s) => {
 			historyMap = s.val() || {};
+			seen.history = true;
 			computeStandings();
 		});
 		return () => {
+			unsubEvent?.();
 			unsubRound?.();
 			unsubPlayers?.();
 			unsubRounds?.();
@@ -289,106 +95,480 @@
 		};
 	});
 
-	// DISPLAY: show BYE as a win (wins + byes), but calculations use pure wins
-	const recStr = (s) =>
-		`${s.record.wins + (s.record.byes || 0)}-${s.record.losses}-${s.record.draws}`;
+	// Standings for a 1920x1080 browser source, as a table in the look of the other
+	// overlays under /views: white type and tan accents on translucent dark bars,
+	// no plate behind the page. Sixteen places in two columns of eight, each row
+	// the rank, portrait, name over hero, and the W - L, a bye counted as a win;
+	// draws are not played. A player with no name is left out rather than shown
+	// as a blank.
+	const wld = (s) => `${s.record.wins + (s.record.byes || 0)}-${s.record.losses}`;
 
-	// record color by *losses* (unchanged)
-	const recClass = (losses = 0) =>
-		losses === 0 ? 'text-green-500' : losses === 1 ? 'text-yellow-500' : 'text-red-700';
+	// A player's standing in the event, said quietly: three wins locks a place in
+	// the Top 8, three losses puts them out. The record and the bar's edge take
+	// the colour; nothing else changes.
+	const status = (s) =>
+		s.record.wins + (s.record.byes || 0) >= WINS_TO_ADVANCE
+			? 'advanced'
+			: s.record.losses >= LOSSES_TO_DROP
+				? 'out'
+				: '';
 
-	$: colLeft = standings.slice(0, 8);
-	$: colRight = standings.slice(8, 16);
+	// The Top 8 seeds of the players already through, shown beside their names;
+	// they head the table in seed order, with everyone else beneath by record.
+	$: top8Seeds = top8Seeding(players, historyMap);
+	$: placed = orderWithTop8(standings, top8Seeds)
+		.filter((s) => s.name)
+		.slice(0, 16);
+
+	// Every row lives in one list and is placed by its rank -- the first eight
+	// down the left column, the rest down the right -- so a change of rank is one
+	// slide to the new spot, even from one column to the other. Pitch is the row
+	// and the gap between rows.
+	const COLUMN_X = [100, 990];
+	const ROWS_TOP = 302;
+	const PITCH = 90;
+	const slotFor = (i) => ({ x: COLUMN_X[i < 8 ? 0 : 1], y: ROWS_TOP + (i % 8) * PITCH });
+
+	// The load sequence waits until every source has reported and every portrait
+	// on the page has finished loading -- or three seconds, so one missing image
+	// cannot hold it -- then plays as one piece: the title wipes in, the rule
+	// draws across, the subtitle and column headings fade up, and the bars
+	// cascade down the left column and then the right. Later changes only move
+	// rows; the sequence never replays.
+	let play = false;
+	let settled = false;
+	let settledImages = 0;
+	let ceiling = null;
+	$: dataReady = Object.values(seen).every(Boolean) && placed.length > 0;
+	$: expectedImages = placed.filter((s) => s.hero).length;
+	$: if (dataReady && !play && !ceiling) ceiling = setTimeout(() => (play = true), 3000);
+	$: if (dataReady && settledImages >= expectedImages && !play) play = true;
+	$: if (play && ceiling) ceiling = clearTimeout(ceiling) ?? null;
+	// Once the last bar has arrived the entrance is taken off the rows, so that
+	// later changes -- a result, a drop, a new rank -- are plain transitions and
+	// never replay it.
+	$: if (play && !settled)
+		setTimeout(() => (settled = true), ROWS_START_MS + 16 * ROW_STEP_MS + 700);
+	const ROWS_START_MS = 1000;
+	const ROW_STEP_MS = 55;
+
+	// Portraits are revealed once decoded, so a row never shows a half-drawn image,
+	// and each one that settles, either way, is counted toward the start.
+	const reveal = (e) => {
+		e.currentTarget.classList.add('loaded');
+		settledImages += 1;
+	};
+	const hide = (e) => {
+		e.currentTarget.style.visibility = 'hidden';
+		settledImages += 1;
+	};
 </script>
 
-<div class="min-h-screen text-white p-4 sm:p-6">
-	<!-- Header -->
-	<div class="flex flex-wrap items-center gap-3 mb-4">
-		<h1 class="text-7xl font-bold">Round {currentRound}</h1>
-	</div>
+<div class="stage text-white" class:play class:settled>
+	<header class="heading">
+		<h1 class="title">Standings</h1>
+		<p class="subtitle">
+			{#if eventText}<span class="event">{eventText}</span><span class="dot">·</span>{/if}Round {currentRound}
+		</p>
+	</header>
 
-	<!-- Two fixed columns: 1–8 and 9–16 -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-		<!-- Left column (1–8) -->
-		<div class="space-y-1 py-12 max-w-md">
-			{#each colLeft as s}
-				<div class={`bg-gray-900 bg-opacity-50 rounded-lg p-3 ${s.dropped ? 'opacity-70' : ''}`}>
-					<div class="grid items-stretch gap-3 [grid-template-columns:2.5rem_auto_1fr]">
-						<div class="text-xl text-white font-semibold tabular-nums text-right pr-3 self-center">
-							{s.rank}
-						</div>
-						<div class="self-stretch">
-							<div class="h-full aspect-square overflow-hidden rounded-lg bg-gray-800">
-								{#if s.hero}
-									<img
-										src={imgSrc(s.hero)}
-										alt={s.hero}
-										class="h-14 w-14 object-cover object-right"
-										on:error={(e) => onImgError(e, s.hero)}
-									/>
-								{:else}
-									<div class="h-full w-full"></div>
-								{/if}
-							</div>
-						</div>
-						<div class="min-w-0 leading-tight self-center">
-							<div class="truncate text-base sm:text-xl font-semibold">
-								{s.name || `Player ${s.id}`}
-							</div>
-							<div class="mt-0.5 text-sm flex items-center gap-2 leading-tight">
-								{#if s.dropped}
-									<span class="font-bold text-red-500">Dropped</span>
-								{:else}
-									<span class={`font-bold ${recClass(s.record.losses)}`}>{recStr(s)}</span>
-								{/if}
-								<span class="text-white">•</span>
-								<span class="truncate text-white">{s.hero || '—'}</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			{/each}
+	{#each COLUMN_X as x (x)}
+		<div class="row head" style="left: {x}px;" aria-hidden="true">
+			<span></span><span></span><span></span><span></span>
+			<span class="wld">W - L</span>
 		</div>
+	{/each}
 
-		<!-- Right column (9–16) -->
-		<div class="space-y-1 py-12 max-w-md">
-			{#each colRight as s}
-				<div class={`bg-gray-900 bg-opacity-50 rounded-lg p-3 ${s.dropped ? 'opacity-70' : ''}`}>
-					<div class="grid items-stretch gap-3 [grid-template-columns:2.5rem_auto_1fr]">
-						<div class="text-xl text-white font-semibold tabular-nums text-right pr-3 self-center">
-							{s.rank}
-						</div>
-						<div class="self-stretch">
-							<div class="h-full aspect-square overflow-hidden rounded-lg bg-gray-800">
-								{#if s.hero}
-									<img
-										src={imgSrc(s.hero)}
-										alt={s.hero}
-										class="h-14 w-14 object-cover object-right"
-										on:error={(e) => onImgError(e, s.hero)}
-									/>
-								{:else}
-									<div class="h-full w-full"></div>
-								{/if}
-							</div>
-						</div>
-						<div class="min-w-0 leading-tight self-center">
-							<div class="truncate text-base sm:text-xl font-semibold">
-								{s.name || `Player ${s.id}`}
-							</div>
-							<div class="mt-0.5 text-sm flex items-center gap-2 leading-tight">
-								{#if s.dropped}
-									<span class="font-bold text-red-500">Dropped</span>
-								{:else}
-									<span class={`font-bold ${recClass(s.record.losses)}`}>{recStr(s)}</span>
-								{/if}
-								<span class="text-white">•</span>
-								<span class="truncate text-white">{s.hero || '—'}</span>
-							</div>
-						</div>
-					</div>
+	<ol class="list">
+		{#each placed as s, i (s.id)}
+			{@const at = slotFor(i)}
+			<li class="slot" style="transform: translate({at.x}px, {at.y}px);">
+				<div
+					class="row {status(s)}"
+					class:dropped={s.dropped}
+					style="--delay: {ROWS_START_MS + i * ROW_STEP_MS}ms;"
+				>
+					<span class="rank">{s.rank}</span>
+					<span class="portrait">
+						{#if s.hero}
+							<img src={heroImageUrl(s.hero)} alt="" on:load={reveal} on:error={hide} />
+						{/if}
+					</span>
+					<span class="who">
+						<span class="name">{s.name}</span>
+						<span class="hero">{s.hero || '—'}</span>
+					</span>
+					{#if top8Seeds.has(s.id)}
+						<span class="seed top8"
+							><span class="label">Top 8</span>{ordinal(top8Seeds.get(s.id))}</span
+						>
+					{:else}
+						<span></span>
+					{/if}
+					{#if s.dropped}
+						<span class="wld status">Dropped</span>
+					{:else}
+						<span class="wld">{wld(s)}</span>
+					{/if}
 				</div>
-			{/each}
-		</div>
-	</div>
+			</li>
+		{/each}
+	</ol>
 </div>
+
+<style>
+	/* Pinned to the browser source size so every row lands on the same pixels
+	   whatever window is around it. */
+	.stage {
+		position: relative;
+		width: 1920px;
+		height: 1080px;
+		overflow: hidden;
+		--tan: #d9b499;
+		--bar: rgba(17, 24, 39, 0.6);
+	}
+
+	.heading {
+		position: absolute;
+		left: 100px;
+		top: 56px;
+		width: 1720px;
+	}
+
+	.title {
+		margin: 0 0 20px;
+		padding-bottom: 20px;
+		font-size: 80px;
+		font-weight: 700;
+		line-height: 1;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		position: relative;
+		opacity: 0;
+	}
+
+	/* The rule under the title is its own element so it can draw from the left. */
+	.title::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		height: 2px;
+		background: var(--tan);
+		transform: scaleX(0);
+		transform-origin: left;
+	}
+
+	/* The event's name, a dot, then the round, on one line. */
+	.subtitle {
+		margin: 0;
+		opacity: 0;
+		white-space: nowrap;
+		font-size: 30px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--tan);
+	}
+
+	.event {
+		color: #fff;
+	}
+
+	.dot {
+		margin: 0 18px;
+	}
+
+	/* The two column headings sit above the rows; the rows themselves are placed
+	   by rank, each in a slot that slides to wherever its rank moves it. */
+	.row.head {
+		position: absolute;
+		top: 256px;
+		width: 830px;
+	}
+
+	.list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.slot {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 830px;
+		transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: 92px 80px minmax(0, 1fr) auto 190px;
+		align-items: center;
+		column-gap: 20px;
+		height: 80px;
+		padding-right: 12px;
+		box-sizing: border-box;
+		background: var(--bar);
+		border-left: 4px solid var(--tan);
+	}
+
+	.row.head {
+		height: 34px;
+		margin-bottom: 12px;
+		background: none;
+		border-left-color: transparent;
+		opacity: 0;
+		font-size: 17px;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--tan);
+	}
+
+	.row.head .wld {
+		background: none;
+		font-size: 17px;
+		height: auto;
+	}
+
+	.list .row {
+		opacity: 0;
+		transform: translateX(-30px);
+		transition: opacity 400ms ease;
+	}
+
+	/* Nothing moves until the data is in; then everything runs off one clock. */
+	.play .title {
+		animation: wipeIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+	}
+
+	.play .title::after {
+		animation: drawRule 0.8s cubic-bezier(0.22, 1, 0.36, 1) 350ms forwards;
+	}
+
+	.play .subtitle {
+		animation: fadeUp 0.5s ease-out 650ms forwards;
+	}
+
+	.play .row.head {
+		animation: fadeUp 0.5s ease-out 800ms forwards;
+	}
+
+	.play .list .row {
+		animation: slideReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+		animation-delay: var(--delay, 0ms);
+	}
+
+	/* After the entrance, rows just are: visible, in place, dimmed if dropped. */
+	.settled .list .row {
+		animation: none;
+		opacity: 1;
+		transform: none;
+		clip-path: none;
+	}
+
+	.settled .list .row.dropped {
+		opacity: 0.55;
+	}
+
+	@keyframes wipeIn {
+		0% {
+			opacity: 0;
+			transform: translateX(-40px);
+			clip-path: inset(0 100% 0 0);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+			clip-path: inset(0 0 0 0);
+		}
+	}
+
+	@keyframes drawRule {
+		to {
+			transform: scaleX(1);
+		}
+	}
+
+	@keyframes fadeUp {
+		0% {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* The rank's cell runs from the bar's edge to the portrait, so the number sits
+	   the same distance from each. */
+	.rank {
+		margin-right: -20px;
+		font-size: 32px;
+		font-weight: 700;
+		line-height: 1;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* The portrait: a square the full height of the bar, cropped from the still's
+	   upper right and enlarged, where these stills keep the face, with a hairline
+	   of tan around it -- as on the metagame and the bracket. */
+	.portrait {
+		width: 80px;
+		height: 80px;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.08);
+		box-shadow: inset 0 0 0 1px rgba(217, 180, 153, 0.45);
+	}
+
+	.portrait img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: right top;
+		transform: scale(1.35);
+		transform-origin: right top;
+		opacity: 0;
+		transition: opacity 250ms ease;
+	}
+
+	.portrait img:global(.loaded) {
+		opacity: 1;
+	}
+
+	.who {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		min-width: 0;
+		line-height: 1;
+	}
+
+	.name {
+		font-size: 27px;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.hero {
+		font-size: 18px;
+		font-style: italic;
+		font-weight: 700;
+		color: var(--tan);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.wld {
+		height: 56px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 32px;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		font-variant-numeric: tabular-nums;
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	/* The Top 8 seed, said in full: a green badge reading TOP 8 over the seed, as
+	   on the pairings. */
+	.seed.top8 {
+		height: 44px;
+		padding: 0 14px;
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		border: 1px solid #4ade80;
+		color: #4ade80;
+		font-size: 16px;
+		font-weight: 700;
+		line-height: 1;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.seed.top8 .label {
+		font-size: 9px;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	/* Advanced: green record and edge. Out: red record and edge, the bar a
+	   little dimmer. Both fade in as the result lands. */
+	.list .row {
+		transition:
+			opacity 400ms ease,
+			border-color 400ms ease;
+	}
+
+	.list .row .wld {
+		transition: color 400ms ease;
+	}
+
+	.row.advanced {
+		border-left-color: #4ade80;
+	}
+
+	.row.advanced .wld {
+		color: #4ade80;
+	}
+
+	.row.out {
+		border-left-color: #f87171;
+	}
+
+	.row.out .wld {
+		color: #f87171;
+	}
+
+	.settled .list .row.out {
+		opacity: 0.7;
+	}
+
+	.wld.status {
+		font-size: 20px;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: #f87171;
+	}
+
+	.play:not(.settled) .list .row.dropped {
+		animation-name: slideRevealDim;
+	}
+
+	@keyframes slideReveal {
+		0% {
+			opacity: 0;
+			transform: translateX(-30px);
+			clip-path: inset(0 100% 0 0);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0);
+			clip-path: inset(0 0 0 0);
+		}
+	}
+
+	@keyframes slideRevealDim {
+		0% {
+			opacity: 0;
+			transform: translateX(-30px);
+			clip-path: inset(0 100% 0 0);
+		}
+		100% {
+			opacity: 0.55;
+			transform: translateX(0);
+			clip-path: inset(0 0 0 0);
+		}
+	}
+</style>
