@@ -1,746 +1,565 @@
 <script>
 	import { onMount } from 'svelte';
-	import { ref, onValue, set, update, get } from 'firebase/database';
+	import { ref, onValue, update } from 'firebase/database';
 	import { db } from '../firebaseClient';
-	import { heroes, loadHeroes } from '$lib/heroes';
+	import { loadHeroes } from '$lib/heroes';
+	import { heroImageUrl } from '$lib/heroMedia';
+	import HeroPicker from '$lib/HeroPicker.svelte';
+	import {
+		computeStandings,
+		recordString,
+		top8Seeding,
+		orderWithTop8,
+		ordinal
+	} from '$lib/standings';
+	import * as T from '$lib/tournament';
 
-	const ROOT = 'tournament';
-	const PLAYER_COUNT = 16;
-	const TABLE_COUNT = 8;
-
+	// The producer's tournament page, arranged around the job: enter the field
+	// once, then each round seat the tables, click the results, advance. The
+	// pairings and a live preview of the standings -- the same arithmetic the
+	// overlay runs -- sit side by side, so what has gone on air is never a guess.
+	// The players list, needed at the start and rarely after, folds away below.
 	let currentRound = 1;
-	let players = []; // [{id,name,hero,wins,losses,draws,dropped}]
-	let pairings = []; // [{table,p1,p2,winner}]
-	let roundsList = []; // [1,2,3,...]
 	let selectedRound = 1;
+	let players = T.blankPlayers();
+	let roundsTree = {};
+	let historyMap = {};
+	let ready = false;
+	let busy = false;
+	let error = '';
+	let playersOpen = true;
+	let menuOpen = false;
 
-	// --- utils ---
-	const slugify = (name) =>
-		(name || '')
-			.toLowerCase()
-			.replace(/["',]/g, '')
-			.replace(/[^a-z0-9\s-]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-')
-			.trim();
-	const imgSrc = (name) => `/heroImages/${slugify(name)}.jpg`;
-
-	function blankPlayers() {
-		return Array.from({ length: PLAYER_COUNT }, (_, id) => ({
-			id,
-			name: '',
-			hero: '',
-			wins: 0,
-			losses: 0,
-			draws: 0,
-			dropped: false
-		}));
-	}
-	function blankPairings() {
-		return Array.from({ length: TABLE_COUNT }, (_, i) => ({
-			table: i + 1,
-			p1: '',
-			p2: '',
-			winner: null // number | 'draw' | null
-		}));
-	}
-
-	$: heroOptions = $heroes
-		.map((h) => h?.name?.trim())
-		.filter(Boolean)
-		.sort((a, b) => a.localeCompare(b));
-
-	let unsubPairings = null;
-
-	// --- BYE helpers ---
-	const isBye = (x) => x === 'BYE';
-	const normSeat = (x) => (x === '' || x == null ? '' : isBye(x) ? 'BYE' : Number(x));
-	const onlyPid = (x) => (x === '' || x == null || x === 'BYE' ? '' : Number(x));
-	function autoWinnerFor(p1, p2) {
-		if (isBye(p1) && onlyPid(p2) !== '') return onlyPid(p2);
-		if (isBye(p2) && onlyPid(p1) !== '') return onlyPid(p1);
-		return null;
-	}
-
-	// --- one-time bootstrap ---
-	async function ensureBootstrapped() {
-		const roundsSnap = await get(ref(db, `${ROOT}/rounds`));
-		if (!roundsSnap.exists()) {
-			await set(ref(db, `${ROOT}/currentRound`), 1);
-			await update(
-				ref(db, `${ROOT}/rounds/1/pairings`),
-				Object.fromEntries(
-					blankPairings().map((p) => [p.table, { table: p.table, p1: '', p2: '', winner: null }])
-				)
-			);
-			selectedRound = 1;
-		}
-	}
-
-	// Firebase wiring
-	onMount(async () => {
+	onMount(() => {
 		loadHeroes();
-		await ensureBootstrapped();
-
-		const unsub1 = onValue(ref(db, `${ROOT}/currentRound`), (snap) => {
-			currentRound = snap.val() || 1;
-			if (!roundsList.length || selectedRound == null) selectedRound = currentRound;
-		});
-
-		const unsub2 = onValue(ref(db, `${ROOT}/players`), (snap) => {
-			const v = snap.val();
-			players = v ? normalizePlayers(v) : blankPlayers();
-		});
-
-		const unsub3 = onValue(ref(db, `${ROOT}/rounds`), (snap) => {
-			const val = snap.val() || {};
-			roundsList = Object.keys(val)
-				.map(Number)
-				.filter(Number.isInteger)
-				.sort((a, b) => a - b);
-			if (!roundsList.includes(selectedRound)) {
-				selectedRound = roundsList.length ? roundsList[roundsList.length - 1] : 1;
-			}
-			attachPairingsListener(selectedRound);
-		});
-
-		return () => {
-			unsub1?.();
-			unsub2?.();
-			unsub3?.();
-			unsubPairings?.();
-		};
+		let unsub = null;
+		T.ensureBootstrapped(db)
+			.catch((err) => (error = `Could not open the tournament: ${err.message}`))
+			.then(() => {
+				unsub = onValue(ref(db, T.ROOT), (snap) => {
+					const v = snap.val() || {};
+					currentRound = Number(v.currentRound) || 1;
+					players = T.normalizePlayers(v.players);
+					roundsTree = v.rounds || {};
+					historyMap = v.history || {};
+					const rounds = Object.keys(roundsTree).map(Number).filter(Number.isInteger);
+					if (!ready || !rounds.includes(selectedRound)) selectedRound = currentRound;
+					ready = true;
+				});
+			});
+		return () => unsub?.();
 	});
 
-	function attachPairingsListener(round) {
-		unsubPairings?.();
-		unsubPairings = onValue(ref(db, `${ROOT}/rounds/${round}/pairings`), (snap) => {
-			pairings = normalizePairings(snap.val());
-			if (!snap.exists()) pairings = blankPairings();
-		});
+	$: roundsList = Object.keys(roundsTree)
+		.map(Number)
+		.filter(Number.isInteger)
+		.sort((a, b) => a - b);
+	$: latestRound = roundsList.length ? roundsList[roundsList.length - 1] : 1;
+	$: isCurrent = selectedRound === currentRound;
+	$: pairings = T.normalizePairings(roundsTree[selectedRound]?.pairings);
+	$: standings = computeStandings(players, { roundsTree, historyMap, currentRound });
+
+	// The Top 8 fills itself in. Whoever has clinched is written into the bracket
+	// page's slots by their Top 8 seed, and slots not yet earned are emptied, so
+	// the bracket always mirrors the tournament -- names and heroes only, so a
+	// flag set there by hand is kept. Rewritten whenever the seeding changes,
+	// which it can within a round as results land.
+	$: top8Seeds = top8Seeding(players, historyMap);
+	$: if (ready) syncTop8(top8Seeds, players);
+
+	// Round 1 seats itself by seed as the field is entered -- seed 1 against 16
+	// at table 1 and so on -- and for whoever is already entered when the page
+	// opens. Only while round 1 is live, and never over a seat already taken.
+	// The statement depends only on the data; the dedupe key below is what
+	// stops it running again on its own completion.
+	$: if (ready && currentRound === 1 && roundsTree[1]) seatRound1(players, roundsTree[1].pairings);
+
+	let lastSeating = '';
+	async function seatRound1(roster, pairingsMap) {
+		const key = JSON.stringify([
+			roster.map((p) => [p.name, p.dropped]),
+			T.normalizePairings(pairingsMap).map((m) => [m.p1, m.p2, m.winner])
+		]);
+		if (key === lastSeating) return;
+		lastSeating = key;
+		try {
+			await T.fillRound1(db, roster, pairingsMap);
+		} catch (err) {
+			error = `Could not seat round 1: ${err.message}`;
+		}
 	}
 
-	function normalizePlayers(map) {
-		const arr = blankPlayers();
-		for (const [key, v] of Object.entries(map || {})) {
-			const id = Number(key);
-			if (Number.isInteger(id) && id >= 0 && id < PLAYER_COUNT) {
-				arr[id] = {
-					id,
-					name: v?.name || '',
-					hero: v?.hero || '',
-					wins: Number(v?.wins) || 0,
-					losses: Number(v?.losses) || 0,
-					draws: Number(v?.draws) || 0,
-					dropped: !!v?.dropped
-				};
-			}
+	let lastSynced = '';
+	async function syncTop8(seeds, roster) {
+		const payload = Object.fromEntries(
+			Array.from({ length: 8 }, (_, slot) => [slot, { name: '', hero: '' }])
+		);
+		for (const [id, seed] of seeds) {
+			const p = roster[id];
+			if (!p || seed > 8) continue;
+			payload[seed - 1] = { name: p.name, hero: p.hero };
 		}
-		return arr;
-	}
-
-	function normalizePairings(map) {
-		const arr = blankPairings();
-		for (const [key, v] of Object.entries(map || {})) {
-			const table = Number(key);
-			if (Number.isInteger(table) && table >= 1 && table <= TABLE_COUNT) {
-				let w = null;
-				if (v?.winner === 'draw') w = 'draw';
-				else if (v?.winner === 0 || v?.winner) w = Number(v.winner);
-				arr[table - 1] = { table, p1: v?.p1 ?? '', p2: v?.p2 ?? '', winner: w };
-			}
-		}
-		return arr;
-	}
-
-	// --- history helpers ---
-	async function historyClearPathsFor(round, table) {
-		// Build a multi-path "null" map for any history entries at (round, table)
-		const histSnap = await get(ref(db, `${ROOT}/history`));
-		const hist = histSnap.val() || {};
-		const clears = {};
-		for (const [pid, perRound] of Object.entries(hist)) {
-			const rec = perRound?.[round];
-			if (rec && Number(rec.table) === Number(table)) {
-				clears[`${ROOT}/history/${pid}/${round}`] = null;
-			}
-		}
-		return clears;
-	}
-
-	async function recountFromHistory() {
-		const histSnap = await get(ref(db, `${ROOT}/history`));
-		const hist = histSnap.val() || {};
-		const counts = new Map(); // pid -> { w,l,d }
-		for (const p of players) counts.set(p.id, { w: 0, l: 0, d: 0 });
-
-		for (const [pidStr, perRound] of Object.entries(hist)) {
-			const pid = Number(pidStr);
-			const acc = counts.get(pid) || { w: 0, l: 0, d: 0 };
-			for (const rec of Object.values(perRound || {})) {
-				const r = String(rec?.result || '').toUpperCase();
-				if (r === 'W' || r === 'B' || r === 'BYE')
-					acc.w += 1; // BYE counts as win
-				else if (r === 'L') acc.l += 1;
-				else if (r === 'D') acc.d += 1;
-			}
-			counts.set(pid, acc);
-		}
-
+		// Nothing is written until someone has clinched, so an empty or freshly
+		// reset tournament does not blank a bracket entered by hand.
+		const key = JSON.stringify(payload);
+		if (key === lastSynced || seeds.size === 0) return;
+		lastSynced = key;
 		const updates = {};
-		for (const [pid, { w, l, d }] of counts.entries()) {
-			updates[`${ROOT}/players/${pid}/wins`] = w;
-			updates[`${ROOT}/players/${pid}/losses`] = l;
-			updates[`${ROOT}/players/${pid}/draws`] = d;
+		for (const [slot, v] of Object.entries(payload)) {
+			updates[`top8/players/${slot}/name`] = v.name;
+			updates[`top8/players/${slot}/hero`] = v.hero;
 		}
-		if (Object.keys(updates).length) {
+		try {
 			await update(ref(db), updates);
+		} catch (err) {
+			error = `Could not update the Top 8 bracket: ${err.message}`;
 		}
 	}
 
-	// Player editing
-	function setPlayerField(id, field, val) {
-		const p = players[id];
-		if (!p) return;
+	$: named = players.filter((p) => p.name.trim());
+	$: dropped = named.filter((p) => p.dropped);
+	// Dropped players are not offered for a seat. One already seated when dropped
+	// stays in that seat (choicesFor keeps whoever is in it), so a pairing on
+	// record is never broken.
+	$: eligible = named.filter((p) => !p.dropped);
+	$: seatedIds = new Set(
+		pairings.flatMap((m) => [m.p1, m.p2]).filter((x) => typeof x === 'number')
+	);
+	$: unseated = eligible.filter((p) => !seatedIds.has(p.id));
+	$: tablesInUse = pairings.filter((m) => m.p1 !== '' || m.p2 !== '');
+	$: resultsIn = pairings.filter(T.tableComplete).length;
+	// Every table that has anyone seated has both seats and a result.
+	$: roundComplete = tablesInUse.length > 0 && tablesInUse.every(T.tableComplete);
+	$: unfinished = tablesInUse.filter((m) => !T.tableComplete(m)).map((m) => m.table);
 
-		if (field === 'wins' || field === 'losses' || field === 'draws') {
-			p[field] = Math.max(0, parseInt(val || '0', 10) || 0);
-		} else if (field === 'hero') {
-			p.hero = val || '';
-		} else if (field === 'dropped') {
-			p.dropped = !!val;
-		} else {
-			p[field] = val;
+	// Helpers used in the template take their data as arguments rather than
+	// reading it from the closure, so Svelte sees what each expression depends on
+	// and redraws when it changes.
+	const shortName = (id, roster) =>
+		typeof id === 'number' ? roster[id]?.name || `Player ${id + 1}` : '';
+	// Draws are not played, so a record is wins and losses.
+	const record = (p) => `${p.wins}-${p.losses}`;
+	const optionLabel = (p) => `${p.name} (${record(p)})${p.dropped ? ' · dropped' : ''}`;
+
+	/**
+	 * The players a seat may take: the unseated, undropped ones, plus whoever is
+	 * in it now -- dropped or not, so a seat keeps showing its player through a
+	 * drop and a restore rather than going blank.
+	 */
+	const choicesFor = (row, seatKey, pool, taken) =>
+		pool.filter((p) => p.id === row[seatKey] || (!p.dropped && !taken.has(p.id)));
+
+	// Every write goes through here: one at a time, and a failure is shown rather
+	// than lost in the console.
+	async function run(task) {
+		if (busy) return;
+		busy = true;
+		error = '';
+		try {
+			await task();
+		} catch (err) {
+			error = err?.message || String(err);
+		} finally {
+			busy = false;
 		}
+	}
 
-		update(ref(db, `${ROOT}/players/${id}`), {
-			name: p.name,
-			hero: p.hero,
-			wins: p.wins,
-			losses: p.losses,
-			draws: p.draws,
-			dropped: p.dropped
+	const savePlayerField = (p, field, value) =>
+		run(() => T.savePlayer(db, { ...p, [field]: value }));
+
+	const seat = (row, seatKey, value) =>
+		run(() => T.setSeat(db, players, selectedRound, row, seatKey, value));
+	const result = (row, winner) => run(() => T.setWinner(db, players, selectedRound, row, winner));
+	const clearResult = (row) => run(() => T.clearResult(db, players, selectedRound, row));
+
+	function advance() {
+		if (!roundComplete) return;
+		run(async () => {
+			if (currentRound === latestRound) {
+				selectedRound = await T.createRound(db, roundsList, players);
+			} else {
+				await T.setCurrentRound(db, currentRound + 1);
+				selectedRound = currentRound + 1;
+			}
 		});
 	}
-	const toggleDrop = (id) => setPlayerField(id, 'dropped', !players[id].dropped);
 
-	// --- Pairings editing (atomic multi-path updates) ---
-	async function setSeat(tableIdx, seat, rawVal) {
-		const row = pairings[tableIdx];
-		const table = row.table;
-
-		// normalize & apply locally
-		const newSeat = normSeat(rawVal);
-		row[seat] = newSeat;
-
-		// compute auto winner for BYE (if any)
-		const autoW = autoWinnerFor(row.p1, row.p2);
-
-		// build a single multi-path update: clear old history (if any) + write pairings + write BYE history if applicable
-		const updates = await historyClearPathsFor(selectedRound, table);
-		updates[`${ROOT}/rounds/${selectedRound}/pairings/${table}`] = {
-			table,
-			p1: row.p1,
-			p2: row.p2,
-			winner: autoW ?? null
-		};
-		if (autoW != null) {
-			updates[`${ROOT}/history/${autoW}/${selectedRound}`] = {
-				round: selectedRound,
-				table,
-				opponentId: null,
-				result: 'B'
-			};
-		}
-
-		await update(ref(db), updates);
-		await recountFromHistory();
+	function newRound() {
+		run(async () => {
+			selectedRound = await T.createRound(db, roundsList, players);
+		});
 	}
 
-	async function setWinner(tableIdx, winnerId) {
-		const row = pairings[tableIdx];
-		const table = row.table;
-		const p1 = row.p1;
-		const p2 = row.p2;
-		if (p1 === '' || p2 === '') return;
-
-		// determine next (respect BYE; no draw when BYE present)
-		let next;
-		if (isBye(p1) !== isBye(p2)) {
-			next = isBye(p1) ? onlyPid(p2) : onlyPid(p1);
-		} else if (winnerId === 'draw') {
-			next = 'draw';
-		} else {
-			next = Number(winnerId);
-		}
-
-		// single multi-path update: clear old p1/p2 history, write pairings, write new history
-		const updates = {};
-		if (typeof p1 === 'number') updates[`${ROOT}/history/${p1}/${selectedRound}`] = null;
-		if (typeof p2 === 'number') updates[`${ROOT}/history/${p2}/${selectedRound}`] = null;
-
-		updates[`${ROOT}/rounds/${selectedRound}/pairings/${table}`] = { table, p1, p2, winner: next };
-
-		if (next === 'draw') {
-			const pid1 = onlyPid(p1);
-			const pid2 = onlyPid(p2);
-			if (pid1 !== '' && pid2 !== '') {
-				updates[`${ROOT}/history/${pid1}/${selectedRound}`] = {
-					round: selectedRound,
-					table,
-					opponentId: pid2,
-					result: 'D'
-				};
-				updates[`${ROOT}/history/${pid2}/${selectedRound}`] = {
-					round: selectedRound,
-					table,
-					opponentId: pid1,
-					result: 'D'
-				};
-			}
-		} else if (typeof next === 'number') {
-			if (isBye(p1) || isBye(p2)) {
-				updates[`${ROOT}/history/${next}/${selectedRound}`] = {
-					round: selectedRound,
-					table,
-					opponentId: null,
-					result: 'B'
-				};
-			} else {
-				const pid1 = onlyPid(p1);
-				const pid2 = onlyPid(p2);
-				const loser = next === pid1 ? pid2 : pid1;
-				if (pid1 !== '' && pid2 !== '') {
-					updates[`${ROOT}/history/${pid1}/${selectedRound}`] = {
-						round: selectedRound,
-						table,
-						opponentId: pid2,
-						result: next === pid1 ? 'W' : 'L'
-					};
-					updates[`${ROOT}/history/${pid2}/${selectedRound}`] = {
-						round: selectedRound,
-						table,
-						opponentId: pid1,
-						result: next === pid2 ? 'W' : 'L'
-					};
-				}
-			}
-		}
-
-		await update(ref(db), updates);
-		await recountFromHistory();
+	function removeRound() {
+		menuOpen = false;
+		const r = selectedRound;
+		if (!confirm(`Delete round ${r}? Its results are removed and the records recounted.`)) return;
+		run(async () => {
+			selectedRound = await T.deleteRound(db, players, r, currentRound);
+		});
 	}
 
-	// Submit: verify every table has a result, then advance
-	async function submitAndAdvance() {
-		const incomplete = pairings.some((m) => m.p1 === '' || m.p2 === '' || m.winner == null);
-		if (incomplete) {
-			alert('Please enter results for all tables before advancing.');
+	function reset() {
+		menuOpen = false;
+		if (
+			!confirm(
+				'Reset the tournament? Every round and result is removed and records go back to 0-0; the players stay in their seeds.'
+			)
+		)
 			return;
-		}
-		const next = Number(currentRound) + 1;
-		await set(ref(db, `${ROOT}/currentRound`), next);
-		await update(
-			ref(db, `${ROOT}/rounds/${next}/pairings`),
-			Object.fromEntries(
-				blankPairings().map((p) => [p.table, { table: p.table, p1: '', p2: '', winner: null }])
-			)
-		);
-		selectedRound = next;
-		attachPairingsListener(selectedRound);
+		if (!confirm('This cannot be undone. Reset it?')) return;
+		run(async () => {
+			await T.resetTournament(db, players);
+			selectedRound = 1;
+		});
 	}
 
-	// Delete round & recount
-	async function deleteRound() {
-		const r = Number(selectedRound);
-		if (!r || !roundsList.includes(r)) return;
-		if (!confirm(`Delete round ${r}? This removes its results and restores records.`)) return;
-
-		// remove per-player history entries for that round
-		const histSnap = await get(ref(db, `${ROOT}/history`));
-		const hist = histSnap.val() || {};
-		const updates = {};
-		for (const pid of Object.keys(hist)) {
-			if (hist[pid]?.[r]) {
-				updates[`${ROOT}/history/${pid}/${r}`] = null;
-			}
-		}
-		if (Object.keys(updates).length) await update(ref(db), updates);
-
-		// delete round node
-		await set(ref(db, `${ROOT}/rounds/${r}`), null);
-
-		// recount from remaining history
-		await recountFromHistory();
-
-		// fix currentRound + selection
-		const roundsSnap = await get(ref(db, `${ROOT}/rounds`));
-		const remaining = Object.keys(roundsSnap.val() || {})
-			.map(Number)
-			.filter(Number.isInteger);
-		const fallback = remaining.length ? Math.max(...remaining) : 1;
-		if (r === currentRound) await set(ref(db, `${ROOT}/currentRound`), fallback);
-		selectedRound = fallback;
-		attachPairingsListener(selectedRound);
-	}
-
-	// Round mgmt
-	function onPickRound(e) {
-		const picked = Number(e.target.value);
-		if (!Number.isInteger(picked)) return;
-		selectedRound = picked;
-		attachPairingsListener(selectedRound);
-	}
-	async function setAsCurrent() {
-		await set(ref(db, `${ROOT}/currentRound`), Number(selectedRound));
-	}
-	async function createNextRound() {
-		const next = (roundsList.length ? Math.max(...roundsList) : 0) + 1;
-		await update(
-			ref(db, `${ROOT}/rounds/${next}/pairings`),
-			Object.fromEntries(
-				blankPairings().map((p) => [p.table, { table: p.table, p1: '', p2: '', winner: null }])
-			)
-		);
-		selectedRound = next;
-		attachPairingsListener(selectedRound);
-		await set(ref(db, `${ROOT}/currentRound`), next);
-	}
-
-	function playerLabel(p) {
-		const rec = `${p.wins}-${p.losses}-${p.draws ?? 0}`;
-		return p.name ? `${p.name} (${rec})` : `Player ${p.id}`;
-	}
-	$: totalPlayers = players.reduce((a, p) => a + (p.name && !p.dropped ? 1 : 0), 0);
-
-	function eligiblePlayersFor(round, keepId) {
-		if (round <= currentRound) return players;
-		return players.filter((p) => !p.dropped || p.id === keepId);
-	}
-
-	// winner highlight for numeric seats
-	const isWinnerSeat = (row, seatKey) =>
-		typeof row.winner === 'number' &&
-		typeof row[seatKey] === 'number' &&
-		row.winner === row[seatKey];
+	const closeMenu = (e) => {
+		if (!e.target.closest('.menu')) menuOpen = false;
+	};
 </script>
 
-<div class="p-3 sm:p-4 max-w-7xl mx-auto space-y-3 text-white">
-	<!-- Header Card -->
-	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-		<div class="flex flex-col sm:flex-row sm:items-center gap-3">
-			<!-- Round Info -->
-			<div class="flex items-center gap-3 flex-1">
-				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
-					<span class="text-gray-500">Current:</span>
-					<span class="font-mono font-bold text-green-400 tabular-nums">Round {currentRound}</span>
-				</div>
-				<select
-					class="px-3 py-1.5 rounded border border-gray-700 bg-gray-800 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
-					on:change={onPickRound}
-					bind:value={selectedRound}
-				>
-					{#if roundsList.length === 0}
-						<option value={1}>Round 1</option>
-					{/if}
-					{#each roundsList as r}<option value={r}>Round {r}</option>{/each}
-				</select>
-			</div>
+<svelte:window on:click={closeMenu} />
 
-			<!-- Actions -->
-			<div class="flex items-center gap-2 flex-wrap">
-				<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-gray-800 text-sm">
-					<span class="text-gray-500">Players:</span>
-					<span class="font-mono font-bold text-blue-400 tabular-nums">{totalPlayers}</span>
-				</div>
-				<button
-					class="px-3 py-1.5 rounded text-xs font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-					on:click={setAsCurrent}
-				>
-					Set Current
-				</button>
-				<button
-					class="px-3 py-1.5 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors"
-					on:click={createNextRound}
-				>
-					New Round
-				</button>
-				<button
-					class="px-3 py-1.5 rounded text-xs bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white transition-colors"
-					on:click={deleteRound}
-				>
-					Delete
-				</button>
-			</div>
-		</div>
-	</div>
-
-	<!-- Players Card -->
-	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-		<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-3">Players ({players.filter(p => p.name).length})</div>
-
-		<!-- Desktop/Tablet Grid -->
-		<div class="hidden md:block">
-			<div class="grid grid-cols-12 text-[10px] text-gray-500 uppercase tracking-wider font-medium px-2 py-1 mb-2">
-				<div class="col-span-1">#</div>
-				<div class="col-span-4">Name</div>
-				<div class="col-span-3">Hero</div>
-				<div class="col-span-1 text-center">W</div>
-				<div class="col-span-1 text-center">L</div>
-				<div class="col-span-2 text-right">Record</div>
-			</div>
-			<div class="space-y-1">
-				{#each players as p}
-					<div
-						class="grid grid-cols-12 gap-1 px-2 py-1.5 items-center rounded-lg border border-gray-800 bg-gray-800/50 transition-colors hover:border-gray-700 hover:bg-gray-800 {p.dropped ? 'opacity-50' : ''} {p.name && !p.dropped ? 'border-l-2 border-l-blue-500' : ''}"
+<div class="mx-auto max-w-7xl space-y-3 p-3 text-white sm:p-4">
+	<!-- Header: which round, how far along it is, and the one button that moves on. -->
+	<header class="rounded-lg border border-gray-800 bg-gray-900 p-3">
+		<div class="flex flex-wrap items-center gap-2">
+			<div class="flex items-center gap-1" role="tablist" aria-label="Rounds">
+				{#each roundsList as r (r)}
+					<button
+						type="button"
+						role="tab"
+						aria-selected={r === selectedRound}
+						on:click={() => (selectedRound = r)}
+						class="h-9 min-w-9 rounded px-3 text-sm font-semibold transition-colors {r ===
+						selectedRound
+							? 'bg-blue-600 text-white'
+							: r === currentRound
+								? 'bg-gray-800 text-green-400 ring-1 ring-green-500/50 hover:bg-gray-700'
+								: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
 					>
-						<div class="col-span-1 text-xs font-mono text-gray-500">{p.id + 1}</div>
-						<div class="col-span-4">
-							<input
-								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-colors"
-								placeholder="Player name"
-								bind:value={p.name}
-								on:change={(e) => setPlayerField(p.id, 'name', e.target.value)}
-							/>
-						</div>
-						<div class="col-span-3 flex items-center gap-2">
-							<img
-								src={imgSrc(p.hero)}
-								alt={p.hero}
-								class="w-6 h-6 rounded object-cover object-right flex-shrink-0"
-								loading="lazy"
-							/>
-							<select
-								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors"
-								bind:value={p.hero}
-								on:change={(e) => setPlayerField(p.id, 'hero', e.target.value)}
-							>
-								<option value="">Select hero</option>
-								{#each heroOptions as h}<option value={h}>{h}</option>{/each}
-							</select>
-						</div>
-						<div class="col-span-1">
-							<input
-								class="w-full rounded border border-gray-700 bg-gray-900 px-1 py-1 text-xs text-center font-mono text-white focus:border-blue-500 focus:outline-none transition-colors"
-								bind:value={p.wins}
-								on:change={(e) => setPlayerField(p.id, 'wins', e.target.value)}
-								inputmode="numeric"
-							/>
-						</div>
-						<div class="col-span-1">
-							<input
-								class="w-full rounded border border-gray-700 bg-gray-900 px-1 py-1 text-xs text-center font-mono text-white focus:border-blue-500 focus:outline-none transition-colors"
-								bind:value={p.losses}
-								on:change={(e) => setPlayerField(p.id, 'losses', e.target.value)}
-								inputmode="numeric"
-							/>
-						</div>
-						<div class="col-span-2 flex items-center justify-end gap-2">
-							<span class="font-mono text-xs text-gray-300 tabular-nums">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
+						R{r}
+					</button>
+				{/each}
+				<button
+					type="button"
+					on:click={newRound}
+					disabled={busy}
+					title="Open the next round now, without finishing this one. Players already through get a bye at the top tables."
+					class="h-9 rounded px-2.5 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-white disabled:opacity-50"
+				>
+					+ Round
+				</button>
+			</div>
+
+			<div class="flex items-center gap-2 text-xs">
+				{#if isCurrent}
+					<span class="rounded bg-green-600/20 px-2 py-1 font-semibold text-green-400"
+						>Round {selectedRound} is live</span
+					>
+				{:else}
+					<span class="rounded bg-gray-800 px-2 py-1 text-gray-400">
+						Viewing round {selectedRound} · live is {currentRound}
+					</span>
+					<button
+						type="button"
+						on:click={() => run(() => T.setCurrentRound(db, selectedRound))}
+						disabled={busy}
+						class="h-7 rounded bg-gray-800 px-2 text-gray-300 hover:bg-gray-700 disabled:opacity-50"
+					>
+						Make it live
+					</button>
+				{/if}
+				<span class="rounded bg-gray-800 px-2 py-1 font-mono tabular-nums text-gray-300">
+					{resultsIn}/{tablesInUse.length || T.TABLE_COUNT} results
+				</span>
+			</div>
+
+			<div class="ml-auto flex items-center gap-2">
+				{#if isCurrent}
+					<button
+						type="button"
+						on:click={advance}
+						disabled={!roundComplete || busy}
+						title={roundComplete
+							? `Open round ${currentRound + 1} and make it live; players already through get a bye at the top tables`
+							: unfinished.length
+								? `Waiting on table${unfinished.length > 1 ? 's' : ''} ${unfinished.join(', ')}`
+								: 'Seat the tables first'}
+						class="h-9 rounded px-4 text-sm font-bold transition-colors {roundComplete
+							? 'bg-blue-600 text-white hover:bg-blue-500'
+							: 'cursor-not-allowed bg-gray-800 text-gray-500'}"
+					>
+						Advance to Round {currentRound + 1} →
+					</button>
+				{/if}
+				<div class="menu relative">
+					<button
+						type="button"
+						aria-label="More actions"
+						aria-expanded={menuOpen}
+						on:click={() => (menuOpen = !menuOpen)}
+						class="h-9 w-9 rounded bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+						>⋯</button
+					>
+					{#if menuOpen}
+						<div
+							class="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded border border-gray-700 bg-gray-900 shadow-xl"
+						>
 							<button
 								type="button"
-								class="w-7 h-7 rounded text-xs transition-colors {p.dropped ? 'bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white' : 'bg-gray-700 text-gray-400 hover:bg-red-600 hover:text-white'}"
-								on:click={() => toggleDrop(p.id)}
-								title={p.dropped ? 'Restore player' : 'Drop player'}
+								on:click={removeRound}
+								class="block w-full px-3 py-2 text-left text-xs text-gray-200 hover:bg-gray-800"
 							>
-								{p.dropped ? '+' : 'x'}
+								Delete round {selectedRound}…
+							</button>
+							<button
+								type="button"
+								on:click={reset}
+								class="block w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-red-600 hover:text-white"
+							>
+								Reset tournament…
 							</button>
 						</div>
-					</div>
-				{/each}
-			</div>
-		</div>
-
-		<!-- Mobile Grid -->
-		<div class="md:hidden grid grid-cols-1 gap-1.5">
-			{#each players as p}
-				<div
-					class="rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors hover:border-gray-700 hover:bg-gray-800 {p.dropped ? 'opacity-50' : ''} {p.name && !p.dropped ? 'border-l-2 border-l-blue-500' : ''}"
-				>
-					<div class="flex items-center gap-2">
-						<span class="text-xs font-mono text-gray-500 w-5">{p.id + 1}</span>
-						<input
-							class="flex-1 rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-							placeholder="Name"
-							bind:value={p.name}
-							on:change={(e) => setPlayerField(p.id, 'name', e.target.value)}
-						/>
-						<button
-							type="button"
-							class="w-7 h-7 rounded text-xs transition-colors flex-shrink-0 {p.dropped ? 'bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white' : 'bg-gray-700 text-gray-400 hover:bg-red-600 hover:text-white'}"
-							on:click={() => toggleDrop(p.id)}
-						>
-							{p.dropped ? '+' : 'x'}
-						</button>
-					</div>
-					<div class="flex items-center gap-2 mt-1.5 pl-7">
-						<img
-							src={imgSrc(p.hero)}
-							alt={p.hero}
-							class="w-6 h-6 rounded object-cover object-right flex-shrink-0"
-							loading="lazy"
-						/>
-						<select
-							class="flex-1 rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
-							bind:value={p.hero}
-							on:change={(e) => setPlayerField(p.id, 'hero', e.target.value)}
-						>
-							<option value="">Select hero</option>
-							{#each heroOptions as h}<option value={h}>{h}</option>{/each}
-						</select>
-						<span class="font-mono text-xs text-gray-300 tabular-nums flex-shrink-0">{p.wins}-{p.losses}-{p.draws ?? 0}</span>
-					</div>
+					{/if}
 				</div>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Pairings Card -->
-	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-		<div class="flex items-center justify-between mb-3">
-			<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Round {selectedRound} Pairings</div>
-		</div>
-
-		<!-- Desktop/Tablet View -->
-		<div class="hidden md:block">
-			<div class="grid grid-cols-12 text-[10px] text-gray-500 uppercase tracking-wider font-medium px-2 py-1 mb-2">
-				<div class="col-span-1">Tbl</div>
-				<div class="col-span-4">Player 1</div>
-				<div class="col-span-4">Player 2</div>
-				<div class="col-span-3 text-right">Result</div>
-			</div>
-			<div class="space-y-1">
-				{#each pairings as m, idx}
-					<div class="grid grid-cols-12 gap-1.5 px-2 py-1.5 items-center rounded-lg border border-gray-800 bg-gray-800/50 transition-colors hover:border-gray-700 hover:bg-gray-800 {m.winner !== null ? 'border-l-2 border-l-green-500' : ''}">
-						<div class="col-span-1 text-xs font-mono text-gray-500">{m.table}</div>
-
-						<div class="col-span-4">
-							<select
-								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'border-green-500 bg-green-900/20' : ''}"
-								bind:value={pairings[idx].p1}
-								on:change={(e) => setSeat(idx, 'p1', e.target.value)}
-							>
-								<option value="">Select player</option>
-								<option value="BYE">Bye</option>
-								{#each eligiblePlayersFor(selectedRound, pairings[idx].p1) as p}
-									<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div class="col-span-4">
-							<select
-								class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'border-green-500 bg-green-900/20' : ''}"
-								bind:value={pairings[idx].p2}
-								on:change={(e) => setSeat(idx, 'p2', e.target.value)}
-							>
-								<option value="">Select player</option>
-								<option value="BYE">Bye</option>
-								{#each eligiblePlayersFor(selectedRound, pairings[idx].p2) as p}
-									<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div class="col-span-3 flex justify-end gap-1">
-							<button
-								class="w-8 h-7 rounded text-xs font-medium transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
-								on:click={() => setWinner(idx, pairings[idx].p1)}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE'}
-							>
-								P1
-							</button>
-							<button
-								class="w-8 h-7 rounded text-xs font-medium transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
-								on:click={() => setWinner(idx, pairings[idx].p2)}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p2 === 'BYE'}
-							>
-								P2
-							</button>
-							<button
-								class="px-2 h-7 rounded text-xs font-medium transition-colors {pairings[idx].winner === 'draw' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-amber-600 hover:text-white'}"
-								on:click={() => setWinner(idx, 'draw')}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE' || pairings[idx].p2 === 'BYE'}
-							>
-								Draw
-							</button>
-						</div>
-					</div>
-				{/each}
 			</div>
 		</div>
-	</div>
 
-	<!-- Pairings Mobile -->
-	<div class="md:hidden bg-gray-900 border border-gray-800 rounded-lg p-3">
-		<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-3">Round {selectedRound} Pairings</div>
-		<div class="grid grid-cols-1 gap-1.5">
-			{#each pairings as m, idx}
-				<div class="rounded-lg border border-gray-800 bg-gray-800/50 p-2 transition-colors {m.winner !== null ? 'border-l-2 border-l-green-500' : ''}">
-					<div class="flex items-center justify-between mb-2">
-						<span class="text-xs font-mono text-gray-500">Table {m.table}</span>
-						<div class="flex gap-1">
-							<button
-								class="w-8 h-6 rounded text-[10px] font-medium transition-colors {isWinnerSeat(pairings[idx], 'p1') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'}"
-								on:click={() => setWinner(idx, pairings[idx].p1)}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE'}
-							>
-								P1
-							</button>
-							<button
-								class="w-8 h-6 rounded text-[10px] font-medium transition-colors {isWinnerSeat(pairings[idx], 'p2') ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'}"
-								on:click={() => setWinner(idx, pairings[idx].p2)}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p2 === 'BYE'}
-							>
-								P2
-							</button>
-							<button
-								class="px-2 h-6 rounded text-[10px] font-medium transition-colors {pairings[idx].winner === 'draw' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300'}"
-								on:click={() => setWinner(idx, 'draw')}
-								disabled={pairings[idx].p1 === '' || pairings[idx].p2 === '' || pairings[idx].p1 === 'BYE' || pairings[idx].p2 === 'BYE'}
-							>
-								D
-							</button>
-						</div>
-					</div>
-					<div class="space-y-1.5">
-						<select
-							class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none {isWinnerSeat(pairings[idx], 'p1') ? 'border-green-500 bg-green-900/20' : ''}"
-							bind:value={pairings[idx].p1}
-							on:change={(e) => setSeat(idx, 'p1', e.target.value)}
-						>
-							<option value="">Player 1</option>
-							<option value="BYE">Bye</option>
-							{#each eligiblePlayersFor(selectedRound, pairings[idx].p1) as p}
-								<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
-							{/each}
-						</select>
-						<select
-							class="w-full rounded border border-gray-700 bg-gray-900 px-2 py-1.5 text-xs text-white focus:border-blue-500 focus:outline-none {isWinnerSeat(pairings[idx], 'p2') ? 'border-green-500 bg-green-900/20' : ''}"
-							bind:value={pairings[idx].p2}
-							on:change={(e) => setSeat(idx, 'p2', e.target.value)}
-						>
-							<option value="">Player 2</option>
-							<option value="BYE">Bye</option>
-							{#each eligiblePlayersFor(selectedRound, pairings[idx].p2) as p}
-								<option value={p.id}>{playerLabel(p)}{p.dropped && selectedRound <= currentRound ? ' (dropped)' : ''}</option>
-							{/each}
-						</select>
-					</div>
-				</div>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Actions Card -->
-	<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-		<div class="flex items-center gap-2">
-			<button
-				class="px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 transition-colors"
-				on:click={submitAndAdvance}
+		{#if error}
+			<p
+				class="mt-2 rounded border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs text-red-300"
 			>
-				Submit & Advance Round
-			</button>
-		</div>
+				{error}
+			</p>
+		{/if}
+	</header>
+
+	<div class="grid gap-3 lg:grid-cols-[3fr_2fr]">
+		<!-- Pairings: seat the tables, click the results -->
+		<section class="rounded-lg border border-gray-800 bg-gray-900 p-3" aria-label="Pairings">
+			<div class="mb-2 flex flex-wrap items-center gap-2">
+				<h2 class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+					Round {selectedRound} pairings
+				</h2>
+				{#if unseated.length}
+					<span class="text-[10px] text-gray-500">Not seated:</span>
+					{#each unseated as p (p.id)}
+						<span class="rounded bg-amber-600/20 px-1.5 py-0.5 text-[10px] text-amber-300">
+							{p.name}
+						</span>
+					{/each}
+				{:else if named.length}
+					<span class="text-[10px] text-green-500">Everyone is seated</span>
+				{/if}
+			</div>
+
+			<div class="space-y-1">
+				{#each pairings as row (row.table)}
+					{@const complete = T.tableComplete(row)}
+					{@const byeTable = T.isBye(row.p1) || T.isBye(row.p2)}
+					<div
+						class="grid items-center gap-1.5 rounded-lg border bg-gray-800/50 px-2 py-1.5 sm:grid-cols-[2rem_1fr_auto_1fr] {complete
+							? 'border-green-500/40'
+							: 'border-gray-800'}"
+					>
+						<div class="text-xs font-mono text-gray-500">T{row.table}</div>
+
+						{#each ['p1', 'p2'] as seatKey (seatKey)}
+							{@const won = typeof row.winner === 'number' && row.winner === row[seatKey]}
+							<select
+								aria-label="Table {row.table} {seatKey === 'p1' ? 'player 1' : 'player 2'}"
+								value={row[seatKey]}
+								disabled={busy}
+								on:change={(e) => seat(row, seatKey, e.target.value)}
+								class="h-8 w-full rounded border bg-gray-900 px-2 text-xs text-white transition-colors focus:border-blue-500 focus:outline-none {won
+									? 'border-green-500 bg-green-900/20'
+									: 'border-gray-700'} {seatKey === 'p2' ? 'sm:order-4' : ''}"
+							>
+								<option value="">— empty —</option>
+								<option value="BYE">Bye</option>
+								{#each choicesFor(row, seatKey, named, seatedIds) as p (p.id)}
+									<option value={p.id}>{optionLabel(p)}</option>
+								{/each}
+							</select>
+						{/each}
+
+						<div class="flex items-center justify-center gap-1 sm:order-3">
+							{#if byeTable}
+								<span class="h-8 rounded bg-gray-800 px-2 text-[11px] leading-8 text-gray-400">
+									{row.winner != null ? `${shortName(row.winner, players)} gets the bye` : 'Bye'}
+								</span>
+							{:else}
+								{@const seatsSet = row.p1 !== '' && row.p2 !== ''}
+								<button
+									type="button"
+									aria-label="Table {row.table}: {shortName(row.p1, players) || 'player 1'} wins"
+									aria-pressed={typeof row.winner === 'number' && row.winner === row.p1}
+									disabled={!seatsSet || busy}
+									on:click={() => result(row, row.p1)}
+									class="h-8 rounded px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 {typeof row.winner ===
+										'number' && row.winner === row.p1
+										? 'bg-green-600 text-white'
+										: 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
+								>
+									◀ Wins
+								</button>
+
+								<button
+									type="button"
+									aria-label="Table {row.table}: {shortName(row.p2, players) || 'player 2'} wins"
+									aria-pressed={typeof row.winner === 'number' && row.winner === row.p2}
+									disabled={!seatsSet || busy}
+									on:click={() => result(row, row.p2)}
+									class="h-8 rounded px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 {typeof row.winner ===
+										'number' && row.winner === row.p2
+										? 'bg-green-600 text-white'
+										: 'bg-gray-700 text-gray-300 hover:bg-green-600 hover:text-white'}"
+								>
+									Wins ▶
+								</button>
+								{#if row.winner != null}
+									<button
+										type="button"
+										aria-label="Table {row.table}: clear result"
+										disabled={busy}
+										on:click={() => clearResult(row)}
+										class="h-8 w-6 rounded text-xs text-gray-500 hover:bg-gray-700 hover:text-white"
+										>✕</button
+									>
+								{/if}
+							{/if}
+						</div>
+					</div>
+				{/each}
+			</div>
+		</section>
+
+		<!-- Standings: what the overlay shows, as the results go in -->
+		<section class="rounded-lg border border-gray-800 bg-gray-900 p-3" aria-label="Standings">
+			<div class="mb-2 flex items-baseline justify-between">
+				<h2 class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Standings</h2>
+				<span class="text-[10px] text-gray-500">
+					as the overlay orders them · Top 8 fills the bracket page automatically
+				</span>
+			</div>
+			{#if !named.length}
+				<p class="py-6 text-center text-xs text-gray-500">Enter players below to see standings.</p>
+			{:else}
+				<ol class="space-y-0.5">
+					{#each orderWithTop8(standings, top8Seeds).filter((s) => s.name) as s (s.id)}
+						<li
+							class="grid grid-cols-[1.5rem_1.5rem_1fr_auto] items-center gap-2 rounded px-1.5 py-1 text-xs {s.dropped
+								? 'opacity-50'
+								: ''} {s.rank <= 8 ? 'bg-gray-800/60' : ''}"
+						>
+							<span class="text-right font-mono tabular-nums text-gray-500">{s.rank}</span>
+							{#if s.hero}
+								<img
+									src={heroImageUrl(s.hero)}
+									alt=""
+									class="h-6 w-6 rounded object-cover object-right"
+									loading="lazy"
+								/>
+							{:else}
+								<span class="h-6 w-6 rounded bg-gray-800"></span>
+							{/if}
+							<span class="min-w-0">
+								<span class="block truncate font-medium text-white">
+									{s.name}
+									{#if top8Seeds.has(s.id)}
+										<span
+											class="ml-1 rounded bg-green-600/20 px-1 py-px text-[9px] font-bold uppercase tracking-wider text-green-400"
+											title="Written to the Top 8 bracket"
+										>
+											Top 8 · {ordinal(top8Seeds.get(s.id))}
+										</span>
+									{/if}
+								</span>
+								<span class="block truncate text-[10px] text-gray-500">{s.hero || '—'}</span>
+							</span>
+							{#if s.dropped}
+								<span class="text-[10px] font-semibold text-red-400">Dropped</span>
+							{:else}
+								<span
+									class="font-mono tabular-nums {s.record.losses === 0
+										? 'text-green-400'
+										: s.record.losses === 1
+											? 'text-yellow-400'
+											: 'text-red-400'}">{recordString(s)}</span
+								>
+							{/if}
+						</li>
+					{/each}
+				</ol>
+			{/if}
+		</section>
 	</div>
+
+	<!-- Players: the field, entered once -->
+	<details
+		class="rounded-lg border border-gray-800 bg-gray-900"
+		bind:open={playersOpen}
+		aria-label="Players"
+	>
+		<summary
+			class="flex cursor-pointer select-none items-center gap-3 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500"
+		>
+			<span>Players</span>
+			<span class="font-mono normal-case tracking-normal text-gray-400">
+				{named.length} of {T.PLAYER_COUNT} entered{dropped.length
+					? ` · ${dropped.length} dropped`
+					: ''}
+			</span>
+			<span class="ml-auto text-gray-600">{playersOpen ? 'hide' : 'show'}</span>
+		</summary>
+		<div class="grid gap-1 px-3 pb-3 md:grid-cols-2">
+			{#each players as p (p.id)}
+				<div
+					class="grid grid-cols-[1.5rem_1fr_auto_auto] items-center gap-1.5 rounded-lg border px-2 py-1 sm:grid-cols-[1.5rem_1fr_1fr_auto_auto] {p.dropped
+						? 'border-gray-800 opacity-60'
+						: p.name
+							? 'border-gray-800 bg-gray-800/40'
+							: 'border-dashed border-gray-800'}"
+				>
+					<span class="text-right text-xs font-mono text-gray-500">{p.id + 1}</span>
+					<input
+						type="text"
+						placeholder="Player name"
+						aria-label="Player {p.id + 1} name"
+						value={p.name}
+						disabled={busy}
+						on:change={(e) => savePlayerField(p, 'name', e.target.value.trim())}
+						class="h-8 min-w-0 rounded border border-gray-700 bg-gray-900 px-2 text-xs text-white placeholder-gray-600 transition-colors focus:border-blue-500 focus:outline-none sm:order-1"
+					/>
+					<!-- On a phone the hero field takes a second line under the name; on a wider
+					     screen the five sit in one row, in the order the classes give. -->
+					<span
+						class="w-12 text-center font-mono text-xs tabular-nums text-gray-400 sm:order-3"
+						title="Record, from the results entered">{record(p)}</span
+					>
+					<button
+						type="button"
+						aria-label="{p.dropped ? 'Restore' : 'Drop'} player {p.id + 1}"
+						disabled={busy || !p.name}
+						on:click={() => savePlayerField(p, 'dropped', !p.dropped)}
+						class="h-7 rounded px-2 text-[10px] transition-colors disabled:opacity-30 sm:order-4 {p.dropped
+							? 'bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white'
+							: 'bg-gray-800 text-gray-400 hover:bg-red-600 hover:text-white'}"
+					>
+						{p.dropped ? 'Restore' : 'Drop'}
+					</button>
+					<div class="col-span-3 col-start-2 sm:order-2 sm:col-span-1 sm:col-start-auto">
+						<HeroPicker
+							id="hero-{p.id}"
+							label="Player {p.id + 1} hero"
+							value={p.hero}
+							on:change={(e) => savePlayerField(p, 'hero', e.detail)}
+						/>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</details>
 </div>

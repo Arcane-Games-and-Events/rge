@@ -12,16 +12,16 @@
 	const menuItems = [
 		{ name: 'Views', href: '/views' },
 		{ name: 'Production Booth', href: '/productionbooth' },
+		{ name: 'Tournament', href: '/tournament' },
 		{ name: 'Metagame', href: '/metagame' },
 		{ name: 'Top 8', href: '/graphics' },
-		{ name: 'Event Presets', href: '/eventpresets' },
 		{ name: 'Judge QR', href: '/judge/qr' }
 	];
 
 	const archiveItems = [
+		{ name: 'Event Presets', href: '/eventpresets' },
 		{ name: 'Caster View', href: '/casterview' },
-		{ name: 'Draft Picker', href: '/draftpicker' },
-		{ name: 'Tournament', href: '/tournament' }
+		{ name: 'Draft Picker', href: '/draftpicker' }
 	];
 
 	$: currentPath = $page?.url?.pathname || '';
