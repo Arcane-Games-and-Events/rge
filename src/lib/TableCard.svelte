@@ -4,6 +4,7 @@
 	import { db } from '../firebaseClient';
 	import { heroes, loadHeroes } from '$lib/heroes';
 	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
+	import { pregamePath, pregamePayload, PREGAME_CLEARED } from '$lib/pregame';
 	import debounce from 'lodash.debounce';
 	import { FLAG_COUNTRIES } from '$lib/flags';
 	import { PRONOUN_OPTIONS } from '$lib/pronouns';
@@ -22,6 +23,7 @@
 	const lifePath = isTableOne ? 'lifecounter' : 'lifecounter2';
 	const startSignalPath = isTableOne ? 'timers/Round/startSignal' : 'signals/table2/startSignal';
 	const customSignalPath = isTableOne ? 'timers/Round/customSignal' : 'signals/table2/customSignal';
+	const pregameSignalPath = pregamePath(index);
 
 	// Spelled out in full so the CSS purge pass keeps them.
 	const accent = isTableOne
@@ -65,6 +67,9 @@
 	let life = { p1: 20, p2: 20 };
 	let startActive = false;
 	let customActive = false;
+	// The pregame form on the table's scorekeeper: sent from here, filled in by
+	// the players, and closed by the start signal or by hand.
+	let pregame = { active: false, submitted: false };
 	let customText = '';
 	let startSignalTimer = null;
 
@@ -222,13 +227,26 @@
 		await set(ref(db, `${lifePath}/${seatId}`), life[seatId]);
 	};
 
+	// Resetting the totals starts a new game: the life history goes with them.
 	const resetLife = async (total) => {
 		life = { p1: total, p2: total };
 		await set(ref(db, `${lifePath}/p1`), total);
 		await set(ref(db, `${lifePath}/p2`), total);
+		await set(ref(db, `${lifePath}/history`), null);
 	};
 
-	const triggerStartSignal = () => set(ref(db, startSignalPath), startSignalPayload());
+	// Starting the match also closes the pregame form, if it is still up.
+	const triggerStartSignal = async () => {
+		await set(ref(db, startSignalPath), startSignalPayload());
+		if (pregame.active) await set(ref(db, pregameSignalPath), PREGAME_CLEARED);
+	};
+
+	// Sending the pregame form starts a new game: the life history is wiped.
+	const sendPregame = async () => {
+		await set(ref(db, `${lifePath}/history`), null);
+		await set(ref(db, pregameSignalPath), pregamePayload());
+	};
+	const clearPregame = () => set(ref(db, pregameSignalPath), PREGAME_CLEARED);
 
 	const triggerCustomSignal = async () => {
 		const text = customText.trim();
@@ -263,6 +281,11 @@
 			const remaining = startSignalRemainingMs(snap.val());
 			startActive = remaining > 0;
 			if (remaining > 0) startSignalTimer = setTimeout(() => (startActive = false), remaining);
+		});
+
+		onValue(ref(db, pregameSignalPath), (snap) => {
+			const data = snap.val() || {};
+			pregame = { active: !!data.active, submitted: !!data.submitted };
 		});
 
 		onValue(ref(db, customSignalPath), (snap) => {
@@ -460,6 +483,27 @@
 
 	<!-- Signals share one row so they cost a single line -->
 	<div class="mt-1.5 flex flex-wrap items-center gap-1 border-t border-gray-800 pt-1.5">
+		{#if pregame.active}
+			<button
+				type="button"
+				on:click={clearPregame}
+				title="Close the pregame form on the scorekeeper"
+				class="h-9 flex-none rounded px-2.5 text-xs font-bold text-white transition-colors {pregame.submitted
+					? 'bg-emerald-600 hover:bg-emerald-500'
+					: 'animate-pulse bg-amber-600 hover:bg-amber-500'}"
+			>
+				{pregame.submitted ? 'Pregame ✓' : 'Pregame…'}
+			</button>
+		{:else}
+			<button
+				type="button"
+				on:click={sendPregame}
+				title="Open the pregame form on the scorekeeper: pronouns, the roll, who plays first"
+				class="h-9 flex-none rounded bg-gray-800 px-2.5 text-xs font-bold text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+			>
+				Pregame
+			</button>
+		{/if}
 		<button
 			type="button"
 			on:click={triggerStartSignal}
