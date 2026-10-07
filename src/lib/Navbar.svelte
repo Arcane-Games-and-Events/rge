@@ -13,6 +13,7 @@
 		{ name: 'Views', href: '/views' },
 		{ name: 'Production Booth', href: '/productionbooth' },
 		{ name: 'Tournament', href: '/tournament' },
+		{ name: 'Topics', href: '/topics' },
 		{ name: 'Metagame', href: '/metagame' },
 		{ name: 'Top 8', href: '/graphics' },
 		{ name: 'Judge QR', href: '/judge/qr' }
