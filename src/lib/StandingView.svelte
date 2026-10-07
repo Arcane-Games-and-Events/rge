@@ -8,7 +8,9 @@
 		orderWithTop8,
 		ordinal,
 		WINS_TO_ADVANCE,
-		LOSSES_TO_DROP
+		LOSSES_TO_DROP,
+		throughRound,
+		recordAfter
 	} from '$lib/standings';
 	import { heroImageUrl } from '$lib/heroMedia';
 
@@ -56,9 +58,23 @@
 	}
 
 	// The arithmetic lives in $lib/standings, shared with the management page's
-	// preview, so the producer sees the same order this draws.
+	// preview, so the producer sees the same order this draws. It is run on the
+	// event as it stood through the live round: results from later rounds,
+	// already entered, are left out, so making an earlier round live shows that
+	// round's table. A drop shows once it is earned by that round, or in the
+	// latest round whatever the reason.
+	let roster = [];
+	let upTo = { historyMap: {}, roundsTree: {} };
 	const computeStandings = () => {
-		standings = rank(players, { roundsTree, historyMap, currentRound });
+		const rounds = Object.keys(roundsTree).map(Number).filter(Number.isInteger);
+		const latestRound = rounds.length ? Math.max(...rounds) : 1;
+		upTo = throughRound(historyMap, roundsTree, currentRound);
+		roster = players.map((p) => {
+			const r = recordAfter(upTo.historyMap, p.id, currentRound);
+			const dropped = p.dropped && (currentRound >= latestRound || r.losses >= LOSSES_TO_DROP);
+			return { ...p, wins: r.wins, losses: r.losses, dropped };
+		});
+		standings = rank(roster, { ...upTo, currentRound });
 	};
 
 	onMount(() => {
@@ -115,7 +131,7 @@
 
 	// The Top 8 seeds of the players already through, shown beside their names;
 	// they head the table in seed order, with everyone else beneath by record.
-	$: top8Seeds = top8Seeding(players, historyMap);
+	$: top8Seeds = top8Seeding(roster, upTo.historyMap);
 	$: placed = orderWithTop8(standings, top8Seeds)
 		.filter((s) => s.name)
 		.slice(0, 16);

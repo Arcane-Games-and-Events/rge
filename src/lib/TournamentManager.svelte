@@ -11,7 +11,9 @@
 		top8Seeding,
 		orderWithTop8,
 		ordinal,
-		recordAfter
+		recordAfter,
+		throughRound,
+		LOSSES_TO_DROP
 	} from '$lib/standings';
 	import * as T from '$lib/tournament';
 	import { FEATURE_PATH, sendFeatureMatch, isFeaturedTable } from '$lib/featureMatch';
@@ -65,7 +67,17 @@
 	$: latestRound = roundsList.length ? roundsList[roundsList.length - 1] : 1;
 	$: isCurrent = selectedRound === currentRound;
 	$: pairings = T.normalizePairings(roundsTree[selectedRound]?.pairings);
-	$: standings = computeStandings(players, { roundsTree, historyMap, currentRound });
+	// The standings preview is the overlay's table: the event as it stood
+	// through the live round, with later rounds already entered left out, so
+	// making an earlier round live shows that round's records here as on air.
+	$: upTo = throughRound(historyMap, roundsTree, currentRound);
+	$: previewRoster = players.map((p) => {
+		const r = recordAfter(upTo.historyMap, p.id, currentRound);
+		const dropped = p.dropped && (currentRound >= latestRound || r.losses >= LOSSES_TO_DROP);
+		return { ...p, wins: r.wins, losses: r.losses, dropped };
+	});
+	$: standings = computeStandings(previewRoster, { ...upTo, currentRound });
+	$: previewSeeds = top8Seeding(previewRoster, upTo.historyMap);
 
 	// The Top 8 fills itself in. Whoever has clinched is written into the bracket
 	// page's slots by their Top 8 seed, and slots not yet earned are emptied, so
@@ -516,14 +528,15 @@
 			<div class="mb-2 flex items-baseline justify-between">
 				<h2 class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Standings</h2>
 				<span class="text-[10px] text-gray-500">
-					as the overlay orders them · Top 8 fills the bracket page automatically
+					through round {currentRound}, as the overlay shows it · Top 8 fills the bracket page
+					automatically
 				</span>
 			</div>
 			{#if !named.length}
 				<p class="py-6 text-center text-xs text-gray-500">Enter players below to see standings.</p>
 			{:else}
 				<ol class="space-y-0.5">
-					{#each orderWithTop8(standings, top8Seeds).filter((s) => s.name) as s (s.id)}
+					{#each orderWithTop8(standings, previewSeeds).filter((s) => s.name) as s (s.id)}
 						<li
 							class="grid grid-cols-[1.5rem_1.5rem_1fr_auto] items-center gap-2 rounded px-1.5 py-1 text-xs {s.dropped
 								? 'opacity-50'
@@ -543,12 +556,12 @@
 							<span class="min-w-0">
 								<span class="block truncate font-medium text-white">
 									{s.name}
-									{#if top8Seeds.has(s.id)}
+									{#if previewSeeds.has(s.id)}
 										<span
 											class="ml-1 rounded bg-green-600/20 px-1 py-px text-[9px] font-bold uppercase tracking-wider text-green-400"
 											title="Written to the Top 8 bracket"
 										>
-											Top 8 · {ordinal(top8Seeds.get(s.id))}
+											Top 8 · {ordinal(previewSeeds.get(s.id))}
 										</span>
 									{/if}
 								</span>

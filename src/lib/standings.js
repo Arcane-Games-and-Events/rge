@@ -254,6 +254,22 @@ export function orderWithTop8(standings, seeds) {
 }
 
 /**
+ * The history and the rounds as they stood through a given round: later rounds,
+ * already entered, are left out. The overlays use this so that making an
+ * earlier round live shows that round's records.
+ */
+export function throughRound(historyMap, roundsTree, round) {
+	const keep = (tree) =>
+		Object.fromEntries(Object.entries(tree || {}).filter(([r]) => Number(r) <= round));
+	return {
+		historyMap: Object.fromEntries(
+			Object.entries(historyMap || {}).map(([id, rounds]) => [id, keep(rounds)])
+		),
+		roundsTree: keep(roundsTree)
+	};
+}
+
+/**
  * A player's record after a given round, from history, a bye counted as a win.
  */
 export function recordAfter(historyMap, id, round) {

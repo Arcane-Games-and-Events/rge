@@ -1,10 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
+	import { cubicOut } from 'svelte/easing';
 	import { FEATURE_PATH, isFeaturedTable } from '$lib/featureMatch';
 	import { db } from '../firebaseClient';
 	import { heroImageUrl } from '$lib/heroMedia';
-	import { top8Seeding, ordinal, WINS_TO_ADVANCE, LOSSES_TO_DROP } from '$lib/standings';
+	import {
+		top8Seeding,
+		ordinal,
+		recordAfter,
+		WINS_TO_ADVANCE,
+		LOSSES_TO_DROP
+	} from '$lib/standings';
 
 	// Pairings for a 1920x1080 browser source, in the look of the standings: white
 	// type and tan accents on translucent dark bars, eight tables in two columns of
@@ -50,6 +57,30 @@
 		lastWinners = winners;
 	}
 
+	// The tables remounted so every bar and portrait comes in again, unsettled
+	// so the entrance plays, and sooner than on a cold load since the heading is
+	// already up. The heading itself is left alone.
+	let tablesKey = 0;
+	let barsStart = BARS_START_MS;
+	let restarting = false;
+	function restart() {
+		settled = false;
+		changed = {};
+		barsStart = RESTART_START_MS;
+		restarting = true;
+		tablesKey += 1;
+	}
+
+	// The old round's tables drift up and out while the new ones are on their
+	// way: a gentle crossfade rather than a cut.
+	function drift(node, { duration = 700 } = {}) {
+		return {
+			duration,
+			easing: cubicOut,
+			css: (t) => `opacity: ${t}; transform: translateY(${(1 - t) * -10}px);`
+		};
+	}
+
 	function attachPairingsListener(round) {
 		unsubPairings?.();
 		lastWinners = {};
@@ -80,7 +111,11 @@
 			seen.event = true;
 		});
 		const unsub1 = onValue(ref(db, `${ROOT}/currentRound`), (s) => {
-			currentRound = s.val() || 1;
+			const next = s.val() || 1;
+			// A new round going live after the page has loaded brings the tables
+			// in again: the heading stays, the bars leave and the new round's arrive.
+			if (seen.round && next !== currentRound) restart();
+			currentRound = next;
 			seen.round = true;
 			attachPairingsListener(currentRound);
 		});
@@ -104,7 +139,13 @@
 			);
 			seen.players = true;
 		});
-		const unsub3 = onValue(ref(db, `${ROOT}/rounds`), () => attachPairingsListener(currentRound));
+		const unsub3 = onValue(ref(db, `${ROOT}/rounds`), (snap) => {
+			const rounds = Object.keys(snap.val() || {})
+				.map(Number)
+				.filter(Number.isInteger);
+			latestRound = rounds.length ? Math.max(...rounds) : 1;
+			attachPairingsListener(currentRound);
+		});
 		const unsubHistory = onValue(ref(db, `${ROOT}/history`), (snap) => {
 			historyMap = snap.val() || {};
 			seen.history = true;
@@ -147,7 +188,26 @@
 		return a < b ? a : b;
 	}
 
-	$: top8Seeds = top8Seeding(players, historyMap);
+	// Records as they stand through the live round. Results from later rounds,
+	// already entered, are left out, so making an earlier round live shows the
+	// records of that round: 1-0 and 0-1 with round 1 live, however far the
+	// event has gone. A drop shows once it is earned by that round, or in the
+	// latest round whatever the reason.
+	let latestRound = 1;
+	$: historyUpTo = Object.fromEntries(
+		Object.entries(historyMap).map(([id, rounds]) => [
+			id,
+			Object.fromEntries(Object.entries(rounds || {}).filter(([r]) => Number(r) <= currentRound))
+		])
+	);
+	$: roster = Object.fromEntries(
+		Object.values(players).map((p) => {
+			const r = recordAfter(historyUpTo, p.id, currentRound);
+			const dropped = p.dropped && (currentRound >= latestRound || r.losses >= LOSSES_TO_DROP);
+			return [p.id, { ...p, wins: r.wins, losses: r.losses, dropped }];
+		})
+	);
+	$: top8Seeds = top8Seeding(Object.values(roster), historyUpTo);
 
 	/** 'advanced', 'out' or '' for a player, from their record. */
 	const standing = (p) =>
@@ -206,7 +266,7 @@
 	let ceiling = null;
 	$: dataReady = Object.values(seen).every(Boolean) && tables.length > 0;
 	$: expectedImages = tables.reduce(
-		(n, m) => n + ['p1', 'p2'].filter((k) => seat(m[k], players, top8Seeds).hero).length,
+		(n, m) => n + ['p1', 'p2'].filter((k) => seat(m[k], roster, top8Seeds).hero).length,
 		0
 	);
 	$: if (dataReady && !play && !ceiling) ceiling = setTimeout(() => (play = true), 3000);
@@ -214,8 +274,7 @@
 	$: if (play && ceiling) ceiling = clearTimeout(ceiling) ?? null;
 	// Once the last bar has arrived the entrance is taken off the rows, so a
 	// result coming in is a plain transition and never replays it.
-	$: if (play && !settled)
-		setTimeout(() => (settled = true), BARS_START_MS + 16 * BAR_STEP_MS + 700);
+	$: if (play && !settled) setTimeout(() => (settled = true), barsStart + 16 * BAR_STEP_MS + 700);
 
 	const reveal = (e) => {
 		e.currentTarget.classList.add('loaded');
@@ -226,10 +285,12 @@
 		settledImages += 1;
 	};
 	const BARS_START_MS = 1000;
+	// The new round's bars begin as the old ones are most of the way out.
+	const RESTART_START_MS = 500;
 	const BAR_STEP_MS = 55;
 </script>
 
-<div class="stage text-white" class:play class:settled>
+<div class="stage text-white" class:play>
 	<header class="heading">
 		<h1 class="title">Pairings</h1>
 		<p class="subtitle">
@@ -237,81 +298,88 @@
 		</p>
 	</header>
 
-	{#each columns as column, c (c)}
-		<div class="column" style="left: {c === 0 ? 100 : 990}px;">
-			{#each column as m, i (m.table)}
-				{@const at = stakes(m, players)}
-				<section
-					class="table"
-					class:feature={isFeaturedTable(feature, currentRound, m.table)}
-					aria-label="Table {m.table}"
-				>
-					<!-- The feature match: a quiet label standing up the left side of the
-					     table's bars, with a hairline against them. -->
-					{#if isFeaturedTable(feature, currentRound, m.table)}
-						<span class="feature-label" aria-label="Feature match">Feature</span>
-					{/if}
-					<p class="caption" style="--delay: {BARS_START_MS + (c * half + i) * 2 * BAR_STEP_MS}ms;">
-						Table {m.table}
-						{#if at.elimination}<span class="stake elimination">Elimination</span>{/if}
-						{#if at.advancement}<span class="stake advancement">Top 8 on the line</span>{/if}
-					</p>
-					{#each ['p1', 'p2'] as key, k (key)}
-						{@const s = seat(m[key], players, top8Seeds)}
-						{@const result = outcome(m, m[key])}
-						{@const chooser = chooserOf(m) === m[key]}
-						<div
-							class="row {result} {standing(s)}"
-							class:changed={!!changed[m.table]}
-							class:bye={s.bye}
-							class:chooser
-							class:dropped={s.dropped}
-							style="--delay: {BARS_START_MS + ((c * half + i) * 2 + k) * BAR_STEP_MS}ms;"
+	<!-- The tables sit in a block of their own that carries their settled state,
+	     so when a new round replaces them the old block keeps its state as it
+	     fades, instead of restarting its entrance on the way out. -->
+	{#key tablesKey}
+		<div class="tables" class:settled class:restarting out:drift>
+			{#each columns as column, c (c)}
+				<div class="column" style="left: {c === 0 ? 100 : 990}px;">
+					{#each column as m, i (m.table)}
+						{@const at = stakes(m, roster)}
+						<section
+							class="table"
+							class:feature={isFeaturedTable(feature, currentRound, m.table)}
+							aria-label="Table {m.table}"
 						>
-							{#if result && !s.bye}<span class="flash {result}" aria-hidden="true"></span>{/if}
-							<span class="portrait">
-								{#if s.hero}
-									<img src={heroImageUrl(s.hero)} alt="" on:load={reveal} on:error={hide} />
-								{/if}
-							</span>
-							{#if s.top8}
-								<span class="seed top8"><span class="label">Top 8</span>{ordinal(s.seed)}</span>
-							{:else}
-								<span class="seed">{s.seed ?? ''}</span>
+							<!-- The feature match: a quiet label standing up the left side of the
+				     table's bars, with a hairline against them. -->
+							{#if isFeaturedTable(feature, currentRound, m.table)}
+								<span class="feature-label" aria-label="Feature match">Feature</span>
 							{/if}
-							<span class="who">
-								<span class="name">{s.name}</span>
-								{#if !s.bye && !s.empty}
-									<span class="hero">{s.hero || '—'}</span>
-								{/if}
-							</span>
-							<!-- Before the result, the tag marks who has the turn choice; after, the result. -->
-							<span
-								class="tag"
-								class:shown={(!!result && !s.bye) || chooser}
-								class:choice={!result && chooser}
-							>
-								{result === 'won'
-									? 'Win'
-									: result === 'lost'
-										? 'Loss'
-										: chooser
-											? 'Turn choice'
-											: ''}
-							</span>
-							{#if s.dropped}
-								<span class="wld status">Dropped</span>
-							{:else if s.record}
-								{#key s.record}<span class="wld pop">{s.record}</span>{/key}
-							{:else}
-								<span class="wld blank"></span>
-							{/if}
-						</div>
+							<p class="caption" style="--delay: {barsStart + (c * half + i) * 2 * BAR_STEP_MS}ms;">
+								Table {m.table}
+								{#if at.elimination}<span class="stake elimination">Elimination</span>{/if}
+								{#if at.advancement}<span class="stake advancement">Top 8 on the line</span>{/if}
+							</p>
+							{#each ['p1', 'p2'] as key, k (key)}
+								{@const s = seat(m[key], roster, top8Seeds)}
+								{@const result = outcome(m, m[key])}
+								{@const chooser = chooserOf(m) === m[key]}
+								<div
+									class="row {result} {standing(s)}"
+									class:changed={!!changed[m.table]}
+									class:bye={s.bye}
+									class:chooser
+									class:dropped={s.dropped}
+									style="--delay: {barsStart + ((c * half + i) * 2 + k) * BAR_STEP_MS}ms;"
+								>
+									{#if result && !s.bye}<span class="flash {result}" aria-hidden="true"></span>{/if}
+									<span class="portrait">
+										{#if s.hero}
+											<img src={heroImageUrl(s.hero)} alt="" on:load={reveal} on:error={hide} />
+										{/if}
+									</span>
+									{#if s.top8}
+										<span class="seed top8"><span class="label">Top 8</span>{ordinal(s.seed)}</span>
+									{:else}
+										<span class="seed">{s.seed ?? ''}</span>
+									{/if}
+									<span class="who">
+										<span class="name">{s.name}</span>
+										{#if !s.bye && !s.empty}
+											<span class="hero">{s.hero || '—'}</span>
+										{/if}
+									</span>
+									<!-- Before the result, the tag marks who has the turn choice; after, the result. -->
+									<span
+										class="tag"
+										class:shown={(!!result && !s.bye) || chooser}
+										class:choice={!result && chooser}
+									>
+										{result === 'won'
+											? 'Win'
+											: result === 'lost'
+												? 'Loss'
+												: chooser
+													? 'Turn choice'
+													: ''}
+									</span>
+									{#if s.dropped}
+										<span class="wld status">Dropped</span>
+									{:else if s.record}
+										{#key s.record}<span class="wld pop">{s.record}</span>{/key}
+									{:else}
+										<span class="wld blank"></span>
+									{/if}
+								</div>
+							{/each}
+						</section>
 					{/each}
-				</section>
+				</div>
 			{/each}
 		</div>
-	{/each}
+	{/key}
 </div>
 
 <style>
@@ -831,10 +899,55 @@
 		animation-delay: var(--delay, 0ms);
 	}
 
+	/* A new round's tables arrive more gently than a cold load's: they rise and
+	   fade in rather than wipe, over a little longer. */
+	.tables {
+		position: absolute;
+		inset: 0;
+	}
+
+	.tables.restarting:not(.settled) .row {
+		animation-name: riseIn;
+		animation-duration: 0.8s;
+		animation-timing-function: cubic-bezier(0.25, 0.8, 0.3, 1);
+	}
+
+	.tables.restarting:not(.settled) .row.lost,
+	.tables.restarting:not(.settled) .row.dropped {
+		animation-name: riseInDim;
+	}
+
+	.tables.restarting .caption {
+		animation-duration: 0.8s;
+		animation-delay: calc(var(--delay, 0ms) - 100ms);
+	}
+
+	@keyframes riseIn {
+		0% {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes riseInDim {
+		0% {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+		100% {
+			opacity: 0.45;
+			transform: translateY(0);
+		}
+	}
+
 	/* A loser or a dropped player arrives dimmed; after the entrance the dimming
 	   is a transition like everything else. */
-	.play:not(.settled) .row.lost,
-	.play:not(.settled) .row.dropped {
+	.tables:not(.settled) .row.lost,
+	.tables:not(.settled) .row.dropped {
 		animation-name: slideRevealDim;
 	}
 
