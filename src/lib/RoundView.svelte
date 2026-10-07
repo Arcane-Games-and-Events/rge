@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
+	import { FEATURE_PATH, isFeaturedTable } from '$lib/featureMatch';
 	import { db } from '../firebaseClient';
 	import { heroImageUrl } from '$lib/heroMedia';
 	import { top8Seeding, ordinal, WINS_TO_ADVANCE, LOSSES_TO_DROP } from '$lib/standings';
@@ -69,7 +70,11 @@
 		});
 	}
 
+	// The table on the booth as the feature match, marked quietly by its number.
+	let feature = null;
+
 	onMount(() => {
+		const unsubFeature = onValue(ref(db, FEATURE_PATH), (snap) => (feature = snap.val()));
 		const unsubEvent = onValue(ref(db, 'eventText'), (snap) => {
 			eventText = snap.val() ?? '';
 			seen.event = true;
@@ -105,6 +110,7 @@
 			seen.history = true;
 		});
 		return () => {
+			unsubFeature?.();
 			unsubEvent?.();
 			unsub1?.();
 			unsub2?.();
@@ -235,7 +241,16 @@
 		<div class="column" style="left: {c === 0 ? 100 : 990}px;">
 			{#each column as m, i (m.table)}
 				{@const at = stakes(m, players)}
-				<section class="table" aria-label="Table {m.table}">
+				<section
+					class="table"
+					class:feature={isFeaturedTable(feature, currentRound, m.table)}
+					aria-label="Table {m.table}"
+				>
+					<!-- The feature match: a quiet label standing up the left side of the
+					     table's bars, with a hairline against them. -->
+					{#if isFeaturedTable(feature, currentRound, m.table)}
+						<span class="feature-label" aria-label="Feature match">Feature</span>
+					{/if}
 					<p class="caption" style="--delay: {BARS_START_MS + (c * half + i) * 2 * BAR_STEP_MS}ms;">
 						Table {m.table}
 						{#if at.elimination}<span class="stake elimination">Elimination</span>{/if}
@@ -375,9 +390,37 @@
 	}
 
 	.table {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
+	}
+
+	.feature-label {
+		position: absolute;
+		left: -36px;
+		top: 30px;
+		bottom: 0;
+		width: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		writing-mode: vertical-rl;
+		transform: rotate(180deg);
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--tan);
+		border-left: 2px solid rgba(217, 180, 153, 0.7);
+		opacity: 0;
+		animation: fadeIn 400ms ease 600ms forwards;
+	}
+
+	@keyframes fadeIn {
+		to {
+			opacity: 1;
+		}
 	}
 
 	.caption {

@@ -1,7 +1,8 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { ref, set, onValue, off, get } from 'firebase/database';
+	import { ref, set, onValue } from 'firebase/database';
 	import { db } from '../firebaseClient';
+	import { swapSeats } from '$lib/swapSeats';
 	import { heroes, loadHeroes } from '$lib/heroes';
 	import { startSignalPayload, startSignalRemainingMs } from '$lib/startSignal';
 	import { pregamePath, pregamePayload, PREGAME_CLEARED } from '$lib/pregame';
@@ -92,14 +93,6 @@
 			);
 		}
 		writers.get(path)(value);
-	}
-
-	function updateFirebaseNow(path, value) {
-		try {
-			set(ref(db, path), value);
-		} catch (err) {
-			console.error(`Error saving ${path}:`, err);
-		}
 	}
 
 	function subscribePlayers() {
@@ -195,31 +188,14 @@
 		}
 	};
 
-	// Swaps this table's seats only. The old Table 1 control also swapped
-	// Table 2, which left the other table's graphics wrong.
+	// Swaps this table's seats only, through the same write the scorekeeper's
+	// swap uses; the fields follow through their subscriptions.
 	async function switchPlayers() {
-		const p1Copy = structuredClone(players.p1);
-		const p2Copy = structuredClone(players.p2);
-
-		off(ref(db, `${playerPath}/p1`));
-		off(ref(db, `${playerPath}/p2`));
-		players = { p1: p2Copy, p2: p1Copy };
-
-		for (const field of ['name', 'record', 'hero', 'flag', 'pronouns']) {
-			updateFirebaseNow(`${playerPath}/p1/${field}`, p2Copy[field]);
-			updateFirebaseNow(`${playerPath}/p2/${field}`, p1Copy[field]);
-		}
-
 		try {
-			const p1Life = (await get(ref(db, `${lifePath}/p1`))).val() ?? 20;
-			const p2Life = (await get(ref(db, `${lifePath}/p2`))).val() ?? 20;
-			await set(ref(db, `${lifePath}/p1`), p2Life);
-			await set(ref(db, `${lifePath}/p2`), p1Life);
+			await swapSeats(db, playerPath, lifePath);
 		} catch (err) {
-			console.error(`Error swapping life totals for table ${index}:`, err);
+			console.error(`Error swapping the seats for table ${index}:`, err);
 		}
-
-		setTimeout(subscribePlayers, 500);
 	}
 
 	const adjustLife = async (seatId, delta) => {

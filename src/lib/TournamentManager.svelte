@@ -10,9 +10,11 @@
 		recordString,
 		top8Seeding,
 		orderWithTop8,
-		ordinal
+		ordinal,
+		recordAfter
 	} from '$lib/standings';
 	import * as T from '$lib/tournament';
+	import { FEATURE_PATH, sendFeatureMatch, isFeaturedTable } from '$lib/featureMatch';
 
 	// The producer's tournament page, arranged around the job: enter the field
 	// once, then each round seat the tables, click the results, advance. The
@@ -29,10 +31,13 @@
 	let error = '';
 	let playersOpen = true;
 	let menuOpen = false;
+	// Which table is on the booth as the feature match, if one was sent from here.
+	let feature = null;
 
 	onMount(() => {
 		loadHeroes();
 		let unsub = null;
+		const unsubFeature = onValue(ref(db, FEATURE_PATH), (snap) => (feature = snap.val()));
 		T.ensureBootstrapped(db)
 			.catch((err) => (error = `Could not open the tournament: ${err.message}`))
 			.then(() => {
@@ -47,7 +52,10 @@
 					ready = true;
 				});
 			});
-		return () => unsub?.();
+		return () => {
+			unsub?.();
+			unsubFeature();
+		};
 	});
 
 	$: roundsList = Object.keys(roundsTree)
@@ -174,6 +182,27 @@
 	const seat = (row, seatKey, value) =>
 		run(() => T.setSeat(db, players, selectedRound, row, seatKey, value));
 	const result = (row, winner) => run(() => T.setWinner(db, players, selectedRound, row, winner));
+
+	// Send a table to the booth as the feature match: each player's name and
+	// hero, and their record as this round began -- what the pairings overlay
+	// shows for the table -- so a result entered first does not change it.
+	const featureTable = (row) =>
+		run(() => {
+			const seatOf = (id) => {
+				const p = players[id];
+				const r = recordAfter(historyMap, id, selectedRound - 1);
+				return { name: p?.name || '', hero: p?.hero || '', record: `${r.wins}-${r.losses}` };
+			};
+			return sendFeatureMatch(
+				db,
+				{ p1: seatOf(row.p1), p2: seatOf(row.p2) },
+				{
+					kind: 'swiss',
+					round: selectedRound,
+					table: row.table
+				}
+			);
+		});
 	const clearResult = (row) => run(() => T.clearResult(db, players, selectedRound, row));
 
 	function advance() {
@@ -364,7 +393,7 @@
 					{@const complete = T.tableComplete(row)}
 					{@const byeTable = T.isBye(row.p1) || T.isBye(row.p2)}
 					<div
-						class="grid items-center gap-1.5 rounded-lg border bg-gray-800/50 px-2 py-1.5 sm:grid-cols-[2rem_1fr_auto_1fr] {complete
+						class="grid items-center gap-1.5 rounded-lg border bg-gray-800/50 px-2 py-1.5 sm:grid-cols-[2rem_1fr_auto_1fr_auto] {complete
 							? 'border-green-500/40'
 							: 'border-gray-800'}"
 					>
@@ -372,21 +401,38 @@
 
 						{#each ['p1', 'p2'] as seatKey (seatKey)}
 							{@const won = typeof row.winner === 'number' && row.winner === row[seatKey]}
-							<select
-								aria-label="Table {row.table} {seatKey === 'p1' ? 'player 1' : 'player 2'}"
-								value={row[seatKey]}
-								disabled={busy}
-								on:change={(e) => seat(row, seatKey, e.target.value)}
-								class="h-8 w-full rounded border bg-gray-900 px-2 text-xs text-white transition-colors focus:border-blue-500 focus:outline-none {won
-									? 'border-green-500 bg-green-900/20'
-									: 'border-gray-700'} {seatKey === 'p2' ? 'sm:order-4' : ''}"
-							>
-								<option value="">— empty —</option>
-								<option value="BYE">Bye</option>
-								{#each choicesFor(row, seatKey, named, seatedIds) as p (p.id)}
-									<option value={p.id}>{optionLabel(p)}</option>
-								{/each}
-							</select>
+							{@const hero = typeof row[seatKey] === 'number' ? players[row[seatKey]]?.hero : ''}
+							<div class="flex items-center gap-1.5 {seatKey === 'p2' ? 'sm:order-4' : ''}">
+								<!-- The seated player's hero, a tiny portrait cropped as the overlays
+								     crop it; a blank square while the seat is empty. -->
+								<span
+									class="h-8 w-8 flex-shrink-0 overflow-hidden rounded border border-gray-700 bg-gray-900"
+								>
+									{#if hero}
+										<img
+											src={heroImageUrl(hero)}
+											alt=""
+											class="h-full w-full object-cover object-right-top"
+											loading="lazy"
+										/>
+									{/if}
+								</span>
+								<select
+									aria-label="Table {row.table} {seatKey === 'p1' ? 'player 1' : 'player 2'}"
+									value={row[seatKey]}
+									disabled={busy}
+									on:change={(e) => seat(row, seatKey, e.target.value)}
+									class="h-8 w-full min-w-0 rounded border bg-gray-900 px-2 text-xs text-white transition-colors focus:border-blue-500 focus:outline-none {won
+										? 'border-green-500 bg-green-900/20'
+										: 'border-gray-700'}"
+								>
+									<option value="">— empty —</option>
+									<option value="BYE">Bye</option>
+									{#each choicesFor(row, seatKey, named, seatedIds) as p (p.id)}
+										<option value={p.id}>{optionLabel(p)}</option>
+									{/each}
+								</select>
+							</div>
 						{/each}
 
 						<div class="flex items-center justify-center gap-1 sm:order-3">
@@ -435,6 +481,31 @@
 								{/if}
 							{/if}
 						</div>
+
+						<!-- Feature match: send this table's players to the booth -->
+						{#if !byeTable}
+							{@const featured = isFeaturedTable(feature, selectedRound, row.table)}
+							{@const bothSeated = typeof row.p1 === 'number' && typeof row.p2 === 'number'}
+							<button
+								type="button"
+								aria-label="Table {row.table}: {featured
+									? 'on the booth as the feature match'
+									: 'send to the booth as the feature match'}"
+								aria-pressed={featured}
+								title={featured
+									? 'On the booth as the feature match'
+									: 'Send both players to the booth: names, heroes and records'}
+								disabled={!bothSeated || busy}
+								on:click={() => featureTable(row)}
+								class="h-8 rounded px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:order-5 {featured
+									? 'bg-amber-500 text-gray-950'
+									: 'bg-gray-700 text-gray-300 hover:bg-amber-500 hover:text-gray-950'}"
+							>
+								{featured ? '★ Featured' : '☆ Feature'}
+							</button>
+						{:else}
+							<span class="sm:order-5"></span>
+						{/if}
 					</div>
 				{/each}
 			</div>

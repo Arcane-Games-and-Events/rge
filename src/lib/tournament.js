@@ -18,6 +18,10 @@ import { ref, set, update, get } from 'firebase/database';
 import { LOSSES_TO_DROP, WINS_TO_ADVANCE } from './standings.js';
 
 export const ROOT = 'tournament';
+// The Swiss is five rounds; the booth's round line says where in it we are.
+export const SWISS_ROUNDS = 5;
+export const ROUND_INFO_PATH = 'roundInfo';
+export const roundInfoText = (round) => `Round ${round} of ${SWISS_ROUNDS}`;
 export const PLAYER_COUNT = 16;
 export const TABLE_COUNT = 8;
 
@@ -337,13 +341,18 @@ export async function createRound(db, roundsList, players = []) {
 	});
 	updates[`${ROOT}/rounds/${next}/pairings`] = pairings;
 	updates[`${ROOT}/currentRound`] = next;
+	updates[ROUND_INFO_PATH] = roundInfoText(next);
 	await update(ref(db), updates);
 	if (through.length) await recountFromHistory(db, players);
 	return next;
 }
 
+/** Moves the current round, and the booth's round line with it. */
 export function setCurrentRound(db, round) {
-	return set(ref(db, `${ROOT}/currentRound`), Number(round));
+	return update(ref(db), {
+		[`${ROOT}/currentRound`]: Number(round),
+		[ROUND_INFO_PATH]: roundInfoText(Number(round))
+	});
 }
 
 /** Removes a round and its results, restores records, and re-points the current round. */
@@ -362,7 +371,7 @@ export async function deleteRound(db, players, round, currentRound) {
 		.filter(Number.isInteger);
 	const fallback = remaining.length ? Math.max(...remaining) : 1;
 	if (!remaining.length) await update(ref(db, `${ROOT}/rounds/1/pairings`), blankPairingsMap());
-	if (round === currentRound) await set(ref(db, `${ROOT}/currentRound`), fallback);
+	if (round === currentRound) await setCurrentRound(db, fallback);
 	return fallback;
 }
 
@@ -390,4 +399,5 @@ export async function resetTournament(db, players = []) {
 		players: roster,
 		rounds: { 1: { pairings: round1Pairings(players) } }
 	});
+	await set(ref(db, ROUND_INFO_PATH), roundInfoText(1));
 }

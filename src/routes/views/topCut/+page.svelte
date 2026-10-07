@@ -1,6 +1,7 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import { ref, onValue } from 'firebase/database';
+	import { FEATURE_PATH } from '$lib/featureMatch';
 	import { db } from '../../../firebaseClient';
 	import ShrinkText from '$lib/ShrinkText.svelte';
 
@@ -29,7 +30,10 @@
 		matches = { m0: null, m1: null, m2: null, m3: null, m4: null, m5: null, m6: null };
 	}
 
-	let playersUnsub, matchesUnsub, eventUnsub;
+	let playersUnsub, matchesUnsub, eventUnsub, featureUnsub;
+	// The match on the booth as the feature match, marked by a label standing up
+	// the left of its two plates, as the pairings mark their table.
+	let feature = null;
 	let eventText = '';
 	let imagesReady = false;
 	let preloadedImages = new Map();
@@ -146,6 +150,7 @@
 		});
 
 		eventUnsub = onValue(ref(db, 'eventText'), (snap) => (eventText = snap.val() ?? ''));
+		featureUnsub = onValue(ref(db, FEATURE_PATH), (snap) => (feature = snap.val()));
 		matchesUnsub = onValue(ref(db, 'top8/matches'), (snap) => {
 			const d = snap.val() || {};
 			matches = {
@@ -165,6 +170,7 @@
 		playersUnsub && playersUnsub();
 		matchesUnsub && matchesUnsub();
 		eventUnsub && eventUnsub();
+		featureUnsub && featureUnsub();
 	});
 
 	// === BRACKET ORDER ===
@@ -210,6 +216,18 @@
 	const FINAL = { left: 1213, width: 470, tops: [409, 509] };
 	// The event's name and the title, under the final, where the scene had them.
 	const CAPTION = { left: 1224, top: 636 };
+
+	// Where the featured match's two plates are, from its key: m0-m3 are the
+	// quarterfinals, m4-m5 the semifinals, m6 the final.
+	function featureBox(marker) {
+		if (marker?.kind !== 'top8') return null;
+		const n = Number(String(marker.match).replace(/^m/, ''));
+		if (!Number.isInteger(n) || n < 0 || n > 6) return null;
+		const [col, pair] = n <= 3 ? [QF, n] : n <= 5 ? [SF, n - 4] : [FINAL, 0];
+		const top = col.tops[pair * 2];
+		return { left: col.left, top, height: col.tops[pair * 2 + 1] + CELL_H - top };
+	}
+	$: featured = featureBox(feature);
 </script>
 
 {#if imagesReady}
@@ -310,6 +328,16 @@
 			{/each}
 		{/each}
 
+		<!-- The feature match: a quiet label standing up the left side of its
+		     two plates, with a hairline against them. -->
+		{#if featured && displayReady}
+			<span
+				class="feature-label"
+				style="left: {featured.left - 36}px; top: {featured.top}px; height: {featured.height}px;"
+				aria-label="Feature match">Feature</span
+			>
+		{/if}
+
 		<!-- Event and title -->
 		<div
 			class="caption"
@@ -392,6 +420,30 @@
 	   the tan edge -- with the portrait a separate square at its right end, the
 	   scene showing through the gap between. The plate is always there; in the
 	   later rounds only the contents wait for a winner. */
+	.feature-label {
+		position: absolute;
+		width: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		writing-mode: vertical-rl;
+		transform: rotate(180deg);
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: #d9b499;
+		border-left: 2px solid rgba(217, 180, 153, 0.7);
+		opacity: 0;
+		animation: featureIn 400ms ease 900ms forwards;
+	}
+
+	@keyframes featureIn {
+		to {
+			opacity: 1;
+		}
+	}
+
 	.player-row {
 		position: absolute;
 		height: 88px;

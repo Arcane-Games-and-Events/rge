@@ -8,6 +8,7 @@
 	import { CHOICE_PATH } from '$lib/choice';
 	import { ACTIVE_PLAYER_PATH } from '$lib/activePlayer';
 	import { heroImageUrl } from '$lib/heroMedia';
+	import { swapSeats as swapTableSeats } from '$lib/swapSeats';
 
 	let playerOneName = '';
 	let playerTwoName = '';
@@ -23,6 +24,9 @@
 	let timerInterval = null;
 
 	// For mobile viewport height fix
+	// The screen's size, read off the container itself: it is pinned to the
+	// visible viewport by CSS, so browser bars coming and going are handled by
+	// the browser, and the turned sheets are cut to whatever is really shown.
 	let viewportHeight = 0;
 	let viewportWidth = 0;
 
@@ -32,10 +36,8 @@
 
 	// Orientation: 'right' = phone on right of play area (rotate clockwise), 'left' = phone on left (rotate counter-clockwise)
 	let orientation = 'right';
-	// Which seat's panel is at the top of the screen. Together with the text
-	// direction this is everything about how the tablet lies on the mat, and both
-	// are kept on the device so a reload does not undo the set-up.
-	let seatsSwapped = false;
+	// The text direction is everything about how the tablet lies on the mat, and
+	// it is kept on the device so a reload does not undo the set-up.
 	let showSetup = false;
 	let playerOneHero = '';
 	let playerTwoHero = '';
@@ -50,7 +52,7 @@
 	const LAYOUT_KEY = 'scorekeeperLayout';
 	function saveLayout() {
 		try {
-			localStorage.setItem(LAYOUT_KEY, JSON.stringify({ orientation, seatsSwapped }));
+			localStorage.setItem(LAYOUT_KEY, JSON.stringify({ orientation }));
 		} catch {
 			// nothing to do: the layout just will not persist
 		}
@@ -96,9 +98,20 @@
 		saveLayout();
 	}
 
-	function swapSeats() {
-		seatsSwapped = !seatsSwapped;
-		saveLayout();
+	// The players change places, as the booth's swap button does it: names,
+	// heroes, records, flags, pronouns and life totals, on the booth as well as
+	// here. The panels stay where they are.
+	let swapping = false;
+	async function swapSeats() {
+		if (swapping) return;
+		swapping = true;
+		try {
+			await swapTableSeats(db, 'playerInfo', 'lifecounter');
+		} catch (err) {
+			console.error('Error swapping the seats:', err);
+		} finally {
+			swapping = false;
+		}
 	}
 
 	// Timer calculation (runs independently of production booth)
@@ -203,15 +216,9 @@
 	$: columns = { p1: column(history, 'p1'), p2: column(history, 'p2') };
 
 	// The panel's columns sit on the same sides as the players' panels on screen.
-	// The sheet is turned with the text: its left edge is the device's top when
-	// the text runs clockwise and its bottom when counterclockwise, and which
-	// seat is at the top depends on the seat swap.
-	$: topSeat = seatsSwapped ? 'p2' : 'p1';
-	$: historySeats = (
-		orientation === 'right'
-			? [topSeat, topSeat === 'p1' ? 'p2' : 'p1']
-			: [topSeat === 'p1' ? 'p2' : 'p1', topSeat]
-	).map((id) => ({
+	// The sheet is turned with the text: its left edge is the device's top, where
+	// P1 is, when the text runs clockwise and its bottom when counterclockwise.
+	$: historySeats = (orientation === 'right' ? ['p1', 'p2'] : ['p2', 'p1']).map((id) => ({
 		id,
 		name: id === 'p1' ? playerOneName || 'Player 1' : playerTwoName || 'Player 2',
 		now: id === 'p1' ? player1Score : player2Score
@@ -271,13 +278,10 @@
 	}
 
 	onMount(() => {
-		viewportHeight = window.innerHeight;
-		viewportWidth = window.innerWidth;
 		try {
 			const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || 'null');
 			if (saved) {
 				orientation = saved.orientation === 'left' ? 'left' : 'right';
-				seatsSwapped = !!saved.seatsSwapped;
 			}
 		} catch {
 			// no saved layout, or none readable: the defaults stand
@@ -372,18 +376,14 @@
 	$: rotationClass = orientation === 'right' ? 'rotate-90' : '-rotate-90';
 </script>
 
-<svelte:window
-	on:resize={() => {
-		viewportHeight = window.innerHeight;
-		viewportWidth = window.innerWidth;
-	}}
-/>
-
-<div class="scorekeeper-container" style="height: {viewportHeight}px;">
+<div
+	class="scorekeeper-container"
+	bind:clientHeight={viewportHeight}
+	bind:clientWidth={viewportWidth}
+>
 	<!-- Player 1 Panel (top) -->
 	<div
 		class="player-panel p1-panel"
-		class:swapped={seatsSwapped}
 		style="--under-strip: {underStrip}px;"
 		bind:clientWidth={panelW}
 		bind:clientHeight={panelH}
@@ -540,6 +540,24 @@
 				<span class="strip-btn-label">Rotate</span>
 			</button>
 			<button
+				class="strip-btn swap {rotationClass}"
+				on:click={swapSeats}
+				disabled={swapping}
+				title="Swap the players"
+				aria-label="Swap the players"
+			>
+				<svg
+					class="flip-icon"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path d="M4 7h13m0 0l-3-3m3 3l-3 3M20 17H7m0 0l3-3m-3 3l3 3" />
+				</svg>
+				<span class="strip-btn-label">Swap</span>
+			</button>
+			<button
 				class="strip-btn history {rotationClass}"
 				on:click={() => (showHistory = !showHistory)}
 				title="Life total history"
@@ -562,11 +580,7 @@
 	</div>
 
 	<!-- Player 2 Panel (bottom) -->
-	<div
-		class="player-panel p2-panel"
-		class:swapped={seatsSwapped}
-		style="--under-strip: {underStrip}px;"
-	>
+	<div class="player-panel p2-panel" style="--under-strip: {underStrip}px;">
 		{#if playerTwoHero}
 			<img
 				class="panel-art {rotationClass}"
@@ -673,9 +687,8 @@
 	<!-- Lining the tablet up: the real panels stay visible behind, and change as
 	     the two controls are used, so staff see the result as they set it. -->
 	{#if showSetup}
-		{@const leftSeat = seatsSwapped ? 'p2' : 'p1'}
-		{@const leftName = leftSeat.toUpperCase()}
-		{@const rightName = leftSeat === 'p1' ? 'P2' : 'P1'}
+		{@const leftName = 'P1'}
+		{@const rightName = 'P2'}
 		<div class="setup-overlay">
 			<div
 				class="setup-card {rotationClass}"
@@ -684,7 +697,7 @@
 				<div class="setup-title">Line up the tablet</div>
 				<div class="setup-body">
 					<!-- The set-up from the top down: camera, tablet, mat and players. The
-				     picture reads with the sheet's text, and follows the seat swap. -->
+				     picture reads with the sheet's text. -->
 					<div class="setup-diagram-wrap">
 						<svg
 							class="setup-diagram"
@@ -717,22 +730,8 @@
 									stroke="#e5e7eb"
 									stroke-width="2"
 								/>
-								<rect
-									x="100"
-									y="56"
-									width="40"
-									height="34"
-									rx="3"
-									fill={leftSeat === 'p1' ? 'rgba(220,38,38,0.45)' : 'rgba(37,99,235,0.5)'}
-								/>
-								<rect
-									x="100"
-									y="98"
-									width="40"
-									height="34"
-									rx="3"
-									fill={leftSeat === 'p1' ? 'rgba(37,99,235,0.5)' : 'rgba(220,38,38,0.45)'}
-								/>
+								<rect x="100" y="56" width="40" height="34" rx="3" fill="rgba(220,38,38,0.45)" />
+								<rect x="100" y="98" width="40" height="34" rx="3" fill="rgba(37,99,235,0.5)" />
 								<rect x="100" y="91" width="40" height="6" fill="#1f2937" />
 								<text
 									x="120"
@@ -817,16 +816,14 @@
 						<li>
 							Each panel should face its player: <strong>P1</strong> on the P1 panel's side,
 							<strong>P2</strong>
-							on the other. Not so? <strong>Swap seats</strong>.
+							on the other. The wrong way round? <strong>Swap</strong>, on the strip, changes the
+							players over here and on the booth.
 						</li>
-						<li>If the names read upside down to the players, <strong>Rotate text</strong>.</li>
+						<li>
+							If the names read upside down to the players, <strong>Rotate</strong>, on the strip.
+						</li>
 						<li><strong>Lock the screen's rotation</strong> so it cannot switch to landscape.</li>
 					</ol>
-				</div>
-				<div class="setup-actions">
-					<button type="button" class="setup-btn" on:click={swapSeats}>⇅ Swap seats</button>
-					<button type="button" class="setup-btn" on:click={toggleOrientation}>↻ Rotate text</button
-					>
 				</div>
 				<button type="button" class="pregame-done setup-done" on:click={() => (showSetup = false)}>
 					Done
@@ -1030,8 +1027,13 @@
 
 <style>
 	.scorekeeper-container {
-		position: relative;
+		/* Pinned to the visible viewport: the dynamic units follow the browser's
+		   bars, and the fixed box is never pushed off by a scrolled page. */
+		position: fixed;
+		inset: 0;
 		width: 100vw;
+		height: 100vh;
+		height: 100dvh;
 		display: flex;
 		flex-direction: column;
 		background: #030712;
@@ -1055,26 +1057,14 @@
 	/* Each panel runs on under its half of the strip, up to the white line, so
 	   the hero art meets it; the padding keeps the numbers out from under the
 	   clock. */
-	.p1-panel,
-	.p2-panel.swapped {
+	.p1-panel {
 		margin-bottom: calc(-1 * var(--under-strip, 0px));
 		padding-bottom: var(--under-strip, 0px);
 	}
 
-	.p2-panel,
-	.p1-panel.swapped {
+	.p2-panel {
 		margin-top: calc(-1 * var(--under-strip, 0px));
 		padding-top: var(--under-strip, 0px);
-	}
-
-	.p1-panel.swapped {
-		margin-bottom: 0;
-		padding-bottom: 0;
-	}
-
-	.p2-panel.swapped {
-		margin-top: 0;
-		padding-top: 0;
 	}
 
 	/* The hero behind the seat: large, faint and darkened toward the strip so
@@ -1109,13 +1099,8 @@
 		background: linear-gradient(180deg, rgba(3, 7, 18, 0.15), rgba(3, 7, 18, 0.75));
 	}
 
-	.p2-panel::after,
-	.p1-panel.swapped::after {
+	.p2-panel::after {
 		background: linear-gradient(0deg, rgba(3, 7, 18, 0.15), rgba(3, 7, 18, 0.75));
-	}
-
-	.p2-panel.swapped::after {
-		background: linear-gradient(180deg, rgba(3, 7, 18, 0.15), rgba(3, 7, 18, 0.75));
 	}
 
 	.player-content {
@@ -1133,15 +1118,6 @@
 	.p2-panel {
 		order: 3;
 		background: rgba(17, 24, 39, 0.6);
-	}
-
-	/* Seats swapped: P2's panel at the top. */
-	.p1-panel.swapped {
-		order: 3;
-	}
-
-	.p2-panel.swapped {
-		order: 1;
 	}
 
 	.timer-strip {
@@ -1484,9 +1460,9 @@
 		transition: transform 0.3s ease;
 	}
 
-	/* The strip's three controls, each labelled and in its own colour, sized so
-	   all three sit beside the centred clock on a phone: history purple, set-up
-	   amber for the person laying the table, turn in slate. */
+	/* The strip's four controls, each labelled and in its own colour, sized so
+	   all four sit beside the centred clock on a phone: set-up amber for the
+	   person laying the table, rotate in slate, swap in teal, history purple. */
 	.strip-btn {
 		display: flex;
 		flex-direction: column;
@@ -1495,9 +1471,9 @@
 		gap: 4px;
 		/* As big as the screen allows: three of them beside the clock on a phone,
 		   and a good deal larger on a tablet. */
-		width: clamp(48px, 12vw, 72px);
+		width: clamp(44px, 10.5vw, 72px);
 		height: clamp(54px, 12vw, 72px);
-		padding: 6px 4px;
+		padding: 6px 2px;
 		border: 1px solid rgba(255, 255, 255, 0.25);
 		border-radius: 10px;
 		color: white;
@@ -1525,6 +1501,42 @@
 	.strip-btn.turn {
 		background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
 		box-shadow: 0 0 14px rgba(148, 163, 184, 0.25);
+	}
+
+	.strip-btn.swap {
+		background: linear-gradient(180deg, #0d9488 0%, #115e59 100%);
+		box-shadow: 0 0 14px rgba(20, 184, 166, 0.4);
+	}
+
+	.strip-btn:disabled {
+		opacity: 0.6;
+	}
+
+	/* On a phone four turned buttons will not fit in a row beside the clock, so
+	   they sit two by two, smaller; the pair of columns still runs the other way
+	   when the text is turned. */
+	@media (max-width: 480px) {
+		.strip-buttons {
+			display: grid;
+			grid-template-columns: repeat(2, 40px);
+			gap: 4px;
+		}
+
+		.strip-buttons.reversed {
+			direction: rtl;
+		}
+
+		.strip-btn {
+			width: 44px;
+			height: 40px;
+			gap: 2px;
+			padding: 3px 2px;
+		}
+
+		.strip-btn .flip-icon {
+			width: 18px;
+			height: 18px;
+		}
 	}
 
 	.strip-btn-label {
@@ -1931,22 +1943,6 @@
 
 	.setup-steps strong {
 		color: white;
-	}
-
-	.setup-actions {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 10px;
-	}
-
-	.setup-btn {
-		min-height: 52px;
-		border-radius: 10px;
-		border: 1px solid rgba(255, 255, 255, 0.25);
-		background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
-		color: white;
-		font-size: 1rem;
-		font-weight: 800;
 	}
 
 	.setup-done {

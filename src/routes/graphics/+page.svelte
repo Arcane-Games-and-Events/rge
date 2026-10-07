@@ -5,6 +5,9 @@
 	import { heroes, loadHeroes } from '$lib/heroes';
 	import debounce from 'lodash.debounce';
 	import { FLAG_COUNTRIES } from '$lib/flags';
+	import { ordinal } from '$lib/standings';
+	import { FEATURE_PATH, sendFeatureMatch, isFeaturedMatch } from '$lib/featureMatch';
+	import FeatureButton from '$lib/FeatureButton.svelte';
 	import 'flag-icons/css/flag-icons.min.css';
 	import '$lib/flagOverrides.css';
 
@@ -14,6 +17,8 @@
 		.map(() => ({ name: '', hero: '', flag: '' }));
 	// match winners stored as m0…m6 → seed index
 	let matches = {};
+	// Which match is on the booth as the feature match, if one was sent from here.
+	let feature = null;
 
 	onMount(() => {
 		loadHeroes();
@@ -28,7 +33,28 @@
 		onValue(ref(db, 'top8/matches'), (snap) => {
 			matches = snap.val() || {};
 		});
+		onValue(ref(db, FEATURE_PATH), (snap) => (feature = snap.val()));
 	});
+
+	// Send a match to the booth as the feature match: each player's name and
+	// hero, with their seed as the record, as the bracket says it.
+	const seeded = (seed) => seed !== undefined && seed !== null;
+	function featureMatch(matchIdx, seeds) {
+		if (!seeds.every(seeded)) return;
+		const seatOf = (seed) => ({
+			name: players[seed]?.name || '',
+			hero: players[seed]?.hero || '',
+			record: ordinal(seed + 1)
+		});
+		sendFeatureMatch(
+			db,
+			{ p1: seatOf(seeds[0]), p2: seatOf(seeds[1]) },
+			{
+				kind: 'top8',
+				match: `m${matchIdx}`
+			}
+		).catch((err) => console.error('Could not send the feature match:', err));
+	}
 
 	// One debounce per field rather than one shared by all of them. Sharing a single
 	// debounced function means two fields edited inside the same window collapse into
@@ -206,6 +232,11 @@
 									{/if}
 								</button>
 							{/each}
+							<FeatureButton
+								featured={isFeaturedMatch(feature, `m${qi}`)}
+								disabled={!seeds.every(seeded)}
+								on:click={() => featureMatch(qi, seeds)}
+							/>
 						</div>
 					{/each}
 				</div>
@@ -266,6 +297,11 @@
 									</div>
 								{/if}
 							{/each}
+							<FeatureButton
+								featured={isFeaturedMatch(feature, `m${si + 4}`)}
+								disabled={!seeds.every(seeded)}
+								on:click={() => featureMatch(si + 4, seeds)}
+							/>
 						</div>
 					{/each}
 				</div>
@@ -324,6 +360,11 @@
 								</div>
 							{/if}
 						{/each}
+						<FeatureButton
+							featured={isFeaturedMatch(feature, 'm6')}
+							disabled={!finalSeeds.every(seeded)}
+							on:click={() => featureMatch(6, finalSeeds)}
+						/>
 					</div>
 				</div>
 

@@ -118,7 +118,7 @@
 				Match Coverage
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-				{#each [{ href: '/views/castingbooth', label: 'Casting Booth' }, { href: '/views/roundinfo', label: 'Round Info' }, { href: '/views/playerinfo', label: 'Player Info' }, { href: '/views/lifecounter', label: 'Life Counter' }, { href: '/views/timer', label: 'Timer' }, { href: '/views/cardreader', label: 'Card Reader' }, { href: '/views/eventtext', label: 'Event Text' }, { href: '/views/topics', label: 'Topics' }] as item}
+				{#each [{ href: '/views/castingbooth', label: 'Casting Booth' }, { href: '/views/roundinfo', label: 'Round Info' }, { href: '/views/playerinfo', label: 'Player Info' }, { href: '/views/lifecounter', label: 'Life Counter' }, { href: '/views/timer', label: 'Timer' }, { href: '/views/cardreader', label: 'Card Reader' }, { href: '/views/eventtext', label: 'Event Text' }, { href: '/views/topics', label: 'Topics' }, { href: '/views/choice', label: 'Turn Choice' }, { href: '/views/matchintro', label: 'Match Intro' }] as item}
 					<div class="flex items-center gap-1">
 						<a
 							class="flex-1 rounded-lg border border-gray-800 bg-gray-800/50 px-3 py-2.5 text-sm text-gray-300 transition-colors hover:border-blue-500 hover:bg-gray-800 hover:text-white"
