@@ -98,6 +98,15 @@
 		});
 	}
 
+	// The bracket holds for a second and a half once its portraits are in
+	// before it draws, so the scene has settled under it.
+	const HOLD_MS = 1500;
+	let revealTimer = null;
+	function reveal() {
+		clearTimeout(revealTimer);
+		revealTimer = setTimeout(() => (displayReady = true), HOLD_MS);
+	}
+
 	// Preload all player hero images
 	async function preloadAllImages(playerList) {
 		const heroesToLoad = playerList.map((p) => p.hero).filter((h) => h && h.trim());
@@ -108,7 +117,7 @@
 
 		if (heroesToLoad.length === 0) {
 			imagesReady = true;
-			displayReady = true;
+			reveal();
 			return;
 		}
 
@@ -122,10 +131,8 @@
 	function handleDomImageLoad() {
 		domImagesLoaded++;
 		if (domImagesLoaded >= expectedImageCount && expectedImageCount > 0) {
-			// All DOM images ready, trigger reveal after a tiny delay for paint
-			setTimeout(() => {
-				displayReady = true;
-			}, 50);
+			// All DOM images ready: draw after the hold
+			reveal();
 		}
 	}
 

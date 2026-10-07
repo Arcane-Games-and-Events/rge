@@ -14,6 +14,7 @@
 		{ name: 'Production Booth', href: '/productionbooth' },
 		{ name: 'Tournament', href: '/tournament' },
 		{ name: 'Topics', href: '/topics' },
+		{ name: 'Events', href: '/events' },
 		{ name: 'Metagame', href: '/metagame' },
 		{ name: 'Top 8', href: '/graphics' },
 		{ name: 'Judge QR', href: '/judge/qr' }
