@@ -26,8 +26,32 @@
 	const isBye = (x) => x === 'BYE';
 	const seatOf = (x) => (x === 'BYE' ? 'BYE' : x === 0 || x ? Number(x) : '');
 
+	// Tables whose result changed after the page settled, for a moment: the
+	// arrival animations hang off this, so nothing replays for results that were
+	// already in when the page loaded.
+	let changed = {};
+	let lastWinners = {};
+	const CHANGED_MS = 1400;
+	function noteChanges(next) {
+		const winners = Object.fromEntries(next.map((m) => [m.table, m.winner ?? null]));
+		if (settled) {
+			for (const [table, winner] of Object.entries(winners)) {
+				if (table in lastWinners && lastWinners[table] !== winner) {
+					changed = { ...changed, [table]: Date.now() };
+					setTimeout(() => {
+						const rest = { ...changed };
+						delete rest[table];
+						changed = rest;
+					}, CHANGED_MS);
+				}
+			}
+		}
+		lastWinners = winners;
+	}
+
 	function attachPairingsListener(round) {
 		unsubPairings?.();
+		lastWinners = {};
 		unsubPairings = onValue(ref(db, `${ROOT}/rounds/${round}/pairings`), (snap) => {
 			const v = snap.val() || {};
 			pairings = Object.values(v)
@@ -40,6 +64,7 @@
 						m?.winner === 'draw' ? 'draw' : m?.winner === 0 || m?.winner ? Number(m.winner) : null
 				}))
 				.sort((a, b) => a.table - b.table);
+			noteChanges(pairings);
 			seen.pairings = true;
 		});
 	}
@@ -222,11 +247,13 @@
 						{@const chooser = chooserOf(m) === m[key]}
 						<div
 							class="row {result} {standing(s)}"
+							class:changed={!!changed[m.table]}
 							class:bye={s.bye}
 							class:chooser
 							class:dropped={s.dropped}
 							style="--delay: {BARS_START_MS + ((c * half + i) * 2 + k) * BAR_STEP_MS}ms;"
 						>
+							{#if result && !s.bye}<span class="flash {result}" aria-hidden="true"></span>{/if}
 							<span class="portrait">
 								{#if s.hero}
 									<img src={heroImageUrl(s.hero)} alt="" on:load={reveal} on:error={hide} />
@@ -260,7 +287,7 @@
 							{#if s.dropped}
 								<span class="wld status">Dropped</span>
 							{:else if s.record}
-								<span class="wld">{s.record}</span>
+								{#key s.record}<span class="wld pop">{s.record}</span>{/key}
 							{:else}
 								<span class="wld blank"></span>
 							{/if}
@@ -495,6 +522,113 @@
 
 	.tag.shown {
 		opacity: 1;
+	}
+
+	/* A result arriving: the tag pops in, the winner's bar is swept with green
+	   light and blooms, the loser's sinks under a soft red pulse, and the record
+	   ticks over with a pop. Only on a table whose result just changed, so
+	   nothing replays for results already in when the page loaded. */
+	.row.changed .tag.shown:not(.choice) {
+		animation: tagPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.flash {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		overflow: hidden;
+	}
+
+	.flash::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+	}
+
+	.flash::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: -40%;
+		width: 30%;
+		transform: skewX(-20deg);
+		opacity: 0;
+	}
+
+	.flash.won::before {
+		background: rgba(74, 222, 128, 0.35);
+	}
+
+	.flash.won::after {
+		background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+	}
+
+	.flash.lost::before {
+		background: rgba(248, 113, 113, 0.22);
+	}
+
+	.row.changed .flash::before {
+		animation: bloom 0.9s ease-out both;
+	}
+
+	.row.changed .flash.won::after {
+		animation: sweep 0.8s ease-out 100ms both;
+	}
+
+	.row.changed .wld.pop {
+		animation: tick 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	@keyframes tagPop {
+		0% {
+			opacity: 0;
+			transform: scale(0.6);
+		}
+		60% {
+			opacity: 1;
+			transform: scale(1.08);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes bloom {
+		0% {
+			opacity: 0;
+		}
+		15% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes sweep {
+		0% {
+			left: -40%;
+			opacity: 0;
+		}
+		20% {
+			opacity: 1;
+		}
+		100% {
+			left: 110%;
+			opacity: 0;
+		}
+	}
+
+	@keyframes tick {
+		0% {
+			transform: scale(1.18);
+		}
+		100% {
+			transform: scale(1);
+		}
 	}
 
 	.won .tag {

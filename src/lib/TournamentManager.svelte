@@ -142,12 +142,16 @@
 	const optionLabel = (p) => `${p.name} (${record(p)})${p.dropped ? ' · dropped' : ''}`;
 
 	/**
-	 * The players a seat may take: the unseated, undropped ones, plus whoever is
-	 * in it now -- dropped or not, so a seat keeps showing its player through a
-	 * drop and a restore rather than going blank.
+	 * The players a seat may take, best record first: the unseated, undropped
+	 * ones, plus whoever is in it now -- dropped or not, so a seat keeps showing
+	 * its player through a drop and a restore rather than going blank.
 	 */
 	const choicesFor = (row, seatKey, pool, taken) =>
-		pool.filter((p) => p.id === row[seatKey] || (!p.dropped && !taken.has(p.id)));
+		pool
+			.filter((p) => p.id === row[seatKey] || (!p.dropped && !taken.has(p.id)))
+			// Best record first, so the players most likely to be paired are at the
+			// top: most wins, then fewest losses, then seed.
+			.sort((a, b) => b.wins - a.wins || a.losses - b.losses || a.id - b.id);
 
 	// Every write goes through here: one at a time, and a failure is shown rather
 	// than lost in the console.

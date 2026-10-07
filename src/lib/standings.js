@@ -252,3 +252,62 @@ export function orderWithTop8(standings, seeds) {
 	const rest = standings.filter((s) => !seeds.has(s.id));
 	return [...through, ...rest].map((s, i) => ({ ...s, rank: i + 1 }));
 }
+
+/**
+ * A player's record after a given round, from history, a bye counted as a win.
+ */
+export function recordAfter(historyMap, id, round) {
+	let wins = 0;
+	let losses = 0;
+	const per = historyMap?.[id] || {};
+	for (let r = 1; r <= round; r++) {
+		const res = String(per[r]?.result || '').toUpperCase();
+		if (res === 'W' || res === 'B' || res === 'BYE') wins++;
+		else if (res === 'L') losses++;
+	}
+	return { wins, losses };
+}
+
+/**
+ * What has to happen in the tournament software round by round: who to drop
+ * at the end of a round (their third loss came in it), who went through to
+ * the Top 8 in it, and who gets a bye at the start of the next round (through,
+ * and still in). One entry per round that exists, with whether its results are
+ * all in.
+ */
+export function roundActions(players, historyMap, roundsTree) {
+	const named = players.filter((p) => p.name);
+	const seat = (x) => (x === 0 || x ? x : '');
+	return Object.keys(roundsTree || {})
+		.map(Number)
+		.filter(Number.isInteger)
+		.sort((a, b) => a - b)
+		.map((r) => {
+			const pairings = Object.values(roundsTree[r]?.pairings || {}).filter(Boolean);
+			const seated = pairings.filter((m) => seat(m.p1) !== '' || seat(m.p2) !== '');
+			const open = seated.filter((m) => m.winner == null).length;
+			const crossed = (p, key, limit) =>
+				recordAfter(historyMap, p.id, r)[key] >= limit &&
+				recordAfter(historyMap, p.id, r - 1)[key] < limit;
+			return {
+				round: r,
+				seatedTables: seated.length,
+				openTables: open,
+				complete: seated.length > 0 && open === 0,
+				drops: named.filter((p) => crossed(p, 'losses', LOSSES_TO_DROP)),
+				through: named.filter((p) => crossed(p, 'wins', WINS_TO_ADVANCE)),
+				byesNext: named.filter((p) => {
+					const rec = recordAfter(historyMap, p.id, r);
+					return rec.wins >= WINS_TO_ADVANCE && rec.losses < LOSSES_TO_DROP;
+				})
+			};
+		});
+}
+
+/** The quarterfinal draw by seed, as the bracket overlay lays it out. */
+export const QUARTERFINALS = [
+	[1, 8],
+	[4, 5],
+	[3, 6],
+	[2, 7]
+];

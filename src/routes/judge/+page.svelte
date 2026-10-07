@@ -7,6 +7,7 @@
 	import { FLAG_COUNTRIES } from '$lib/flags';
 	import { PRONOUN_OPTIONS } from '$lib/pronouns';
 	import { CHOICE_PATH, CHOICES, toChoice } from '$lib/choice';
+	import JudgeGuide from '$lib/JudgeGuide.svelte';
 	import 'flag-icons/css/flag-icons.min.css';
 	import '$lib/flagOverrides.css';
 
@@ -448,6 +449,9 @@
 			</div>
 		</section>
 	{/each}
+
+	<!-- What to do in the tournament software, round by round -->
+	<JudgeGuide />
 
 	{#if !ready}
 		<p class="text-center text-xs text-gray-500">Connecting…</p>
