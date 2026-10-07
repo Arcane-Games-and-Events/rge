@@ -43,6 +43,10 @@
 	// as wide as the panel is tall and as tall as the panel is wide.
 	let panelW = 0;
 	let panelH = 0;
+	// The strip's height: each panel reaches under half of it, so the hero art
+	// runs all the way to the white line through the middle.
+	let stripH = 0;
+	$: underStrip = Math.round(stripH / 2);
 	const LAYOUT_KEY = 'scorekeeperLayout';
 	function saveLayout() {
 		try {
@@ -197,6 +201,21 @@
 			: [];
 	};
 	$: columns = { p1: column(history, 'p1'), p2: column(history, 'p2') };
+
+	// The panel's columns sit on the same sides as the players' panels on screen.
+	// The sheet is turned with the text: its left edge is the device's top when
+	// the text runs clockwise and its bottom when counterclockwise, and which
+	// seat is at the top depends on the seat swap.
+	$: topSeat = seatsSwapped ? 'p2' : 'p1';
+	$: historySeats = (
+		orientation === 'right'
+			? [topSeat, topSeat === 'p1' ? 'p2' : 'p1']
+			: [topSeat === 'p1' ? 'p2' : 'p1', topSeat]
+	).map((id) => ({
+		id,
+		name: id === 'p1' ? playerOneName || 'Player 1' : playerTwoName || 'Player 2',
+		now: id === 'p1' ? player1Score : player2Score
+	}));
 
 	// Start editing a life total
 	function startEdit(player) {
@@ -365,6 +384,7 @@
 	<div
 		class="player-panel p1-panel"
 		class:swapped={seatsSwapped}
+		style="--under-strip: {underStrip}px;"
 		bind:clientWidth={panelW}
 		bind:clientHeight={panelH}
 	>
@@ -474,32 +494,16 @@
 	</div>
 
 	<!-- Center Timer Strip -->
-	<div class="timer-strip {orientation === 'right' ? 'buttons-end' : 'buttons-start'}">
+	<div
+		class="timer-strip {orientation === 'right' ? 'buttons-end' : 'buttons-start'}"
+		bind:clientHeight={stripH}
+	>
 		<div class="timer-centre">
 			<div class="timer-display {rotationClass}">
 				{displayTime}
 			</div>
 		</div>
-		<div class="strip-buttons">
-			<button
-				class="strip-btn history {rotationClass}"
-				on:click={() => (showHistory = !showHistory)}
-				title="Life total history"
-				aria-label="Life total history"
-				aria-pressed={showHistory}
-			>
-				<svg
-					class="flip-icon"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-				>
-					<circle cx="12" cy="12" r="9" />
-					<path d="M12 7v5l3 2" />
-				</svg>
-				<span class="strip-btn-label">History</span>
-			</button>
+		<div class="strip-buttons" class:reversed={orientation === 'right'}>
 			<button
 				class="strip-btn setup {rotationClass}"
 				on:click={() => (showSetup = true)}
@@ -533,13 +537,36 @@
 				>
 					<path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
 				</svg>
-				<span class="strip-btn-label">Turn</span>
+				<span class="strip-btn-label">Rotate</span>
+			</button>
+			<button
+				class="strip-btn history {rotationClass}"
+				on:click={() => (showHistory = !showHistory)}
+				title="Life total history"
+				aria-label="Life total history"
+				aria-pressed={showHistory}
+			>
+				<svg
+					class="flip-icon"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<circle cx="12" cy="12" r="9" />
+					<path d="M12 7v5l3 2" />
+				</svg>
+				<span class="strip-btn-label">History</span>
 			</button>
 		</div>
 	</div>
 
 	<!-- Player 2 Panel (bottom) -->
-	<div class="player-panel p2-panel" class:swapped={seatsSwapped}>
+	<div
+		class="player-panel p2-panel"
+		class:swapped={seatsSwapped}
+		style="--under-strip: {underStrip}px;"
+	>
 		{#if playerTwoHero}
 			<img
 				class="panel-art {rotationClass}"
@@ -646,10 +673,9 @@
 	<!-- Lining the tablet up: the real panels stay visible behind, and change as
 	     the two controls are used, so staff see the result as they set it. -->
 	{#if showSetup}
-		{@const topSeat = seatsSwapped ? 'p2' : 'p1'}
-		{@const topName = topSeat === 'p1' ? playerOneName || 'Player 1' : playerTwoName || 'Player 2'}
-		{@const bottomName =
-			topSeat === 'p1' ? playerTwoName || 'Player 2' : playerOneName || 'Player 1'}
+		{@const leftSeat = seatsSwapped ? 'p2' : 'p1'}
+		{@const leftName = leftSeat.toUpperCase()}
+		{@const rightName = leftSeat === 'p1' ? 'P2' : 'P1'}
 		<div class="setup-overlay">
 			<div
 				class="setup-card {rotationClass}"
@@ -657,20 +683,86 @@
 			>
 				<div class="setup-title">Line up the tablet</div>
 				<div class="setup-body">
-					<!-- The diagram is drawn the way the screen physically lies: it is turned
-				     back against the sheet's own rotation, so "top" in the picture is the
-				     top of the device, and it follows the seat swap. -->
+					<!-- The set-up from the top down: camera, tablet, mat and players. The
+				     picture reads with the sheet's text, and follows the seat swap. -->
 					<div class="setup-diagram-wrap">
 						<svg
-							class="setup-diagram {orientation === 'right' ? '-rotate-90' : 'rotate-90'}"
-							viewBox="0 0 240 200"
-							aria-label="The tablet lies beside the mat, {topName} at the top end, {bottomName} at the bottom"
+							class="setup-diagram"
+							viewBox="0 0 240 300"
+							aria-label="From the top: the overhead camera, the tablet beneath it turned on its side, then the mat with {leftName} on the left and {rightName} on the right"
 						>
-							<!-- the square mat with the players across it from each other, and the
-						     tablet beside the mat, its ends toward the players -->
+							<!-- the overhead camera, looking down on the tablet -->
+							<text
+								x="120"
+								y="10"
+								text-anchor="middle"
+								font-size="8"
+								letter-spacing="2"
+								fill="#d9b499">OVERHEAD CAMERA</text
+							>
+							<rect x="109" y="15" width="22" height="14" rx="3" fill="#e5e7eb" />
+							<rect x="111" y="12" width="8" height="4" rx="1" fill="#e5e7eb" />
+							<circle cx="121" cy="22" r="4" fill="#0b1220" />
+							<circle cx="121" cy="22" r="1.8" fill="#d9b499" />
+							<polygon points="115,30 127,30 150,68 90,68" fill="rgba(217,180,153,0.18)" />
+							<!-- the tablet, a portrait device turned a quarter counterclockwise, a seat at each end -->
+							<g transform="rotate(-90 120 94)">
+								<rect
+									x="96"
+									y="52"
+									width="48"
+									height="84"
+									rx="6"
+									fill="#0b1220"
+									stroke="#e5e7eb"
+									stroke-width="2"
+								/>
+								<rect
+									x="100"
+									y="56"
+									width="40"
+									height="34"
+									rx="3"
+									fill={leftSeat === 'p1' ? 'rgba(220,38,38,0.45)' : 'rgba(37,99,235,0.5)'}
+								/>
+								<rect
+									x="100"
+									y="98"
+									width="40"
+									height="34"
+									rx="3"
+									fill={leftSeat === 'p1' ? 'rgba(37,99,235,0.5)' : 'rgba(220,38,38,0.45)'}
+								/>
+								<rect x="100" y="91" width="40" height="6" fill="#1f2937" />
+								<text
+									x="120"
+									y="77"
+									text-anchor="middle"
+									font-size="11"
+									font-weight="800"
+									fill="white">{leftName}</text
+								>
+								<text
+									x="120"
+									y="119"
+									text-anchor="middle"
+									font-size="11"
+									font-weight="800"
+									fill="white">{rightName}</text
+								>
+							</g>
+							<text
+								x="120"
+								y="131"
+								text-anchor="middle"
+								font-size="7"
+								letter-spacing="1.5"
+								fill="#d9b499">PORTRAIT · LOCK ROTATION</text
+							>
+							<!-- the mat beneath, square, with a player on each side -->
 							<rect
-								x="16"
-								y="40"
+								x="60"
+								y="152"
 								width="120"
 								height="120"
 								rx="8"
@@ -679,81 +771,37 @@
 								stroke-width="1.5"
 							/>
 							<text
-								x="76"
-								y="104"
+								x="120"
+								y="216"
 								text-anchor="middle"
 								font-size="9"
 								letter-spacing="2"
 								fill="#d9b499">PLAY MAT</text
 							>
-							<rect
-								x="166"
-								y="44"
-								width="42"
-								height="112"
-								rx="6"
-								fill="#0b1220"
-								stroke="#e5e7eb"
-								stroke-width="2"
-							/>
-							<rect
-								x="170"
-								y="48"
-								width="34"
-								height="46"
-								rx="3"
-								fill={topSeat === 'p1' ? 'rgba(220,38,38,0.45)' : 'rgba(37,99,235,0.5)'}
-							/>
-							<rect
-								x="170"
-								y="106"
-								width="34"
-								height="46"
-								rx="3"
-								fill={topSeat === 'p1' ? 'rgba(37,99,235,0.5)' : 'rgba(220,38,38,0.45)'}
-							/>
-							<rect x="170" y="97" width="34" height="6" fill="#1f2937" />
 							<text
-								x="187"
-								y="76"
+								x="30"
+								y="216"
 								text-anchor="middle"
-								font-size="11"
+								font-size="12"
 								font-weight="800"
-								fill="white">{topSeat.toUpperCase()}</text
-							>
-							<text
-								x="187"
-								y="134"
-								text-anchor="middle"
-								font-size="11"
-								font-weight="800"
-								fill="white">{topSeat === 'p1' ? 'P2' : 'P1'}</text
-							>
-							<!-- the players, across the mat from each other -->
-							<text
-								x="112"
-								y="20"
-								text-anchor="middle"
-								font-size="11"
-								font-weight="700"
-								fill="white">{topName}</text
+								fill="white">{leftName}</text
 							>
 							<path
-								d="M112 25 l0 9 m-5 -5 l5 5 l5 -5"
+								d="M40 212 l12 0 m-5 -5 l5 5 l-5 5"
 								fill="none"
 								stroke="#d9b499"
 								stroke-width="2"
 							/>
 							<text
-								x="112"
-								y="192"
+								x="210"
+								y="216"
 								text-anchor="middle"
-								font-size="11"
-								font-weight="700"
-								fill="white">{bottomName}</text
+								font-size="12"
+								font-weight="800"
+								fill="white">{rightName}</text
 							>
 							<path
-								d="M112 175 l0 -9 m-5 5 l5 -5 l5 5"
+								d="M200 212 l-12 0 m5 -5 l-5 5 l5 5"
 								fill="none"
 								stroke="#d9b499"
 								stroke-width="2"
@@ -762,19 +810,23 @@
 					</div>
 
 					<ol class="setup-steps">
-						<li>Lay the tablet flat on the mat between the players.</li>
 						<li>
-							Each panel should face its player: <strong>{playerOneName || 'Player 1'}</strong> at
-							the red edge, <strong>{playerTwoName || 'Player 2'}</strong> at the blue edge. Not so?
-							<strong>Swap seats</strong>.
+							Hold the tablet or phone <strong>in portrait</strong> (tall), flat beside the mat, between
+							the players.
 						</li>
-						<li>If the names read upside down to the players, <strong>Turn text</strong>.</li>
-						<li>Turn on the tablet's rotation lock so it stays put.</li>
+						<li>
+							Each panel should face its player: <strong>P1</strong> on the P1 panel's side,
+							<strong>P2</strong>
+							on the other. Not so? <strong>Swap seats</strong>.
+						</li>
+						<li>If the names read upside down to the players, <strong>Rotate text</strong>.</li>
+						<li><strong>Lock the screen's rotation</strong> so it cannot switch to landscape.</li>
 					</ol>
 				</div>
 				<div class="setup-actions">
 					<button type="button" class="setup-btn" on:click={swapSeats}>⇅ Swap seats</button>
-					<button type="button" class="setup-btn" on:click={toggleOrientation}>↻ Turn text</button>
+					<button type="button" class="setup-btn" on:click={toggleOrientation}>↻ Rotate text</button
+					>
 				</div>
 				<button type="button" class="pregame-done setup-done" on:click={() => (showSetup = false)}>
 					Done
@@ -800,7 +852,7 @@
 					<p class="pregame-instruction">No changes yet this game.</p>
 				{:else}
 					<div class="history-columns">
-						{#each [{ id: 'p1', name: playerOneName || 'Player 1', now: player1Score }, { id: 'p2', name: playerTwoName || 'Player 2', now: player2Score }] as seat (seat.id)}
+						{#each historySeats as seat (seat.id)}
 							{@const rows = columns[seat.id]}
 							<div class="history-column">
 								<div class="history-who">
@@ -1000,12 +1052,38 @@
 		overflow: hidden;
 	}
 
+	/* Each panel runs on under its half of the strip, up to the white line, so
+	   the hero art meets it; the padding keeps the numbers out from under the
+	   clock. */
+	.p1-panel,
+	.p2-panel.swapped {
+		margin-bottom: calc(-1 * var(--under-strip, 0px));
+		padding-bottom: var(--under-strip, 0px);
+	}
+
+	.p2-panel,
+	.p1-panel.swapped {
+		margin-top: calc(-1 * var(--under-strip, 0px));
+		padding-top: var(--under-strip, 0px);
+	}
+
+	.p1-panel.swapped {
+		margin-bottom: 0;
+		padding-bottom: 0;
+	}
+
+	.p2-panel.swapped {
+		margin-top: 0;
+		padding-top: 0;
+	}
+
 	/* The hero behind the seat: large, faint and darkened toward the strip so
 	   the numbers stay crisp over it. */
 	.panel-art {
 		position: absolute;
 		left: 50%;
 		top: 50%;
+		max-width: none;
 		object-fit: cover;
 		object-position: right top;
 		opacity: 0.28;
@@ -1083,11 +1161,18 @@
 		pointer-events: none;
 	}
 
+	/* The buttons read set-up, rotate, history in the players' reading direction
+	   whichever way the text is turned: the row runs the other way when the
+	   text does, since the buttons turn one by one and the row does not. */
 	.strip-buttons {
 		display: flex;
 		align-items: center;
 		gap: 8px;
 		position: relative;
+	}
+
+	.strip-buttons.reversed {
+		flex-direction: row-reverse;
 	}
 
 	.timer-strip.buttons-end {
@@ -1352,7 +1437,7 @@
 		align-items: center;
 		min-height: clamp(84px, 14vw, 104px);
 		gap: 8px;
-		background: #0b1220;
+		background: transparent;
 		padding: 12px 8px;
 		flex-shrink: 0;
 	}
@@ -1824,12 +1909,12 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 170px;
+		height: 190px;
 	}
 
 	.setup-diagram {
-		width: 170px;
-		height: 170px;
+		width: 160px;
+		height: 190px;
 		transition: transform 0.3s ease;
 	}
 
