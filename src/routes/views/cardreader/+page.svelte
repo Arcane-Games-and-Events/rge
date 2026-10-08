@@ -14,7 +14,7 @@
 		// If a card is currently showing, fade it out first
 		if (showImage) {
 			showImage = false;
-			await new Promise(r => setTimeout(r, fadeTime));
+			await new Promise((r) => setTimeout(r, fadeTime));
 		}
 
 		// Now set the new URL and wait for it to load
@@ -57,12 +57,20 @@
 	}
 </script>
 
-<div class="card-container mt-4">
+<!--
+	The card fills the browser source, whatever size it is given, keeping its
+	own proportion. Size the source in OBS to the box the card should occupy
+	on the scene, at 1:1 with no transform scaling, and the browser downsamples
+	the largest art the card host serves straight to that box in one pass.
+-->
+<div class="stage">
 	{#if currentUrl}
 		<img
 			src={currentUrl}
 			alt="Card"
-			class="card-image w-72 fade-in-out {showImage ? 'show' : ''}"
+			class="card-image"
+			class:show={showImage}
+			decoding="async"
 			on:load={handleImageLoad}
 			on:error={handleImageError}
 		/>
@@ -70,11 +78,32 @@
 </div>
 
 <style>
-	.fade-in-out {
+	:global(html),
+	:global(body) {
+		margin: 0;
+		height: 100%;
+		overflow: hidden;
+		background: transparent;
+	}
+
+	.stage {
+		position: fixed;
+		inset: 0;
+	}
+
+	.card-image {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center;
+		image-rendering: auto;
 		transition: opacity 0.3s ease-in-out;
 		opacity: 0;
 	}
-	.fade-in-out.show {
+
+	.card-image.show {
 		opacity: 1;
 	}
 </style>

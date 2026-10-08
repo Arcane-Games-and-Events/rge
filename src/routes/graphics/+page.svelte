@@ -82,6 +82,19 @@
 		writers.get(path)(val);
 	}
 
+	// Empty every seed's name, hero and flag. Any edit still waiting to be saved
+	// is dropped first, so it cannot land after the reset and put a name back.
+	let confirmReset = false;
+	async function resetPlayers() {
+		writers.forEach((write) => write.cancel());
+		confirmReset = false;
+		try {
+			await set(ref(db, 'top8/players'), null);
+		} catch (err) {
+			console.error('Could not reset the Top 8 players:', err);
+		}
+	}
+
 	// Toggle a winner: clicking the same seed again clears it
 	function toggleWinner(matchIdx, seed) {
 		const key = `m${matchIdx}`;
@@ -131,8 +144,29 @@
 	<div class="p-3 sm:p-4 max-w-4xl mx-auto space-y-3">
 		<!-- Player Setup Card -->
 		<div class="bg-gray-900 border border-gray-800 rounded-lg p-3">
-			<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-2">
-				Player Setup
+			<div class="mb-2 flex items-center justify-between gap-2">
+				<div class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">
+					Player Setup
+				</div>
+				{#if confirmReset}
+					<div class="flex items-center gap-1.5 text-[10px]">
+						<span class="text-gray-400">Empty all eight seeds?</span>
+						<button
+							class="rounded border border-red-700 bg-red-900/60 px-2 py-0.5 font-medium uppercase tracking-wider text-red-200 hover:bg-red-800"
+							on:click={resetPlayers}>Yes, reset</button
+						>
+						<button
+							class="rounded border border-gray-700 px-2 py-0.5 font-medium uppercase tracking-wider text-gray-400 hover:bg-gray-800"
+							on:click={() => (confirmReset = false)}>Keep</button
+						>
+					</div>
+				{:else}
+					<button
+						class="rounded border border-gray-700 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-gray-400 hover:border-red-700 hover:text-red-300 disabled:opacity-40 disabled:hover:border-gray-700 disabled:hover:text-gray-400"
+						disabled={!players.some((p) => p.name || p.hero || p.flag)}
+						on:click={() => (confirmReset = true)}>Reset Top 8</button
+					>
+				{/if}
 			</div>
 			<div class="grid grid-cols-2 sm:grid-cols-4 gap-1">
 				{#each players as p, i}

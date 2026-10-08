@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { ref, onValue } from 'firebase/database';
 	import { db } from '../../../firebaseClient';
 	import { FORMAT_DEMO_PATH, toStep, walkThrough } from '$lib/formatDemo';
@@ -302,23 +303,26 @@
 	<!-- The players, each on their square, sliding to the next as the rounds go:
 	     the round's winners first, table by table, then its losers. -->
 	{#if field && shown}
-		{#each players as p, i (p.id)}
-			{@const at = placement.get(p.id)}
-			{@const s = at && spot(at)}
-			{#if s}
-				<div
-					class="hero in"
-					style:--appear="{appearDelay + i * 60}ms"
-					style="left: {s.x}px; top: {s.y}px; width: {s.s}px; height: {s.s}px; transition-delay: {moveDelay(
-						at.order,
-						i
-					)}ms;"
-					title={p.name}
-				>
-					{#if p.hero}<img src={heroImageUrl(p.hero)} alt={p.name} />{/if}
-				</div>
-			{/if}
-		{/each}
+		<!-- Taken back to blank, the players fade away together rather than vanishing. -->
+		<div class="heroes" out:fade={{ duration: 900 }}>
+			{#each players as p, i (p.id)}
+				{@const at = placement.get(p.id)}
+				{@const s = at && spot(at)}
+				{#if s}
+					<div
+						class="hero in"
+						style:--appear="{appearDelay + i * 60}ms"
+						style="left: {s.x}px; top: {s.y}px; width: {s.s}px; height: {s.s}px; transition-delay: {moveDelay(
+							at.order,
+							i
+						)}ms;"
+						title={p.name}
+					>
+						{#if p.hero}<img src={heroImageUrl(p.hero)} alt={p.name} />{/if}
+					</div>
+				{/if}
+			{/each}
+		</div>
 	{/if}
 
 	<!-- The rule of it, each word and box where the artwork has it. -->
@@ -503,6 +507,12 @@
 	   the overlays crop it. It fades in once the bracket is drawn, and slides to
 	   its next square when the round is played, one player a beat after the
 	   last. */
+	.heroes {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
 	.hero {
 		position: absolute;
 		box-sizing: border-box;
