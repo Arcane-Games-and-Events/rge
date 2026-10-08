@@ -37,15 +37,17 @@
 	});
 </script>
 
-<div class="flex items-center gap-1.5 rounded-lg border border-gray-800 bg-gray-900 p-1.5">
-	<span class="text-[9px] font-semibold uppercase leading-none text-emerald-400">Active</span>
+<div class="flex items-center gap-1.5 border-l-4 border-[#d9b499] bg-gray-900/60 p-1.5">
+	<span class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] text-[#d9b499]"
+		>Active</span
+	>
 
 	{#each [{ seat: 'p1', label: 'P1', arrow: '◀' }, { seat: 'p2', label: 'P2', arrow: '▶' }] as option (option.seat)}
 		<button
 			type="button"
 			aria-pressed={active === option.seat}
 			on:click={() => save(active === option.seat ? '' : option.seat)}
-			class="flex h-8 flex-1 items-center justify-center gap-1 rounded text-xs font-bold transition-colors {active ===
+			class="flex h-8 flex-1 items-center justify-center gap-1 text-xs font-bold transition-colors {active ===
 			option.seat
 				? 'bg-emerald-600 text-white'
 				: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
@@ -61,13 +63,13 @@
 		aria-label="Clear the active player"
 		on:click={() => save('')}
 		disabled={!active}
-		class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
+		class="h-8 w-8 flex-none bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
 		>✕</button
 	>
 
 	<span class="ml-auto hidden text-[10px] text-gray-500 sm:block">
-		<kbd class="rounded border border-gray-700 bg-gray-800 px-1 py-0.5 font-mono">Shift</kbd>
+		<kbd class="border border-gray-700 bg-gray-950/70 px-1 py-0.5 font-mono">Shift</kbd>
 		+
-		<kbd class="rounded border border-gray-700 bg-gray-800 px-1 py-0.5 font-mono">←→</kbd>
+		<kbd class="border border-gray-700 bg-gray-950/70 px-1 py-0.5 font-mono">←→</kbd>
 	</span>
 </div>

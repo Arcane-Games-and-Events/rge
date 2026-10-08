@@ -115,76 +115,50 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gray-950">
-	<div class="mx-auto max-w-lg px-4 py-8 sm:px-6 lg:px-8">
-		<!-- Header -->
-		<div class="mb-8 text-center">
-			<h1 class="font-display text-3xl font-bold text-white">Event Presets</h1>
-			<p class="mt-2 text-gray-400">Configure commentators and event settings.</p>
-		</div>
+<div class="min-h-screen bg-gray-950 text-white">
+	<div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+		<!-- The heading, as the overlays carry theirs: the title over a tan rule,
+		     the line under it in tan. -->
+		<header class="mb-8">
+			<h1 class="font-display text-4xl font-bold uppercase tracking-wide">Event Presets</h1>
+			<div class="mt-3 h-0.5 w-full bg-[#d9b499]"></div>
+			<p class="mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#d9b499]">
+				The event, the desk and the clocks
+			</p>
+		</header>
 
-		<!-- Commentators Section -->
-		<div class="space-y-4">
-			{#each [{ id: 'commentator1', label: 'Commentator 1', value: commentator1, subtitleId: 'subtitle1', subtitleValue: subtitle1, keyName: 'CommentatorOne' }, { id: 'commentator2', label: 'Commentator 2', value: commentator2, subtitleId: 'subtitle2', subtitleValue: subtitle2, keyName: 'CommentatorTwo' }, { id: 'commentator3', label: 'Commentator 3', value: commentator3, subtitleId: 'subtitle3', subtitleValue: subtitle3, keyName: 'CommentatorThree' }, { id: 'commentator4', label: 'Commentator 4', value: commentator4, subtitleId: 'subtitle4', subtitleValue: subtitle4, keyName: 'CommentatorFour' }] as commentator}
-				<div class="rounded-xl border border-gray-800 bg-gray-900/50 p-4 backdrop-blur-sm">
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<div>
-							<label for={commentator.id} class="mb-1 block text-sm font-medium text-gray-300">
-								{commentator.label}
-							</label>
-							<input
-								id={commentator.id}
-								type="text"
-								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-								placeholder="Name"
-								bind:value={commentator.value}
-								on:input={(e) =>
-									updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
-							/>
-						</div>
-						<div>
-							<label
-								for={commentator.subtitleId}
-								class="mb-1 block text-sm font-medium text-gray-300">Subtitle</label
-							>
-							<input
-								id={commentator.subtitleId}
-								type="text"
-								class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-								placeholder="Title or role"
-								bind:value={commentator.subtitleValue}
-								on:input={(e) =>
-									updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
-							/>
-						</div>
-					</div>
+		<!-- The event -->
+		<section class="panel" aria-label="Event">
+			<p class="caption">Event</p>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<div class="sm:col-span-2">
+					<label for="event-text" class="field-label">Event text</label>
+					<input
+						id="event-text"
+						type="text"
+						class="field"
+						placeholder="e.g., STL Players Champs"
+						bind:value={eventText}
+						on:input={(e) => updateDatabase('eventText', e.target.value)}
+					/>
+					<p class="hint">On every overlay's heading, and at /views/eventtext.</p>
 				</div>
-			{/each}
-		</div>
-
-		<!-- Event Settings Section -->
-		<div class="mt-8 rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
-			<h2 class="mb-4 font-display text-lg font-semibold text-white">Event Settings</h2>
-			<div class="space-y-4">
 				<div>
-					<label for="format" class="mb-1 block text-sm font-medium text-gray-300">Format</label>
+					<label for="format" class="field-label">Format</label>
 					<input
 						id="format"
 						type="text"
-						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-						placeholder="e.g., Blitz, Classic Constructed"
+						class="field"
+						placeholder="e.g., Classic Constructed"
 						bind:value={format}
 						on:input={(e) => updateDatabase('format', e.target.value)}
 					/>
 				</div>
-
 				<div>
-					<label for="set-dropdown" class="mb-1 block text-sm font-medium text-gray-300"
-						>Draft Set</label
-					>
+					<label for="set-dropdown" class="field-label">Draft set</label>
 					<select
 						id="set-dropdown"
-						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+						class="field"
 						bind:value={selectedSet}
 						on:change={(e) => updateDatabase('draftTool/selectedSet', e.target.value)}
 					>
@@ -194,43 +168,58 @@
 						{/each}
 					</select>
 				</div>
-
-				<div>
-					<label for="event-text" class="mb-1 block text-sm font-medium text-gray-300"
-						>Event Text</label
-					>
-					<input
-						id="event-text"
-						type="text"
-						class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder:text-gray-500 transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-						placeholder="e.g., Pro Tour Chicago 2025"
-						bind:value={eventText}
-						on:input={(e) => updateDatabase('eventText', e.target.value)}
-					/>
-					<p class="mt-1 text-xs text-gray-500">View at /views/eventtext</p>
-				</div>
 			</div>
-		</div>
+		</section>
 
-		<!-- Timer Presets Section -->
-		<div class="mt-8 rounded-xl border border-gray-800 bg-gray-900/50 p-6 backdrop-blur-sm">
+		<!-- The desk -->
+		<section class="panel" aria-label="Commentators">
+			<p class="caption">Commentators</p>
+			<div class="grid gap-3 sm:grid-cols-2">
+				{#each [{ id: 'commentator1', n: '01', value: commentator1, subtitleId: 'subtitle1', subtitleValue: subtitle1, keyName: 'CommentatorOne' }, { id: 'commentator2', n: '02', value: commentator2, subtitleId: 'subtitle2', subtitleValue: subtitle2, keyName: 'CommentatorTwo' }, { id: 'commentator3', n: '03', value: commentator3, subtitleId: 'subtitle3', subtitleValue: subtitle3, keyName: 'CommentatorThree' }, { id: 'commentator4', n: '04', value: commentator4, subtitleId: 'subtitle4', subtitleValue: subtitle4, keyName: 'CommentatorFour' }] as commentator (commentator.id)}
+					<div class="seat">
+						<span class="seat-no">{commentator.n}</span>
+						<div class="min-w-0 flex-1 space-y-2">
+							<div>
+								<label for={commentator.id} class="field-label">Name</label>
+								<input
+									id={commentator.id}
+									type="text"
+									class="field"
+									placeholder="Name"
+									bind:value={commentator.value}
+									on:input={(e) =>
+										updateDatabase(`commentators/${commentator.keyName}/name`, e.target.value)}
+								/>
+							</div>
+							<div>
+								<label for={commentator.subtitleId} class="field-label">Subtitle</label>
+								<input
+									id={commentator.subtitleId}
+									type="text"
+									class="field"
+									placeholder="Title or role"
+									bind:value={commentator.subtitleValue}
+									on:input={(e) =>
+										updateDatabase(`commentators/${commentator.keyName}/subtitle`, e.target.value)}
+								/>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</section>
+
+		<!-- The clocks -->
+		<section class="panel" aria-label="Timer presets">
 			<div class="mb-1 flex items-baseline justify-between gap-3">
-				<h2 class="font-display text-lg font-semibold text-white">Timer Presets</h2>
-				<button
-					type="button"
-					on:click={resetTimerPresets}
-					class="rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-400 transition-colors hover:border-gray-600 hover:text-white"
-					>Reset</button
-				>
+				<p class="caption">Timer presets</p>
+				<button type="button" on:click={resetTimerPresets} class="link-btn">Reset</button>
 			</div>
-			<p class="mb-4 text-sm text-gray-400">
-				The two one-tap buttons behind each timer in the production booth.
-			</p>
-
-			<div class="space-y-4">
-				{#each [{ type: 'Round', accent: 'text-blue-400', focus: 'focus:border-blue-500 focus:ring-blue-500' }, { type: 'Break', accent: 'text-purple-400', focus: 'focus:border-purple-500 focus:ring-purple-500' }] as t (t.type)}
-					<div>
-						<span class="mb-1 block text-sm font-medium {t.accent}">{t.type}</span>
+			<p class="hint mb-4">The two one-tap lengths behind each clock in the production booth.</p>
+			<div class="grid gap-4 sm:grid-cols-2">
+				{#each [{ type: 'Round' }, { type: 'Break' }] as t (t.type)}
+					<div class="seat stacked">
+						<span class="field-label">{t.type}</span>
 						<div class="grid grid-cols-2 gap-3">
 							{#each [0, 1] as slot (slot)}
 								<div class="relative">
@@ -241,12 +230,12 @@
 										max="600"
 										step="0.5"
 										aria-label="{t.type} preset {slot + 1}, minutes"
-										class="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 pr-12 text-white transition-colors focus:ring-1 focus:outline-none {t.focus}"
+										class="field pr-12 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 										value={timerPresets[t.type][slot]}
 										on:change={(e) => saveTimerPreset(t.type, slot, e.target)}
 									/>
 									<span
-										class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-500"
+										class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-semibold uppercase tracking-wider text-[#d9b499]"
 										>min</span
 									>
 								</div>
@@ -255,6 +244,48 @@
 					</div>
 				{/each}
 			</div>
-		</div>
+		</section>
 	</div>
 </div>
+
+<style lang="postcss">
+	/* The overlays' look, for a page: translucent dark panels with a tan edge,
+	   small tan captions, square corners throughout. */
+	.panel {
+		@apply mb-6 border-l-4 border-[#d9b499] bg-gray-900/60 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)];
+	}
+
+	.caption {
+		@apply mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-[#d9b499];
+	}
+
+	.field-label {
+		@apply mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-400;
+	}
+
+	.field {
+		@apply w-full border border-gray-700 bg-gray-950/70 px-3 py-2 text-white placeholder:text-gray-600 transition-colors focus:border-[#d9b499] focus:outline-none focus:ring-1 focus:ring-[#d9b499];
+	}
+
+	.hint {
+		@apply mt-1 text-xs text-gray-500;
+	}
+
+	/* A commentator's seat: the number large and faint at the left, as the
+	   bars carry their rank. */
+	.seat {
+		@apply flex gap-3 bg-white/[0.04] p-3;
+	}
+
+	.seat.stacked {
+		display: block;
+	}
+
+	.seat-no {
+		@apply w-9 flex-none pt-5 text-center text-2xl font-black leading-none text-[#d9b499]/60;
+	}
+
+	.link-btn {
+		@apply text-xs font-semibold uppercase tracking-wider text-gray-400 transition-colors hover:text-white;
+	}
+</style>

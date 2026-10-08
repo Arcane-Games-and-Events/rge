@@ -29,18 +29,18 @@
 	// Spelled out in full so the CSS purge pass keeps them.
 	const accent = isTableOne
 		? {
-				border: 'border-purple-500/30',
+				border: 'border-[#d9b499]',
 				label: 'text-purple-400',
-				focus: 'focus:border-purple-500',
+				focus: 'focus:border-[#d9b499]',
 				chip: 'bg-purple-600/20 text-purple-400 border-purple-500/30 hover:bg-purple-600 hover:text-white',
 				option: 'bg-purple-600/40',
 				send: 'bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600',
 				dismiss: 'bg-red-500 hover:bg-red-400'
 			}
 		: {
-				border: 'border-orange-500/30',
+				border: 'border-[#d9b499]',
 				label: 'text-orange-400',
-				focus: 'focus:border-orange-500',
+				focus: 'focus:border-[#d9b499]',
 				chip: 'bg-orange-600/20 text-orange-400 border-orange-500/30 hover:bg-orange-600 hover:text-white',
 				option: 'bg-orange-600/40',
 				send: 'bg-gradient-to-r from-orange-600 to-amber-700 hover:from-orange-500 hover:to-amber-600',
@@ -277,7 +277,7 @@
 	onDestroy(() => clearTimeout(startSignalTimer));
 </script>
 
-<section class="rounded-lg border {accent.border} bg-gray-900 p-2">
+<section class="border-l-4 {accent.border} bg-gray-900/60 p-2">
 	<header class="mb-1.5 flex items-center justify-between gap-2">
 		<h2 class="text-[10px] font-semibold uppercase tracking-wider {accent.label}">Table {index}</h2>
 		<div class="flex items-center gap-1">
@@ -285,20 +285,20 @@
 				type="button"
 				on:click={switchPlayers}
 				aria-label="Swap Table {index} players"
-				class="h-7 rounded border px-2 text-[10px] font-medium transition-colors {accent.chip}"
+				class="h-7 border px-2 text-[10px] font-medium transition-colors {accent.chip}"
 			>
 				Swap
 			</button>
 			<button
 				type="button"
 				on:click={() => resetLife(20)}
-				class="h-7 rounded bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
+				class="h-7 bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
 				>20</button
 			>
 			<button
 				type="button"
 				on:click={() => resetLife(40)}
-				class="h-7 rounded bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
+				class="h-7 bg-gray-800 px-2 text-[10px] text-gray-300 transition-colors hover:bg-gray-700"
 				>40</button
 			>
 		</div>
@@ -306,10 +306,10 @@
 
 	<div class="grid gap-1.5 sm:grid-cols-2">
 		{#each seats as seat (seat.id)}
-			<div class="space-y-1 rounded bg-gray-800/40 p-1.5">
+			<div class="space-y-1 bg-gray-800/40 p-1.5">
 				<!-- Seat label, life and its buttons on one line: the total is never
 				     far from the control that changes it. -->
-				<div class="flex items-center gap-1.5 rounded bg-gray-900/70 px-1.5 py-1">
+				<div class="flex items-center gap-1.5 bg-gray-900/70 px-1.5 py-1">
 					<span class="w-4 flex-none text-[10px] font-semibold uppercase {seat.accent}">
 						{seat.label}
 					</span>
@@ -317,7 +317,7 @@
 						type="button"
 						aria-label="{seat.label} life down"
 						on:click={() => adjustLife(seat.id, -1)}
-						class="h-9 w-9 flex-none rounded bg-red-600/20 text-xl font-bold leading-none text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
+						class="h-9 w-9 flex-none bg-red-600/20 text-xl font-bold leading-none text-red-400 transition-colors hover:bg-red-600 hover:text-white active:bg-red-700"
 						>−</button
 					>
 					<span
@@ -331,7 +331,7 @@
 						type="button"
 						aria-label="{seat.label} life up"
 						on:click={() => adjustLife(seat.id, 1)}
-						class="h-9 w-9 flex-none rounded bg-green-600/20 text-xl font-bold leading-none text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
+						class="h-9 w-9 flex-none bg-green-600/20 text-xl font-bold leading-none text-green-400 transition-colors hover:bg-green-600 hover:text-white active:bg-green-700"
 						>+</button
 					>
 				</div>
@@ -341,7 +341,7 @@
 					     transparent over it, so picking still uses the native dropdown. Only
 					     the /views/lss overlays render the flag. -->
 					<span
-						class="relative flex h-9 w-9 flex-none items-center justify-center overflow-hidden rounded border border-gray-700 bg-gray-900"
+						class="relative flex h-9 w-9 flex-none items-center justify-center overflow-hidden border border-gray-700 bg-gray-950/70"
 					>
 						{#if players[seat.id].flag}
 							<span
@@ -367,7 +367,7 @@
 					<input
 						type="text"
 						placeholder="Name"
-						class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
+						class="h-9 min-w-0 flex-1 border border-gray-700 bg-gray-950/70 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
 						bind:value={players[seat.id].name}
 						on:input={(e) => handleInputChange(seat.id, 'name', e.target.value)}
 					/>
@@ -375,7 +375,7 @@
 						type="text"
 						placeholder="0-0"
 						aria-label="{seat.label} record"
-						class="h-9 w-12 flex-none rounded border border-gray-700 bg-gray-900 px-1 text-center font-mono text-xs text-white transition-colors focus:outline-none {accent.focus}"
+						class="h-9 w-12 flex-none border border-gray-700 bg-gray-950/70 px-1 text-center font-mono text-xs text-white transition-colors focus:outline-none {accent.focus}"
 						bind:value={players[seat.id].record}
 						on:input={(e) => handleInputChange(seat.id, 'record', e.target.value)}
 					/>
@@ -384,7 +384,7 @@
 				<div class="flex items-center gap-1">
 					<select
 						aria-label="{seat.label} pronouns"
-						class="h-9 w-20 flex-none rounded border border-gray-700 bg-gray-900 px-1 text-xs text-gray-300 transition-colors focus:outline-none {accent.focus}"
+						class="h-9 w-20 flex-none border border-gray-700 bg-gray-950/70 px-1 text-xs text-gray-300 transition-colors focus:outline-none {accent.focus}"
 						bind:value={players[seat.id].pronouns}
 						on:change={(e) => handleInputChange(seat.id, 'pronouns', e.target.value)}
 					>
@@ -397,7 +397,7 @@
 						<input
 							type="text"
 							placeholder="Hero..."
-							class="h-9 w-full rounded border border-gray-700 bg-gray-900 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
+							class="h-9 w-full border border-gray-700 bg-gray-950/70 px-1.5 text-sm text-white placeholder-gray-500 transition-colors focus:outline-none {accent.focus}"
 							role="combobox"
 							aria-controls="t{index}-{seat.id}-hero-list"
 							aria-expanded={players[seat.id].isDropdownOpen}
@@ -414,7 +414,7 @@
 							<ul
 								id="t{index}-{seat.id}-hero-list"
 								role="listbox"
-								class="absolute z-20 mt-1 max-h-44 w-full overflow-auto rounded border border-gray-700 bg-gray-900 py-0.5 shadow-xl"
+								class="absolute z-20 mt-1 max-h-44 w-full overflow-auto border border-gray-700 bg-gray-950/70 py-0.5 shadow-xl"
 							>
 								{#each players[seat.id].filteredHeroes as hero, idx (hero.name)}
 									<li
@@ -435,12 +435,12 @@
 												<img
 													src={hero.image}
 													alt=""
-													class="h-5 w-5 flex-none rounded object-cover"
+													class="h-5 w-5 flex-none object-cover"
 													loading="lazy"
 												/>
 											{:else}
 												<span
-													class="flex h-5 w-5 flex-none items-center justify-center rounded bg-gray-700 text-[9px] font-bold text-gray-400"
+													class="flex h-5 w-5 flex-none items-center justify-center bg-gray-700 text-[9px] font-bold text-gray-400"
 												>
 													{hero.name.charAt(0)}
 												</span>
@@ -464,7 +464,7 @@
 				type="button"
 				on:click={clearPregame}
 				title="Close the pregame form on the scorekeeper"
-				class="h-9 flex-none rounded px-2.5 text-xs font-bold text-white transition-colors {pregame.submitted
+				class="h-9 flex-none px-2.5 text-xs font-bold text-white transition-colors {pregame.submitted
 					? 'bg-emerald-600 hover:bg-emerald-500'
 					: 'animate-pulse bg-amber-600 hover:bg-amber-500'}"
 			>
@@ -475,7 +475,7 @@
 				type="button"
 				on:click={sendPregame}
 				title="Open the pregame form on the scorekeeper: pronouns, the roll, who plays first"
-				class="h-9 flex-none rounded bg-gray-800 px-2.5 text-xs font-bold text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+				class="h-9 flex-none bg-gray-800 px-2.5 text-xs font-bold text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
 			>
 				Pregame
 			</button>
@@ -484,7 +484,7 @@
 			type="button"
 			on:click={triggerStartSignal}
 			disabled={startActive}
-			class="h-9 flex-none rounded px-2.5 text-xs font-bold transition-all {startActive
+			class="h-9 flex-none px-2.5 text-xs font-bold transition-all {startActive
 				? 'animate-pulse cursor-not-allowed bg-green-500 text-white'
 				: 'bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-500 hover:to-emerald-600'}"
 		>
@@ -496,13 +496,13 @@
 			on:keydown={(e) => e.key === 'Enter' && triggerCustomSignal()}
 			placeholder="Custom message…"
 			disabled={customActive}
-			class="h-9 min-w-0 flex-1 rounded border border-gray-700 bg-gray-800 px-1.5 text-xs transition-colors focus:outline-none disabled:opacity-50 {accent.focus}"
+			class="h-9 min-w-0 flex-1 border border-gray-700 bg-gray-950/70 px-1.5 text-xs transition-colors focus:outline-none disabled:opacity-50 {accent.focus}"
 		/>
 		{#if customActive}
 			<button
 				type="button"
 				on:click={dismissCustomSignal}
-				class="h-9 flex-none animate-pulse rounded px-2.5 text-xs font-bold text-white transition-colors {accent.dismiss}"
+				class="h-9 flex-none animate-pulse px-2.5 text-xs font-bold text-white transition-colors {accent.dismiss}"
 			>
 				Dismiss
 			</button>
@@ -511,7 +511,7 @@
 				type="button"
 				on:click={triggerCustomSignal}
 				disabled={!customText.trim()}
-				class="h-9 flex-none rounded px-2.5 text-xs font-bold transition-colors {customText.trim()
+				class="h-9 flex-none px-2.5 text-xs font-bold transition-colors {customText.trim()
 					? `${accent.send} text-white`
 					: 'cursor-not-allowed bg-gray-800 text-gray-500'}"
 			>

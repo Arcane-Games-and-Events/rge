@@ -339,18 +339,15 @@
 	<!-- Keyboard hints -->
 	<div class="flex items-center justify-between gap-2">
 		<div class="text-[10px] text-gray-500 hidden sm:flex flex-wrap items-center gap-1">
-			<kbd class="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">↑↓</kbd> card
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">←→</kbd>
+			<kbd class="px-1.5 py-0.5 bg-gray-800 border border-gray-700 font-mono">↑↓</kbd> card
+			<kbd class="ml-1 px-1.5 py-0.5 bg-gray-800 border border-gray-700 font-mono">←→</kbd>
 			pitch
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
-				>Enter</kbd
-			>
+			<kbd class="ml-1 px-1.5 py-0.5 bg-gray-800 border border-gray-700 font-mono">Enter</kbd>
 			air
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono">Esc</kbd>
+			<kbd class="ml-1 px-1.5 py-0.5 bg-gray-800 border border-gray-700 font-mono">Esc</kbd>
 			clear
-			<kbd class="ml-1 px-1.5 py-0.5 rounded bg-gray-800 border border-gray-700 font-mono"
-				>Shift+\</kbd
-			> focus / exit
+			<kbd class="ml-1 px-1.5 py-0.5 bg-gray-800 border border-gray-700 font-mono">Shift+\</kbd> focus
+			/ exit
 		</div>
 		{#if flash}
 			<div class="text-[10px] font-medium text-green-400 whitespace-nowrap">On air: {flash}</div>
@@ -364,7 +361,7 @@
 				bind:this={inputEl}
 				type="text"
 				placeholder="Search card... (try pitch:1 or class:brute)"
-				class="h-9 w-full rounded border border-gray-700 bg-gray-800 px-2 text-sm transition-colors focus:border-blue-500 focus:outline-none"
+				class="h-9 w-full border border-gray-700 bg-gray-950/70 px-2 text-sm transition-colors focus:border-[#d9b499] focus:outline-none"
 				role="combobox"
 				aria-controls="card-options"
 				aria-expanded={listOpen}
@@ -386,7 +383,7 @@
 		</div>
 		<button
 			type="button"
-			class="h-9 flex-shrink-0 rounded px-2.5 text-xs text-gray-400 transition-colors bg-gray-800 hover:bg-red-600 hover:text-white"
+			class="h-9 flex-shrink-0 px-2.5 text-xs text-gray-400 transition-colors bg-gray-800 hover:bg-red-600 hover:text-white"
 			on:click={handleClear}
 		>
 			Clear
@@ -396,7 +393,7 @@
 	<!-- Results: one row per card name, pitches inline -->
 	{#if listOpen && groups.length > 0}
 		<ul
-			class="max-h-56 overflow-auto rounded border border-gray-700 bg-gray-800/50 py-0.5"
+			class="max-h-56 overflow-auto border border-gray-700 bg-gray-950/70/50 py-0.5"
 			id="card-options"
 			role="listbox"
 		>
@@ -425,7 +422,7 @@
 								type="button"
 								title={variant.pitch ? `Pitch ${variant.pitch}` : variant.typeText}
 								aria-label={variant.pitch ? `${group.name} pitch ${variant.pitch}` : group.name}
-								class="w-6 rounded border text-center text-[11px] font-mono leading-5 transition-colors {pitchColor(
+								class="w-6 border text-center text-[11px] font-mono leading-5 transition-colors {pitchColor(
 									variant.pitch,
 									groupIndex === gIndex && variantIndex === vIndex
 								)}"
@@ -447,11 +444,11 @@
 			{/each}
 		</ul>
 	{:else if listOpen && isSearching}
-		<div class="rounded border border-gray-700 bg-gray-800/50 py-2 px-2 text-xs text-gray-500">
+		<div class="border border-gray-700 bg-gray-950/70/50 py-2 px-2 text-xs text-gray-500">
 			Searching…
 		</div>
 	{:else if listOpen && query.trim() && !isSearching}
-		<div class="rounded border border-gray-700 bg-gray-800/50 py-2 px-2 text-xs text-gray-500">
+		<div class="border border-gray-700 bg-gray-950/70/50 py-2 px-2 text-xs text-gray-500">
 			No cards found
 		</div>
 	{/if}
@@ -461,15 +458,11 @@
 		<div class="flex flex-col items-center gap-1 pt-1">
 			<div class="flex items-center gap-1.5 text-[10px] font-medium">
 				{#if isLive}
-					<span
-						class="rounded bg-green-500/20 px-1.5 py-0.5 text-green-400 border border-green-500/40"
-					>
+					<span class="bg-green-500/20 px-1.5 py-0.5 text-green-400 border border-green-500/40">
 						ON AIR
 					</span>
 				{:else}
-					<span
-						class="rounded bg-gray-700/50 px-1.5 py-0.5 text-gray-400 border border-gray-600/40"
-					>
+					<span class="bg-gray-700/50 px-1.5 py-0.5 text-gray-400 border border-gray-600/40">
 						PREVIEW · Enter to air
 					</span>
 				{/if}
@@ -480,7 +473,7 @@
 			<img
 				src={previewUrl}
 				alt={previewCard.name}
-				class="w-full max-w-[26rem] rounded shadow-lg {isLive ? '' : 'opacity-70'}"
+				class="w-full max-w-[26rem] shadow-lg {isLive ? '' : 'opacity-70'}"
 				on:error={handlePreviewImageError}
 			/>
 		</div>

@@ -7,6 +7,7 @@
 	import { FLAG_COUNTRIES } from '$lib/flags';
 	import { PRONOUN_OPTIONS } from '$lib/pronouns';
 	import { CHOICE_PATH, CHOICES, toChoice } from '$lib/choice';
+	import { pregamePath, pregamePayload, PREGAME_CLEARED } from '$lib/pregame';
 	import JudgeGuide from '$lib/JudgeGuide.svelte';
 	import 'flag-icons/css/flag-icons.min.css';
 	import '$lib/flagOverrides.css';
@@ -38,6 +39,17 @@
 
 	let players = { p1: blankSeat(), p2: blankSeat() };
 	let life = { p1: 20, p2: 20 };
+
+	// The pregame form on the table's scorekeeper, sent from here as from the
+	// booth: the players fill in pronouns, the roll and who plays first.
+	// Sending it starts a new game, so the life history is wiped with it.
+	const pregameSignalPath = pregamePath(1);
+	let pregame = { active: false, submitted: false };
+	const sendPregame = async () => {
+		await set(ref(db, `${LIFE_PATH}/history`), null);
+		await set(ref(db, pregameSignalPath), pregamePayload());
+	};
+	const clearPregame = () => set(ref(db, pregameSignalPath), PREGAME_CLEARED);
 	let choice = '';
 	let ready = false;
 
@@ -197,6 +209,12 @@
 			);
 		}
 		unsubs.push(onValue(ref(db, CHOICE_PATH), (snap) => (choice = toChoice(snap.val()))));
+		unsubs.push(
+			onValue(ref(db, pregameSignalPath), (snap) => {
+				const data = snap.val() || {};
+				pregame = { active: !!data.active, submitted: !!data.submitted };
+			})
+		);
 
 		document.addEventListener('click', closePickers);
 	});
@@ -289,6 +307,29 @@
 				</button>
 			{/each}
 		</div>
+
+		<!-- The pregame form on the scorekeeper: open it, or close it once filled in -->
+		{#if pregame.active}
+			<button
+				type="button"
+				on:click={clearPregame}
+				class="mt-2 h-12 w-full rounded text-sm font-bold text-white transition-colors {pregame.submitted
+					? 'bg-emerald-600 active:bg-emerald-500'
+					: 'animate-pulse bg-amber-600 active:bg-amber-500'}"
+			>
+				{pregame.submitted
+					? 'Pregame form filled in · tap to close'
+					: 'Pregame form open on the scorekeeper · tap to close'}
+			</button>
+		{:else}
+			<button
+				type="button"
+				on:click={sendPregame}
+				class="mt-2 h-12 w-full rounded bg-purple-600 text-sm font-bold text-white transition-colors active:bg-purple-500"
+			>
+				Open the pregame form on the scorekeeper
+			</button>
+		{/if}
 	</section>
 
 	<!-- Who chose -->

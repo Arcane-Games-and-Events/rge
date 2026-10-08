@@ -42,15 +42,17 @@
 	});
 </script>
 
-<div class="flex items-center gap-1.5 rounded-lg border border-gray-800 bg-gray-900 p-1.5">
-	<span class="text-[9px] font-semibold uppercase leading-none text-amber-400">Turn</span>
+<div class="flex items-center gap-1.5 border-l-4 border-[#d9b499] bg-gray-900/60 p-1.5">
+	<span class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] text-[#d9b499]"
+		>Turn</span
+	>
 
 	<button
 		type="button"
 		aria-label="Previous turn"
 		on:click={() => step(-1)}
 		disabled={turn <= MIN_TURN}
-		class="h-8 w-8 flex-none rounded bg-gray-800 text-lg font-bold leading-none text-gray-300 transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:text-gray-600"
+		class="h-8 w-8 flex-none bg-gray-800 text-lg font-bold leading-none text-gray-300 transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:text-gray-600"
 		>−</button
 	>
 
@@ -62,7 +64,7 @@
 		type="button"
 		aria-label="Next turn"
 		on:click={() => step(1)}
-		class="h-8 w-8 flex-none rounded bg-amber-600/30 text-lg font-bold leading-none text-amber-300 transition-colors hover:bg-amber-600 hover:text-white"
+		class="h-8 w-8 flex-none bg-amber-600/30 text-lg font-bold leading-none text-amber-300 transition-colors hover:bg-amber-600 hover:text-white"
 		>+</button
 	>
 
@@ -70,13 +72,13 @@
 		type="button"
 		aria-label="Reset the turn counter"
 		on:click={reset}
-		class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+		class="h-8 w-8 flex-none bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
 		>↺</button
 	>
 
 	<span class="ml-auto hidden text-[10px] text-gray-500 sm:block">
-		<kbd class="rounded border border-gray-700 bg-gray-800 px-1 py-0.5 font-mono">Shift</kbd>
+		<kbd class="border border-gray-700 bg-gray-950/70 px-1 py-0.5 font-mono">Shift</kbd>
 		+
-		<kbd class="rounded border border-gray-700 bg-gray-800 px-1 py-0.5 font-mono">↑↓</kbd>
+		<kbd class="border border-gray-700 bg-gray-950/70 px-1 py-0.5 font-mono">↑↓</kbd>
 	</span>
 </div>

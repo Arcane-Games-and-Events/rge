@@ -251,7 +251,7 @@
 					? 'block'
 					: 'hidden'} order-2 md:order-1 md:sticky md:top-1.5 md:block md:self-start"
 			>
-				<div class="rounded-lg border border-gray-800 bg-gray-900 p-2">
+				<div class="border-l-4 border-[#d9b499] bg-gray-900/60 p-2">
 					<CardReader />
 				</div>
 			</aside>
@@ -260,11 +260,13 @@
 			<div class="order-1 min-w-0 space-y-1.5 md:order-2">
 				<!-- Timer row -->
 				<div class="grid grid-cols-2 gap-1.5">
-					{#each [{ type: 'Round', presets: presets.Round, accent: 'text-blue-400', hover: 'hover:bg-blue-600', focus: 'focus:border-blue-500' }, { type: 'Break', presets: presets.Break, accent: 'text-purple-400', hover: 'hover:bg-purple-600', focus: 'focus:border-purple-500' }] as t (t.type)}
+					{#each [{ type: 'Round', presets: presets.Round, accent: 'text-[#d9b499]', hover: 'hover:bg-blue-600', focus: 'focus:border-[#d9b499]' }, { type: 'Break', presets: presets.Break, accent: 'text-[#d9b499]', hover: 'hover:bg-purple-600', focus: 'focus:border-[#d9b499]' }] as t (t.type)}
 						<div
-							class="flex flex-wrap items-center gap-1 rounded-lg border border-gray-800 bg-gray-900 p-1.5"
+							class="flex flex-wrap items-center gap-1 border-l-4 border-[#d9b499] bg-gray-900/60 p-1.5"
 						>
-							<span class="text-[9px] font-semibold uppercase leading-none {t.accent}">
+							<span
+								class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] {t.accent}"
+							>
 								{t.type}
 							</span>
 							<span
@@ -280,9 +282,8 @@
 								type="button"
 								on:click={() => toggleTimer(t.type)}
 								aria-label="{timers[t.type].isPaused ? 'Start' : 'Pause'} {t.type} timer"
-								class="h-8 w-8 flex-none rounded text-sm font-medium transition-colors {timers[
-									t.type
-								].isPaused
+								class="h-8 w-8 flex-none text-sm font-medium transition-colors {timers[t.type]
+									.isPaused
 									? 'bg-green-600 hover:bg-green-500'
 									: 'bg-yellow-600 hover:bg-yellow-500'}"
 							>
@@ -292,7 +293,7 @@
 								type="button"
 								on:click={() => resetTimer(t.type)}
 								aria-label="Reset {t.type} timer"
-								class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+								class="h-8 w-8 flex-none bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
 								>↺</button
 							>
 
@@ -302,7 +303,7 @@
 										type="button"
 										on:click={toggleCountUp}
 										aria-label="Round counts {timers.Round.isCountingUp ? 'up' : 'down'}"
-										class="h-8 flex-none rounded px-1.5 text-[10px] font-medium transition-colors {timers
+										class="h-8 flex-none px-1.5 text-[10px] font-medium transition-colors {timers
 											.Round.isCountingUp
 											? 'bg-blue-600 text-white'
 											: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
@@ -314,7 +315,7 @@
 									<button
 										type="button"
 										on:click={() => setTimer('Round', 0)}
-										class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
+										class="h-8 max-w-20 flex-1 bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
 										>Start</button
 									>
 								{:else}
@@ -322,7 +323,7 @@
 										<button
 											type="button"
 											on:click={() => setTimer(t.type, m)}
-											class="h-8 max-w-20 flex-1 rounded bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
+											class="h-8 max-w-20 flex-1 bg-gray-800 text-[11px] font-medium transition-colors {t.hover}"
 											>{m}m</button
 										>
 									{/each}
@@ -333,7 +334,7 @@
 									on:keydown={(e) => e.key === 'Enter' && setCustomTimer(t.type)}
 									placeholder="min"
 									aria-label="Custom {t.type} minutes"
-									class="h-8 w-11 flex-none rounded border border-gray-700 bg-gray-800 px-0.5 text-center text-[11px] [appearance:textfield] focus:outline-none {t.focus} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+									class="h-8 w-11 flex-none border border-gray-700 bg-gray-950/70 px-0.5 text-center text-[11px] [appearance:textfield] focus:outline-none {t.focus} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 								/>
 							</div>
 						</div>
@@ -346,7 +347,7 @@
 				<ChoiceControl />
 
 				<!-- Round info / status row -->
-				<div class="rounded-lg border border-gray-800 bg-gray-900 p-1.5">
+				<div class="border-l-4 border-[#d9b499] bg-gray-900/60 p-1.5">
 					<MatchInfo />
 				</div>
 
@@ -357,8 +358,7 @@
 							type="button"
 							aria-current={activeSection === section.id}
 							on:click={() => (activeSection = section.id)}
-							class="h-8 rounded text-[11px] font-medium transition-colors {activeSection ===
-							section.id
+							class="h-8 text-[11px] font-medium transition-colors {activeSection === section.id
 								? 'bg-blue-600 text-white'
 								: 'bg-gray-900 text-gray-400 hover:bg-gray-800'}"
 						>
@@ -375,7 +375,7 @@
 
 				<!-- Commentators -->
 				<div class="{activeSection === 'booth' ? 'block' : 'hidden'} md:block">
-					<div class="rounded-lg border border-gray-800 bg-gray-900 p-2">
+					<div class="border-l-4 border-[#d9b499] bg-gray-900/60 p-2">
 						<CommentatorBooth />
 					</div>
 				</div>

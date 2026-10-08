@@ -24,21 +24,25 @@
 
 <div class="grid grid-cols-2 gap-1.5">
 	<label class="flex flex-col gap-1">
-		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Round Info</span>
+		<span class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] text-[#d9b499]"
+			>Round Info</span
+		>
 		<input
 			type="text"
 			placeholder="Round"
-			class="h-9 min-w-0 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+			class="h-9 min-w-0 border border-gray-700 bg-gray-950/70 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-[#d9b499] focus:outline-none"
 			bind:value={roundInfo}
 			on:input={(e) => save('roundInfo', e.target.value)}
 		/>
 	</label>
 	<label class="flex flex-col gap-1">
-		<span class="text-[9px] font-semibold uppercase leading-none text-gray-500">Status</span>
+		<span class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] text-[#d9b499]"
+			>Status</span
+		>
 		<input
 			type="text"
 			placeholder="Status"
-			class="h-9 min-w-0 rounded border border-gray-700 bg-gray-900 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-gray-500 focus:outline-none"
+			class="h-9 min-w-0 border border-gray-700 bg-gray-950/70 px-2 text-sm text-white placeholder-gray-500 transition-colors focus:border-[#d9b499] focus:outline-none"
 			bind:value={tournamentStatus}
 			on:input={(e) => save('tournamentStatus', e.target.value)}
 		/>

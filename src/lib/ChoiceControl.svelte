@@ -34,8 +34,10 @@
 	];
 </script>
 
-<div class="flex items-center gap-1.5 rounded-lg border border-gray-800 bg-gray-900 p-1.5">
-	<span class="text-[9px] font-semibold uppercase leading-none text-amber-400">Chose</span>
+<div class="flex items-center gap-1.5 border-l-4 border-[#d9b499] bg-gray-900/60 p-1.5">
+	<span class="text-[9px] font-semibold uppercase leading-none tracking-[0.18em] text-[#d9b499]"
+		>Chose</span
+	>
 
 	{#each SEATS as side (side.seat)}
 		<div class="flex flex-1 items-center gap-1">
@@ -47,8 +49,7 @@
 					aria-pressed={choice === key}
 					aria-label={CHOICES[key].label}
 					on:click={() => press(key)}
-					class="h-8 flex-1 rounded text-[11px] font-medium capitalize transition-colors {choice ===
-					key
+					class="h-8 flex-1 text-[11px] font-medium capitalize transition-colors {choice === key
 						? 'bg-amber-600 text-white'
 						: 'bg-gray-800 text-gray-400 hover:bg-gray-700'}"
 				>
@@ -64,7 +65,7 @@
 		aria-label="Clear the choice"
 		on:click={() => save('')}
 		disabled={!choice}
-		class="h-8 w-8 flex-none rounded bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
+		class="h-8 w-8 flex-none bg-gray-800 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
 		>✕</button
 	>
 </div>
