@@ -127,7 +127,7 @@
 				Match Coverage
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-				{#each [{ href: '/views/castingbooth', label: 'Casting Booth' }, { href: '/views/roundinfo', label: 'Round Info' }, { href: '/views/playerinfo', label: 'Player Info' }, { href: '/views/lifecounter', label: 'Life Counter' }, { href: '/views/timer', label: 'Timer' }, { href: '/views/cardreader', label: 'Card Reader' }, { href: '/views/eventtext', label: 'Event Text' }, { href: '/views/topics', label: 'Topics' }, { href: '/views/choice', label: 'Turn Choice' }, { href: '/views/matchintro', label: 'Match Intro' }, { href: '/views/upcomingevents', label: 'Upcoming Events' }, { href: '/views/prizing', label: 'Prizing' }, { href: '/views/caster', label: 'Caster Confidence' }] as item}
+				{#each [{ href: '/views/castingbooth', label: 'Casting Booth' }, { href: '/views/roundinfo', label: 'Round Info' }, { href: '/views/playerinfo', label: 'Player Info' }, { href: '/views/lifecounter', label: 'Life Counter' }, { href: '/views/timer', label: 'Timer' }, { href: '/views/cardreader', label: 'Card Reader' }, { href: '/views/eventtext', label: 'Event Text' }, { href: '/views/topics', label: 'Topics' }, { href: '/views/choice', label: 'Turn Choice' }, { href: '/views/matchintro', label: 'Match Intro' }, { href: '/views/upcomingevents', label: 'Upcoming Events' }, { href: '/views/prizing', label: 'Prizing' }, { href: '/views/caster', label: 'Caster Confidence' }, { href: '/views/scene', label: 'Scene' }] as item}
 					<div class="flex items-center gap-1">
 						<a
 							class="flex-1 border border-gray-800 bg-gray-950/60 px-3 py-2.5 text-sm text-gray-300 transition-colors hover:border-[#d9b499] hover:bg-gray-900 hover:text-white"
