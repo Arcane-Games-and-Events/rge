@@ -19,7 +19,8 @@
 				{ name: 'Events', href: '/events' },
 				{ name: 'Prizing', href: '/prizing' },
 				{ name: 'Metagame', href: '/metagame' },
-				{ name: 'Format', href: '/format' }
+				{ name: 'Format', href: '/format' },
+				{ name: 'Sponsor', href: '/sponsor' }
 			]
 		},
 		{

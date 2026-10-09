@@ -310,7 +310,7 @@
 				Tournament
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-				{#each [{ href: '/views/tournamentround', label: 'Pairings' }, { href: '/views/tournamentstandings', label: 'Standings' }, { href: '/views/metagame', label: 'Metagame' }, { href: '/views/topCut', label: 'Top 8 Bracket' }, { href: '/views/format', label: 'Swiss Format' }] as item}
+				{#each [{ href: '/views/tournamentround', label: 'Pairings' }, { href: '/views/tournamentstandings', label: 'Standings' }, { href: '/views/metagame', label: 'Metagame' }, { href: '/views/topCut', label: 'Top 8 Bracket' }, { href: '/views/format', label: 'Swiss Format' }, { href: '/views/sponsor', label: 'Sponsor Copy' }] as item}
 					<div class="flex items-center gap-1">
 						<a
 							class="flex-1 border border-gray-800 bg-gray-950/60 px-3 py-2.5 text-sm text-gray-300 transition-colors hover:border-[#d9b499] hover:bg-gray-900 hover:text-white"
