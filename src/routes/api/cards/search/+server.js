@@ -1,13 +1,14 @@
 // src/routes/api/cards/search/+server.js
 import { json } from '@sveltejs/kit';
 import Searcher from '@flesh-and-blood/search';
-import { cards } from '@flesh-and-blood/cards';
+import { cards, releases } from '@flesh-and-blood/cards';
 import { getCardImageIds } from '$lib/fabCardImage';
 
 // The card dataset is ~8MB, so it stays on the server and the browser only ever
 // receives the trimmed results below. The Searcher builds its index lazily on
 // first search and is reused across requests in a warm serverless instance.
-const searcher = new Searcher(cards);
+// Since 7.x it needs the releases to resolve set names and filters against.
+const searcher = new Searcher(cards, { releases });
 
 // Results are grouped by name in the UI, so this is a budget of cards rather
 // than of rows: a name with three pitches collapses to a single row.
